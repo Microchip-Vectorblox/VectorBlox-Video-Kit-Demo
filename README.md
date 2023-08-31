@@ -18,7 +18,7 @@
 
 This repository can be used to generate a VectorBlox demo using the PolarFire Video Kit. The demo can be used to accelerate VNNX neural networks on PolarFire, including a full video pipeline. A Libero SoC Tcl script is provided to generate the design using Libero SoC along with device specific I/O constraints.
 
-This repository supports Libero SoC v2022.3, which is available for download [here](https://www.microsemi.com/product-directory/design-resources/1750-libero-soc#downloads).
+This repository supports Libero SoC v2023.1, which is available for download [here](https://www.microsemi.com/product-directory/design-resources/1750-libero-soc#downloads).
 
 <a name="demo-building"></a>
 ## Building the application and configuring the SPI flash
