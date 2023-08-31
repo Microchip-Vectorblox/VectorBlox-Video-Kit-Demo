@@ -1,0 +1,12709 @@
+// ----------------------------------------------------------------------------
+// Smart High-Level Synthesis Tool Version 2023.1
+// Copyright (c) 2015-2023 Microchip Technology Inc. All Rights Reserved.
+// For support, please visit https://microchiptech.github.io/fpga-hls-docs/techsupport.html.
+// Date: Thu Jun 29 19:37:31 2023
+// ----------------------------------------------------------------------------
+`define MEMORY_CONTROLLER_ADDR_SIZE 32
+//
+// NOTE:// If you take this code outside the SmartHLS directory structure
+// into your own, then you should adjust this constant accordingly.
+// E.g. for simulation on Modelsim:
+//		vlog +define+MEM_INIT_DIR=/path/to/rtl/mem_init/ warp.v  ...
+//
+`ifndef MEM_INIT_DIR
+`define MEM_INIT_DIR "../hdl/"
+`endif
+
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_top
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	axi_s_aw_addr,
+	axi_s_aw_ready,
+	axi_s_aw_valid,
+	axi_s_aw_burst,
+	axi_s_aw_size,
+	axi_s_aw_len,
+	axi_s_w_data,
+	axi_s_w_ready,
+	axi_s_w_valid,
+	axi_s_w_strb,
+	axi_s_w_last,
+	axi_s_b_resp,
+	axi_s_b_resp_ready,
+	axi_s_b_resp_valid,
+	axi_s_ar_addr,
+	axi_s_ar_ready,
+	axi_s_ar_valid,
+	axi_s_ar_burst,
+	axi_s_ar_size,
+	axi_s_ar_len,
+	axi_s_r_data,
+	axi_s_r_ready,
+	axi_s_r_valid,
+	axi_s_r_resp,
+	axi_s_r_last,
+	master_aw_addr,
+	master_aw_ready,
+	master_aw_valid,
+	master_aw_burst,
+	master_aw_size,
+	master_aw_len,
+	master_w_data,
+	master_w_ready,
+	master_w_valid,
+	master_w_strb,
+	master_w_last,
+	master_b_resp,
+	master_b_resp_ready,
+	master_b_resp_valid,
+	master_ar_addr,
+	master_ar_ready,
+	master_ar_valid,
+	master_ar_burst,
+	master_ar_size,
+	master_ar_len,
+	master_r_data,
+	master_r_ready,
+	master_r_valid,
+	master_r_resp,
+	master_r_last
+);
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] axi_s_aw_addr;
+output reg  axi_s_aw_ready;
+input  axi_s_aw_valid;
+input [1:0] axi_s_aw_burst;
+input [2:0] axi_s_aw_size;
+input [7:0] axi_s_aw_len;
+input [63:0] axi_s_w_data;
+output reg  axi_s_w_ready;
+input  axi_s_w_valid;
+input [7:0] axi_s_w_strb;
+input  axi_s_w_last;
+output reg [1:0] axi_s_b_resp;
+input  axi_s_b_resp_ready;
+output reg  axi_s_b_resp_valid;
+input [31:0] axi_s_ar_addr;
+output reg  axi_s_ar_ready;
+input  axi_s_ar_valid;
+input [1:0] axi_s_ar_burst;
+input [2:0] axi_s_ar_size;
+input [7:0] axi_s_ar_len;
+output reg [63:0] axi_s_r_data;
+input  axi_s_r_ready;
+output reg  axi_s_r_valid;
+output reg [1:0] axi_s_r_resp;
+output reg  axi_s_r_last;
+output reg [31:0] master_aw_addr;
+input  master_aw_ready;
+output reg  master_aw_valid;
+output reg [1:0] master_aw_burst;
+output reg [2:0] master_aw_size;
+output reg [7:0] master_aw_len;
+output reg [31:0] master_w_data;
+input  master_w_ready;
+output reg  master_w_valid;
+output reg [3:0] master_w_strb;
+output reg  master_w_last;
+input [1:0] master_b_resp;
+output reg  master_b_resp_ready;
+input  master_b_resp_valid;
+output reg [31:0] master_ar_addr;
+input  master_ar_ready;
+output reg  master_ar_valid;
+output reg [1:0] master_ar_burst;
+output reg [2:0] master_ar_size;
+output reg [7:0] master_ar_len;
+input [31:0] master_r_data;
+output reg  master_r_ready;
+input  master_r_valid;
+input [1:0] master_r_resp;
+input  master_r_last;
+reg  axi_master_warpPerspective_inst_clk;
+reg  axi_master_warpPerspective_inst_reset;
+reg  axi_master_warpPerspective_inst_start;
+wire  axi_master_warpPerspective_inst_ready;
+wire  axi_master_warpPerspective_inst_finish;
+wire  axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_start;
+reg  axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_finish;
+reg  axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_ready;
+wire  axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_start;
+reg  axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_finish;
+reg  axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_ready;
+wire  axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_start;
+reg  axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_finish;
+reg  axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_ready;
+reg  axi_master_warpPerspective_inst_finish_reg;
+reg  axi_master_warpPerspective_orig_inst_clk;
+reg  axi_master_warpPerspective_orig_inst_reset;
+reg  axi_master_warpPerspective_orig_inst_start;
+wire  axi_master_warpPerspective_orig_inst_ready;
+wire  axi_master_warpPerspective_orig_inst_finish;
+wire  axi_master_warpPerspective_orig_inst_warp_axi_read_start;
+reg  axi_master_warpPerspective_orig_inst_warp_axi_read_ready;
+wire [31:0] axi_master_warpPerspective_orig_inst_warp_axi_read_addr_val;
+wire [21:0] axi_master_warpPerspective_orig_inst_warp_axi_read_size;
+wire [15:0] axi_master_warpPerspective_orig_inst_warp_axi_read_threadID;
+wire [15:0] axi_master_warpPerspective_orig_inst_legup_pthreadpoll_threadID;
+wire [15:0] axi_master_warpPerspective_orig_inst_legup_pthreadpoll_functionID;
+reg  axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish;
+wire [63:0] axi_master_warpPerspective_orig_inst_legup_pthreadpoll_return_val;
+wire  axi_master_warpPerspective_orig_inst_warpPerspective_hw_start;
+reg  axi_master_warpPerspective_orig_inst_warpPerspective_hw_ready;
+wire [11:0] axi_master_warpPerspective_orig_inst_warpPerspective_hw_dst_height;
+wire [11:0] axi_master_warpPerspective_orig_inst_warpPerspective_hw_dst_width;
+wire [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] axi_master_warpPerspective_orig_inst_warpPerspective_hw_warp_matrix_m;
+wire [15:0] axi_master_warpPerspective_orig_inst_warpPerspective_hw_threadID;
+wire  axi_master_warpPerspective_orig_inst_axi_channel_write_start;
+reg  axi_master_warpPerspective_orig_inst_axi_channel_write_ready;
+wire [31:0] axi_master_warpPerspective_orig_inst_axi_channel_write_addr_val;
+wire [11:0] axi_master_warpPerspective_orig_inst_axi_channel_write_width_val;
+wire [11:0] axi_master_warpPerspective_orig_inst_axi_channel_write_height_val;
+wire [15:0] axi_master_warpPerspective_orig_inst_axi_channel_write_threadID;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_write_en;
+wire [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_write_data;
+reg [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_read_data;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_write_en;
+wire [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_write_data;
+reg [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_read_data;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_clken;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_en_a;
+wire [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_data_a;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_en_a;
+wire [3:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_address_a;
+reg [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_data_a;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_en_b;
+wire [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_data_b;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_en_b;
+wire [3:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_address_b;
+reg [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_data_b;
+wire  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__clken;
+wire  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a;
+wire [16:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a;
+wire  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a;
+wire [3:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_a;
+reg [16:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a;
+reg  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a;
+wire  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b;
+wire [16:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b;
+wire  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b;
+wire [3:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_b;
+reg [16:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b;
+reg  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_write_en;
+wire [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_write_data;
+reg [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_read_data;
+wire  axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_write_en;
+wire [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_write_data;
+reg [31:0] axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_read_data;
+reg [8:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_output_fifo_usedw;
+reg [1:0] axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_burst_size_usedw;
+reg  axi_master_warpPerspective_orig_inst_finish_reg;
+reg  bilinear_warp_control_memory_out_width_inst_clk;
+reg  bilinear_warp_control_memory_out_width_inst_reset;
+reg  bilinear_warp_control_memory_out_width_inst_write_en;
+wire [31:0] bilinear_warp_control_memory_out_width_inst_read_data;
+reg [31:0] bilinear_warp_control_memory_out_width_inst_write_data;
+reg  bilinear_warp_control_memory_out_height_inst_clk;
+reg  bilinear_warp_control_memory_out_height_inst_reset;
+reg  bilinear_warp_control_memory_out_height_inst_write_en;
+wire [31:0] bilinear_warp_control_memory_out_height_inst_read_data;
+reg [31:0] bilinear_warp_control_memory_out_height_inst_write_data;
+reg  bilinear_warp_control_memory_m_inst_clk;
+reg  bilinear_warp_control_memory_m_inst_clken;
+reg [3:0] bilinear_warp_control_memory_m_inst_address_a;
+reg  bilinear_warp_control_memory_m_inst_write_en_a;
+reg [31:0] bilinear_warp_control_memory_m_inst_write_data_a;
+wire [31:0] bilinear_warp_control_memory_m_inst_read_data_a;
+reg  bilinear_warp_control_memory_m_inst_read_en_a;
+reg [3:0] bilinear_warp_control_memory_m_inst_address_b;
+reg  bilinear_warp_control_memory_m_inst_write_en_b;
+reg [31:0] bilinear_warp_control_memory_m_inst_write_data_b;
+wire [31:0] bilinear_warp_control_memory_m_inst_read_data_b;
+reg  bilinear_warp_control_memory_m_inst_read_en_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix_inst_clk;
+wire  axi_master_warpPerspective_orig_entry_warp_matrix_inst_clken;
+reg [3:0] axi_master_warpPerspective_orig_entry_warp_matrix_inst_address_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_en_a;
+reg [16:0] axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_data_a;
+wire [16:0] axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_a;
+wire  axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_en_a;
+reg [3:0] axi_master_warpPerspective_orig_entry_warp_matrix_inst_address_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_en_b;
+reg [16:0] axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_data_b;
+wire [16:0] axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_b;
+wire  axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_en_b;
+reg  bilinear_warp_control_memory_in_addr_inst_clk;
+reg  bilinear_warp_control_memory_in_addr_inst_reset;
+reg  bilinear_warp_control_memory_in_addr_inst_write_en;
+wire [31:0] bilinear_warp_control_memory_in_addr_inst_read_data;
+reg [31:0] bilinear_warp_control_memory_in_addr_inst_write_data;
+reg  bilinear_warp_control_memory_out_addr_inst_clk;
+reg  bilinear_warp_control_memory_out_addr_inst_reset;
+reg  bilinear_warp_control_memory_out_addr_inst_write_en;
+wire [31:0] bilinear_warp_control_memory_out_addr_inst_read_data;
+reg [31:0] bilinear_warp_control_memory_out_addr_inst_write_data;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_inst_clk;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_inst_reset;
+wire  axi_master_warpPerspective_orig_entry_output_fifo_inst_clken;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_inst_write_en;
+reg [31:0] axi_master_warpPerspective_orig_entry_output_fifo_inst_write_data;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_inst_read_en;
+wire [31:0] axi_master_warpPerspective_orig_entry_output_fifo_inst_read_data;
+wire  axi_master_warpPerspective_orig_entry_output_fifo_inst_full;
+wire  axi_master_warpPerspective_orig_entry_output_fifo_inst_almost_full;
+wire  axi_master_warpPerspective_orig_entry_output_fifo_inst_empty;
+wire  axi_master_warpPerspective_orig_entry_output_fifo_inst_almost_empty;
+wire [8:0] axi_master_warpPerspective_orig_entry_output_fifo_inst_usedw;
+reg  axi_master_warpPerspective_orig_entry_burst_size_inst_clk;
+reg  axi_master_warpPerspective_orig_entry_burst_size_inst_reset;
+wire  axi_master_warpPerspective_orig_entry_burst_size_inst_clken;
+reg  axi_master_warpPerspective_orig_entry_burst_size_inst_write_en;
+reg [7:0] axi_master_warpPerspective_orig_entry_burst_size_inst_write_data;
+reg  axi_master_warpPerspective_orig_entry_burst_size_inst_read_en;
+wire [7:0] axi_master_warpPerspective_orig_entry_burst_size_inst_read_data;
+wire  axi_master_warpPerspective_orig_entry_burst_size_inst_full;
+wire  axi_master_warpPerspective_orig_entry_burst_size_inst_almost_full;
+wire  axi_master_warpPerspective_orig_entry_burst_size_inst_empty;
+wire  axi_master_warpPerspective_orig_entry_burst_size_inst_almost_empty;
+wire [1:0] axi_master_warpPerspective_orig_entry_burst_size_inst_usedw;
+reg  warp_axi_read_inst_clk;
+reg  warp_axi_read_inst_reset;
+reg  warp_axi_read_inst_start;
+wire  warp_axi_read_inst_ready;
+wire  warp_axi_read_inst_finish;
+reg [31:0] warp_axi_read_inst_addr_val;
+reg [21:0] warp_axi_read_inst_size;
+wire  warp_axi_read_inst_mem_even_clken;
+wire  warp_axi_read_inst_mem_even_write_en_a;
+wire [15:0] warp_axi_read_inst_mem_even_write_data_a;
+wire  warp_axi_read_inst_mem_even_read_en_a;
+wire [13:0] warp_axi_read_inst_mem_even_address_a;
+reg [15:0] warp_axi_read_inst_mem_even_read_data_a;
+reg  warp_axi_read_inst_mem_even_waitrequest_a;
+wire  warp_axi_read_inst_mem_even_write_en_b;
+wire [15:0] warp_axi_read_inst_mem_even_write_data_b;
+wire  warp_axi_read_inst_mem_even_read_en_b;
+wire [13:0] warp_axi_read_inst_mem_even_address_b;
+reg [15:0] warp_axi_read_inst_mem_even_read_data_b;
+reg  warp_axi_read_inst_mem_even_waitrequest_b;
+wire  warp_axi_read_inst_mem_odd_clken;
+wire  warp_axi_read_inst_mem_odd_write_en_a;
+wire [15:0] warp_axi_read_inst_mem_odd_write_data_a;
+wire  warp_axi_read_inst_mem_odd_read_en_a;
+wire [13:0] warp_axi_read_inst_mem_odd_address_a;
+reg [15:0] warp_axi_read_inst_mem_odd_read_data_a;
+reg  warp_axi_read_inst_mem_odd_waitrequest_a;
+wire  warp_axi_read_inst_mem_odd_write_en_b;
+wire [15:0] warp_axi_read_inst_mem_odd_write_data_b;
+wire  warp_axi_read_inst_mem_odd_read_en_b;
+wire [13:0] warp_axi_read_inst_mem_odd_address_b;
+reg [15:0] warp_axi_read_inst_mem_odd_read_data_b;
+reg  warp_axi_read_inst_mem_odd_waitrequest_b;
+wire [31:0] warp_axi_read_inst_master_ar_addr;
+reg  warp_axi_read_inst_master_ar_ready;
+wire  warp_axi_read_inst_master_ar_valid;
+wire [1:0] warp_axi_read_inst_master_ar_burst;
+wire [2:0] warp_axi_read_inst_master_ar_size;
+wire [7:0] warp_axi_read_inst_master_ar_len;
+reg [31:0] warp_axi_read_inst_master_r_data;
+wire  warp_axi_read_inst_master_r_ready;
+reg  warp_axi_read_inst_master_r_valid;
+reg [1:0] warp_axi_read_inst_master_r_resp;
+reg  warp_axi_read_inst_master_r_last;
+reg  warp_axi_read_inst_finish_reg;
+reg  mem_even_inst_clk;
+wire  mem_even_inst_clken;
+reg [13:0] mem_even_inst_address_a;
+reg  mem_even_inst_write_en_a;
+reg [15:0] mem_even_inst_write_data_a;
+wire [15:0] mem_even_inst_read_data_a;
+wire  mem_even_inst_read_en_a;
+reg [13:0] mem_even_inst_address_b;
+reg  mem_even_inst_write_en_b;
+reg [15:0] mem_even_inst_write_data_b;
+wire [15:0] mem_even_inst_read_data_b;
+wire  mem_even_inst_read_en_b;
+reg  mem_odd_inst_clk;
+wire  mem_odd_inst_clken;
+reg [13:0] mem_odd_inst_address_a;
+reg  mem_odd_inst_write_en_a;
+reg [15:0] mem_odd_inst_write_data_a;
+wire [15:0] mem_odd_inst_read_data_a;
+wire  mem_odd_inst_read_en_a;
+reg [13:0] mem_odd_inst_address_b;
+reg  mem_odd_inst_write_en_b;
+reg [15:0] mem_odd_inst_write_data_b;
+wire [15:0] mem_odd_inst_read_data_b;
+wire  mem_odd_inst_read_en_b;
+reg  warpPerspective_hw_inst_clk;
+reg  warpPerspective_hw_inst_reset;
+reg  warpPerspective_hw_inst_start;
+wire  warpPerspective_hw_inst_ready;
+wire  warpPerspective_hw_inst_finish;
+reg [11:0] warpPerspective_hw_inst_dst_height;
+reg [11:0] warpPerspective_hw_inst_dst_width;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_inst_warp_matrix_m;
+wire  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__clken;
+wire  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a;
+wire [16:0] warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a;
+wire  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a;
+wire [3:0] warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_a;
+reg [16:0] warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a;
+reg  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a;
+wire  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b;
+wire [16:0] warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b;
+wire  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b;
+wire [3:0] warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_b;
+reg [16:0] warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b;
+reg  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b;
+wire  warpPerspective_hw_inst_mem_even_clken;
+wire  warpPerspective_hw_inst_mem_even_write_en_a;
+wire [15:0] warpPerspective_hw_inst_mem_even_write_data_a;
+wire  warpPerspective_hw_inst_mem_even_read_en_a;
+wire [13:0] warpPerspective_hw_inst_mem_even_address_a;
+reg [15:0] warpPerspective_hw_inst_mem_even_read_data_a;
+reg  warpPerspective_hw_inst_mem_even_waitrequest_a;
+wire  warpPerspective_hw_inst_mem_even_write_en_b;
+wire [15:0] warpPerspective_hw_inst_mem_even_write_data_b;
+wire  warpPerspective_hw_inst_mem_even_read_en_b;
+wire [13:0] warpPerspective_hw_inst_mem_even_address_b;
+reg [15:0] warpPerspective_hw_inst_mem_even_read_data_b;
+reg  warpPerspective_hw_inst_mem_even_waitrequest_b;
+wire  warpPerspective_hw_inst_mem_odd_clken;
+wire  warpPerspective_hw_inst_mem_odd_write_en_a;
+wire [15:0] warpPerspective_hw_inst_mem_odd_write_data_a;
+wire  warpPerspective_hw_inst_mem_odd_read_en_a;
+wire [13:0] warpPerspective_hw_inst_mem_odd_address_a;
+reg [15:0] warpPerspective_hw_inst_mem_odd_read_data_a;
+reg  warpPerspective_hw_inst_mem_odd_waitrequest_a;
+wire  warpPerspective_hw_inst_mem_odd_write_en_b;
+wire [15:0] warpPerspective_hw_inst_mem_odd_write_data_b;
+wire  warpPerspective_hw_inst_mem_odd_read_en_b;
+wire [13:0] warpPerspective_hw_inst_mem_odd_address_b;
+reg [15:0] warpPerspective_hw_inst_mem_odd_read_data_b;
+reg  warpPerspective_hw_inst_mem_odd_waitrequest_b;
+wire [31:0] warpPerspective_hw_inst_fifo;
+reg  warpPerspective_hw_inst_fifo_ready;
+wire  warpPerspective_hw_inst_fifo_valid;
+wire [7:0] warpPerspective_hw_inst_burst_size;
+reg  warpPerspective_hw_inst_burst_size_ready;
+wire  warpPerspective_hw_inst_burst_size_valid;
+reg  warpPerspective_hw_inst_finish_reg;
+reg  axi_channel_write_inst_clk;
+reg  axi_channel_write_inst_reset;
+reg  axi_channel_write_inst_start;
+wire  axi_channel_write_inst_ready;
+wire  axi_channel_write_inst_finish;
+reg [31:0] axi_channel_write_inst_addr_val;
+reg [11:0] axi_channel_write_inst_width_val;
+reg [11:0] axi_channel_write_inst_height_val;
+reg [7:0] axi_channel_write_inst_burst_size;
+wire  axi_channel_write_inst_burst_size_ready;
+reg  axi_channel_write_inst_burst_size_valid;
+wire [31:0] axi_channel_write_inst_master_aw_addr;
+reg  axi_channel_write_inst_master_aw_ready;
+wire  axi_channel_write_inst_master_aw_valid;
+wire [1:0] axi_channel_write_inst_master_aw_burst;
+wire [2:0] axi_channel_write_inst_master_aw_size;
+wire [7:0] axi_channel_write_inst_master_aw_len;
+reg [31:0] axi_channel_write_inst_fifo;
+wire  axi_channel_write_inst_fifo_ready;
+reg  axi_channel_write_inst_fifo_valid;
+wire [31:0] axi_channel_write_inst_master_w_data;
+reg  axi_channel_write_inst_master_w_ready;
+wire  axi_channel_write_inst_master_w_valid;
+wire [3:0] axi_channel_write_inst_master_w_strb;
+wire  axi_channel_write_inst_master_w_last;
+reg [1:0] axi_channel_write_inst_master_b_resp;
+wire  axi_channel_write_inst_master_b_resp_ready;
+reg  axi_channel_write_inst_master_b_resp_valid;
+reg  axi_channel_write_inst_finish_reg;
+reg  bilinear_warp_control_memory_read_inst_clk;
+reg  bilinear_warp_control_memory_read_inst_reset;
+reg  bilinear_warp_control_memory_read_inst_start;
+wire  bilinear_warp_control_memory_read_inst_ready;
+wire  bilinear_warp_control_memory_read_inst_finish;
+reg [31:0] bilinear_warp_control_memory_read_inst_s_ar_addr;
+wire  bilinear_warp_control_memory_read_inst_axi_s_ar_ready;
+reg  bilinear_warp_control_memory_read_inst_axi_s_ar_valid;
+reg [1:0] bilinear_warp_control_memory_read_inst_s_ar_burst;
+reg [2:0] bilinear_warp_control_memory_read_inst_s_ar_size;
+reg [7:0] bilinear_warp_control_memory_read_inst_s_ar_len;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_write_en;
+wire [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_write_data;
+reg [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_read_data;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_write_en;
+wire [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_write_data;
+reg [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_read_data;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_write_en;
+wire [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_write_data;
+reg [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_read_data;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_write_en;
+wire [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_write_data;
+reg [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_read_data;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_clken;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_en_a;
+wire [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_data_a;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_en_a;
+wire [3:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_address_a;
+reg [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_data_a;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_en_b;
+wire [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_data_b;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_en_b;
+wire [3:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_address_b;
+reg [31:0] bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_data_b;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_ctrl_write_en;
+wire  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_ctrl_write_data;
+reg  bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_ctrl_read_data;
+wire [63:0] bilinear_warp_control_memory_read_inst_s_r_data;
+reg  bilinear_warp_control_memory_read_inst_axi_s_r_ready;
+wire  bilinear_warp_control_memory_read_inst_axi_s_r_valid;
+wire [1:0] bilinear_warp_control_memory_read_inst_s_r_resp;
+wire  bilinear_warp_control_memory_read_inst_s_r_last;
+reg  bilinear_warp_control_memory_read_inst_finish_reg;
+reg  bilinear_warp_control_memory_ctrl_inst_clk;
+reg  bilinear_warp_control_memory_ctrl_inst_reset;
+reg  bilinear_warp_control_memory_ctrl_inst_write_en;
+wire  bilinear_warp_control_memory_ctrl_inst_read_data;
+wire  bilinear_warp_control_memory_ctrl_inst_write_data;
+reg  bilinear_warp_control_memory_write_inst_clk;
+reg  bilinear_warp_control_memory_write_inst_reset;
+reg  bilinear_warp_control_memory_write_inst_start;
+wire  bilinear_warp_control_memory_write_inst_ready;
+wire  bilinear_warp_control_memory_write_inst_finish;
+reg [31:0] bilinear_warp_control_memory_write_inst_s_aw_addr;
+wire  bilinear_warp_control_memory_write_inst_axi_s_aw_ready;
+reg  bilinear_warp_control_memory_write_inst_axi_s_aw_valid;
+reg [63:0] bilinear_warp_control_memory_write_inst_s_w_data;
+wire  bilinear_warp_control_memory_write_inst_axi_s_w_ready;
+reg  bilinear_warp_control_memory_write_inst_axi_s_w_valid;
+reg [1:0] bilinear_warp_control_memory_write_inst_s_aw_burst;
+reg [2:0] bilinear_warp_control_memory_write_inst_s_aw_size;
+reg [7:0] bilinear_warp_control_memory_write_inst_s_aw_len;
+reg [7:0] bilinear_warp_control_memory_write_inst_s_w_strb;
+reg  bilinear_warp_control_memory_write_inst_s_w_last;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_write_en;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_write_data;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_read_data;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_write_en;
+wire [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_write_data;
+reg [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_read_data;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_write_en;
+wire [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_write_data;
+reg [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_read_data;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_clken;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_en_a;
+wire [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_data_a;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_en_a;
+wire [3:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_address_a;
+reg [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_data_a;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_en_b;
+wire [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_data_b;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_en_b;
+wire [3:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_address_b;
+reg [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_data_b;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_write_en;
+wire [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_write_data;
+reg [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_read_data;
+wire  bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_write_en;
+wire [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_write_data;
+reg [31:0] bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_read_data;
+wire [1:0] bilinear_warp_control_memory_write_inst_s_b_resp;
+reg  bilinear_warp_control_memory_write_inst_s_b_resp_ready;
+wire  bilinear_warp_control_memory_write_inst_s_b_resp_valid;
+reg  bilinear_warp_control_memory_write_inst_finish_reg;
+reg  round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_clk;
+reg  round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_rst_an;
+wire  round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_memory_controller_waitrequest;
+reg [1:0] round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_req_in;
+wire [1:0] round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_grant_final;
+reg [3:0] arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_address_a;
+reg  arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_en_a;
+reg [16:0] arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_data_a;
+wire  arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_byte_en_a;
+reg  round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_clk;
+reg  round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_rst_an;
+wire  round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_memory_controller_waitrequest;
+reg [1:0] round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_req_in;
+wire [1:0] round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_grant_final;
+reg [3:0] arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_address_b;
+reg  arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_en_b;
+reg [16:0] arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_data_b;
+wire  arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_byte_en_b;
+reg  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a;
+reg  axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b;
+reg  muxOutput_for_axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish;
+reg  round_robin_arbiter_inst_arbiter_mem_even_a_clk;
+reg  round_robin_arbiter_inst_arbiter_mem_even_a_rst_an;
+wire  round_robin_arbiter_inst_arbiter_mem_even_a_memory_controller_waitrequest;
+reg [1:0] round_robin_arbiter_inst_arbiter_mem_even_a_req_in;
+wire [1:0] round_robin_arbiter_inst_arbiter_mem_even_a_grant_final;
+reg [13:0] arbiter_mem_even_a_address_a;
+reg  arbiter_mem_even_a_write_en_a;
+reg [15:0] arbiter_mem_even_a_write_data_a;
+wire  arbiter_mem_even_a_byte_en_a;
+reg  round_robin_arbiter_inst_arbiter_mem_even_b_clk;
+reg  round_robin_arbiter_inst_arbiter_mem_even_b_rst_an;
+wire  round_robin_arbiter_inst_arbiter_mem_even_b_memory_controller_waitrequest;
+reg [1:0] round_robin_arbiter_inst_arbiter_mem_even_b_req_in;
+wire [1:0] round_robin_arbiter_inst_arbiter_mem_even_b_grant_final;
+reg [13:0] arbiter_mem_even_b_address_b;
+reg  arbiter_mem_even_b_write_en_b;
+reg [15:0] arbiter_mem_even_b_write_data_b;
+wire  arbiter_mem_even_b_byte_en_b;
+reg  warp_axi_read_inst_mem_even_inst_grant_a;
+reg  warp_axi_read_inst_mem_even_inst_grant_b;
+reg  round_robin_arbiter_inst_arbiter_mem_odd_a_clk;
+reg  round_robin_arbiter_inst_arbiter_mem_odd_a_rst_an;
+wire  round_robin_arbiter_inst_arbiter_mem_odd_a_memory_controller_waitrequest;
+reg [1:0] round_robin_arbiter_inst_arbiter_mem_odd_a_req_in;
+wire [1:0] round_robin_arbiter_inst_arbiter_mem_odd_a_grant_final;
+reg [13:0] arbiter_mem_odd_a_address_a;
+reg  arbiter_mem_odd_a_write_en_a;
+reg [15:0] arbiter_mem_odd_a_write_data_a;
+wire  arbiter_mem_odd_a_byte_en_a;
+reg  round_robin_arbiter_inst_arbiter_mem_odd_b_clk;
+reg  round_robin_arbiter_inst_arbiter_mem_odd_b_rst_an;
+wire  round_robin_arbiter_inst_arbiter_mem_odd_b_memory_controller_waitrequest;
+reg [1:0] round_robin_arbiter_inst_arbiter_mem_odd_b_req_in;
+wire [1:0] round_robin_arbiter_inst_arbiter_mem_odd_b_grant_final;
+reg [13:0] arbiter_mem_odd_b_address_b;
+reg  arbiter_mem_odd_b_write_en_b;
+reg [15:0] arbiter_mem_odd_b_write_data_b;
+wire  arbiter_mem_odd_b_byte_en_b;
+reg  warp_axi_read_inst_mem_odd_inst_grant_a;
+reg  warp_axi_read_inst_mem_odd_inst_grant_b;
+reg  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a;
+reg  warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b;
+reg  warpPerspective_hw_inst_mem_even_inst_grant_a;
+reg  warpPerspective_hw_inst_mem_even_inst_grant_b;
+reg  warpPerspective_hw_inst_mem_odd_inst_grant_a;
+reg  warpPerspective_hw_inst_mem_odd_inst_grant_b;
+
+
+axi_master_warpPerspective_axi_master_warpPerspective axi_master_warpPerspective_inst (
+	.clk (axi_master_warpPerspective_inst_clk),
+	.reset (axi_master_warpPerspective_inst_reset),
+	.start (axi_master_warpPerspective_inst_start),
+	.ready (axi_master_warpPerspective_inst_ready),
+	.finish (axi_master_warpPerspective_inst_finish),
+	.axi_master_warpPerspective_orig_start (axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_start),
+	.axi_master_warpPerspective_orig_finish (axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_finish),
+	.axi_master_warpPerspective_orig_ready (axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_ready),
+	.bilinear_warp_control_memory_read_start (axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_start),
+	.bilinear_warp_control_memory_read_finish (axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_finish),
+	.bilinear_warp_control_memory_read_ready (axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_ready),
+	.bilinear_warp_control_memory_write_start (axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_start),
+	.bilinear_warp_control_memory_write_finish (axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_finish),
+	.bilinear_warp_control_memory_write_ready (axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_ready)
+);
+
+
+
+axi_master_warpPerspective_axi_master_warpPerspective_orig axi_master_warpPerspective_orig_inst (
+	.clk (axi_master_warpPerspective_orig_inst_clk),
+	.reset (axi_master_warpPerspective_orig_inst_reset),
+	.start (axi_master_warpPerspective_orig_inst_start),
+	.ready (axi_master_warpPerspective_orig_inst_ready),
+	.finish (axi_master_warpPerspective_orig_inst_finish),
+	.warp_axi_read_start (axi_master_warpPerspective_orig_inst_warp_axi_read_start),
+	.warp_axi_read_ready (axi_master_warpPerspective_orig_inst_warp_axi_read_ready),
+	.warp_axi_read_addr_val (axi_master_warpPerspective_orig_inst_warp_axi_read_addr_val),
+	.warp_axi_read_size (axi_master_warpPerspective_orig_inst_warp_axi_read_size),
+	.warp_axi_read_threadID (axi_master_warpPerspective_orig_inst_warp_axi_read_threadID),
+	.legup_pthreadpoll_threadID (axi_master_warpPerspective_orig_inst_legup_pthreadpoll_threadID),
+	.legup_pthreadpoll_functionID (axi_master_warpPerspective_orig_inst_legup_pthreadpoll_functionID),
+	.legup_pthreadpoll_finish (axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish),
+	.legup_pthreadpoll_return_val (axi_master_warpPerspective_orig_inst_legup_pthreadpoll_return_val),
+	.warpPerspective_hw_start (axi_master_warpPerspective_orig_inst_warpPerspective_hw_start),
+	.warpPerspective_hw_ready (axi_master_warpPerspective_orig_inst_warpPerspective_hw_ready),
+	.warpPerspective_hw_dst_height (axi_master_warpPerspective_orig_inst_warpPerspective_hw_dst_height),
+	.warpPerspective_hw_dst_width (axi_master_warpPerspective_orig_inst_warpPerspective_hw_dst_width),
+	.warpPerspective_hw_warp_matrix_m (axi_master_warpPerspective_orig_inst_warpPerspective_hw_warp_matrix_m),
+	.warpPerspective_hw_threadID (axi_master_warpPerspective_orig_inst_warpPerspective_hw_threadID),
+	.axi_channel_write_start (axi_master_warpPerspective_orig_inst_axi_channel_write_start),
+	.axi_channel_write_ready (axi_master_warpPerspective_orig_inst_axi_channel_write_ready),
+	.axi_channel_write_addr_val (axi_master_warpPerspective_orig_inst_axi_channel_write_addr_val),
+	.axi_channel_write_width_val (axi_master_warpPerspective_orig_inst_axi_channel_write_width_val),
+	.axi_channel_write_height_val (axi_master_warpPerspective_orig_inst_axi_channel_write_height_val),
+	.axi_channel_write_threadID (axi_master_warpPerspective_orig_inst_axi_channel_write_threadID),
+	.bilinear_warp_control_memory_out_width_write_en (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_write_en),
+	.bilinear_warp_control_memory_out_width_write_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_write_data),
+	.bilinear_warp_control_memory_out_width_read_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_read_data),
+	.bilinear_warp_control_memory_out_height_write_en (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_write_en),
+	.bilinear_warp_control_memory_out_height_write_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_write_data),
+	.bilinear_warp_control_memory_out_height_read_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_read_data),
+	.bilinear_warp_control_memory_m_clken (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_clken),
+	.bilinear_warp_control_memory_m_write_en_a (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_en_a),
+	.bilinear_warp_control_memory_m_write_data_a (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_data_a),
+	.bilinear_warp_control_memory_m_read_en_a (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_en_a),
+	.bilinear_warp_control_memory_m_address_a (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_address_a),
+	.bilinear_warp_control_memory_m_read_data_a (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_data_a),
+	.bilinear_warp_control_memory_m_write_en_b (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_en_b),
+	.bilinear_warp_control_memory_m_write_data_b (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_data_b),
+	.bilinear_warp_control_memory_m_read_en_b (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_en_b),
+	.bilinear_warp_control_memory_m_address_b (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_address_b),
+	.bilinear_warp_control_memory_m_read_data_b (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_data_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__clken (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__clken),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__address_a (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__address_b (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b),
+	.bilinear_warp_control_memory_in_addr_write_en (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_write_en),
+	.bilinear_warp_control_memory_in_addr_write_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_write_data),
+	.bilinear_warp_control_memory_in_addr_read_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_read_data),
+	.bilinear_warp_control_memory_out_addr_write_en (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_write_en),
+	.bilinear_warp_control_memory_out_addr_write_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_write_data),
+	.bilinear_warp_control_memory_out_addr_read_data (axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_read_data),
+	.axi_master_warpPerspective_orig_entry_output_fifo_usedw (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_output_fifo_usedw),
+	.axi_master_warpPerspective_orig_entry_burst_size_usedw (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_burst_size_usedw)
+);
+
+
+
+axi_master_warpPerspective_hls_register bilinear_warp_control_memory_out_width_inst (
+	.clk (bilinear_warp_control_memory_out_width_inst_clk),
+	.reset (bilinear_warp_control_memory_out_width_inst_reset),
+	.write_en (bilinear_warp_control_memory_out_width_inst_write_en),
+	.read_data (bilinear_warp_control_memory_out_width_inst_read_data),
+	.write_data (bilinear_warp_control_memory_out_width_inst_write_data)
+);
+
+defparam
+	bilinear_warp_control_memory_out_width_inst.width = 32,
+	bilinear_warp_control_memory_out_width_inst.init_value = 32'd0;
+
+
+axi_master_warpPerspective_hls_register bilinear_warp_control_memory_out_height_inst (
+	.clk (bilinear_warp_control_memory_out_height_inst_clk),
+	.reset (bilinear_warp_control_memory_out_height_inst_reset),
+	.write_en (bilinear_warp_control_memory_out_height_inst_write_en),
+	.read_data (bilinear_warp_control_memory_out_height_inst_read_data),
+	.write_data (bilinear_warp_control_memory_out_height_inst_write_data)
+);
+
+defparam
+	bilinear_warp_control_memory_out_height_inst.width = 32,
+	bilinear_warp_control_memory_out_height_inst.init_value = 32'd0;
+
+
+axi_master_warpPerspective_ram_dual_port bilinear_warp_control_memory_m_inst (
+	.clk (bilinear_warp_control_memory_m_inst_clk),
+	.clken (bilinear_warp_control_memory_m_inst_clken),
+	.address_a (bilinear_warp_control_memory_m_inst_address_a),
+	.write_en_a (bilinear_warp_control_memory_m_inst_write_en_a),
+	.write_data_a (bilinear_warp_control_memory_m_inst_write_data_a),
+	.read_data_a (bilinear_warp_control_memory_m_inst_read_data_a),
+	.read_en_a (bilinear_warp_control_memory_m_inst_read_en_a),
+	.address_b (bilinear_warp_control_memory_m_inst_address_b),
+	.write_en_b (bilinear_warp_control_memory_m_inst_write_en_b),
+	.write_data_b (bilinear_warp_control_memory_m_inst_write_data_b),
+	.read_data_b (bilinear_warp_control_memory_m_inst_read_data_b),
+	.read_en_b (bilinear_warp_control_memory_m_inst_read_en_b)
+);
+
+defparam
+	bilinear_warp_control_memory_m_inst.width_a = 32,
+	bilinear_warp_control_memory_m_inst.widthad_a = 4,
+	bilinear_warp_control_memory_m_inst.numwords_a = 9,
+	bilinear_warp_control_memory_m_inst.width_b = 32,
+	bilinear_warp_control_memory_m_inst.widthad_b = 4,
+	bilinear_warp_control_memory_m_inst.numwords_b = 9,
+	bilinear_warp_control_memory_m_inst.latency = 1,
+	bilinear_warp_control_memory_m_inst.fpga_device = "PolarFire",
+	bilinear_warp_control_memory_m_inst.init_file = {`MEM_INIT_DIR, "bilinear_warp_control_memory_m.mem"};
+
+
+axi_master_warpPerspective_ram_dual_port axi_master_warpPerspective_orig_entry_warp_matrix_inst (
+	.clk (axi_master_warpPerspective_orig_entry_warp_matrix_inst_clk),
+	.clken (axi_master_warpPerspective_orig_entry_warp_matrix_inst_clken),
+	.address_a (axi_master_warpPerspective_orig_entry_warp_matrix_inst_address_a),
+	.write_en_a (axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_en_a),
+	.write_data_a (axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_data_a),
+	.read_data_a (axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_a),
+	.read_en_a (axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_en_a),
+	.address_b (axi_master_warpPerspective_orig_entry_warp_matrix_inst_address_b),
+	.write_en_b (axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_en_b),
+	.write_data_b (axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_data_b),
+	.read_data_b (axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_b),
+	.read_en_b (axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_en_b)
+);
+
+defparam
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.width_a = 17,
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.widthad_a = 4,
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.numwords_a = 9,
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.width_b = 17,
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.widthad_b = 4,
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.numwords_b = 9,
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.latency = 1,
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst.fpga_device = "PolarFire";
+
+
+axi_master_warpPerspective_hls_register bilinear_warp_control_memory_in_addr_inst (
+	.clk (bilinear_warp_control_memory_in_addr_inst_clk),
+	.reset (bilinear_warp_control_memory_in_addr_inst_reset),
+	.write_en (bilinear_warp_control_memory_in_addr_inst_write_en),
+	.read_data (bilinear_warp_control_memory_in_addr_inst_read_data),
+	.write_data (bilinear_warp_control_memory_in_addr_inst_write_data)
+);
+
+defparam
+	bilinear_warp_control_memory_in_addr_inst.width = 32,
+	bilinear_warp_control_memory_in_addr_inst.init_value = 32'd0;
+
+
+axi_master_warpPerspective_hls_register bilinear_warp_control_memory_out_addr_inst (
+	.clk (bilinear_warp_control_memory_out_addr_inst_clk),
+	.reset (bilinear_warp_control_memory_out_addr_inst_reset),
+	.write_en (bilinear_warp_control_memory_out_addr_inst_write_en),
+	.read_data (bilinear_warp_control_memory_out_addr_inst_read_data),
+	.write_data (bilinear_warp_control_memory_out_addr_inst_write_data)
+);
+
+defparam
+	bilinear_warp_control_memory_out_addr_inst.width = 32,
+	bilinear_warp_control_memory_out_addr_inst.init_value = 32'd0;
+
+
+axi_master_warpPerspective_fwft_fifo axi_master_warpPerspective_orig_entry_output_fifo_inst (
+	.clk (axi_master_warpPerspective_orig_entry_output_fifo_inst_clk),
+	.reset (axi_master_warpPerspective_orig_entry_output_fifo_inst_reset),
+	.clken (axi_master_warpPerspective_orig_entry_output_fifo_inst_clken),
+	.write_en (axi_master_warpPerspective_orig_entry_output_fifo_inst_write_en),
+	.write_data (axi_master_warpPerspective_orig_entry_output_fifo_inst_write_data),
+	.read_en (axi_master_warpPerspective_orig_entry_output_fifo_inst_read_en),
+	.read_data (axi_master_warpPerspective_orig_entry_output_fifo_inst_read_data),
+	.full (axi_master_warpPerspective_orig_entry_output_fifo_inst_full),
+	.almost_full (axi_master_warpPerspective_orig_entry_output_fifo_inst_almost_full),
+	.empty (axi_master_warpPerspective_orig_entry_output_fifo_inst_empty),
+	.almost_empty (axi_master_warpPerspective_orig_entry_output_fifo_inst_almost_empty),
+	.usedw (axi_master_warpPerspective_orig_entry_output_fifo_inst_usedw)
+);
+
+defparam
+	axi_master_warpPerspective_orig_entry_output_fifo_inst.width = 32,
+	axi_master_warpPerspective_orig_entry_output_fifo_inst.depth = 256,
+	axi_master_warpPerspective_orig_entry_output_fifo_inst.name = "axi_master_warpPerspective_orig_entry_output_fifo",
+	axi_master_warpPerspective_orig_entry_output_fifo_inst.widthad = 8;
+
+
+axi_master_warpPerspective_fwft_fifo axi_master_warpPerspective_orig_entry_burst_size_inst (
+	.clk (axi_master_warpPerspective_orig_entry_burst_size_inst_clk),
+	.reset (axi_master_warpPerspective_orig_entry_burst_size_inst_reset),
+	.clken (axi_master_warpPerspective_orig_entry_burst_size_inst_clken),
+	.write_en (axi_master_warpPerspective_orig_entry_burst_size_inst_write_en),
+	.write_data (axi_master_warpPerspective_orig_entry_burst_size_inst_write_data),
+	.read_en (axi_master_warpPerspective_orig_entry_burst_size_inst_read_en),
+	.read_data (axi_master_warpPerspective_orig_entry_burst_size_inst_read_data),
+	.full (axi_master_warpPerspective_orig_entry_burst_size_inst_full),
+	.almost_full (axi_master_warpPerspective_orig_entry_burst_size_inst_almost_full),
+	.empty (axi_master_warpPerspective_orig_entry_burst_size_inst_empty),
+	.almost_empty (axi_master_warpPerspective_orig_entry_burst_size_inst_almost_empty),
+	.usedw (axi_master_warpPerspective_orig_entry_burst_size_inst_usedw)
+);
+
+defparam
+	axi_master_warpPerspective_orig_entry_burst_size_inst.width = 8,
+	axi_master_warpPerspective_orig_entry_burst_size_inst.depth = 2,
+	axi_master_warpPerspective_orig_entry_burst_size_inst.name = "axi_master_warpPerspective_orig_entry_burst_size",
+	axi_master_warpPerspective_orig_entry_burst_size_inst.widthad = 1,
+	axi_master_warpPerspective_orig_entry_burst_size_inst.ramstyle = "distributed";
+
+
+axi_master_warpPerspective_warp_axi_read warp_axi_read_inst (
+	.clk (warp_axi_read_inst_clk),
+	.reset (warp_axi_read_inst_reset),
+	.start (warp_axi_read_inst_start),
+	.ready (warp_axi_read_inst_ready),
+	.finish (warp_axi_read_inst_finish),
+	.addr_val (warp_axi_read_inst_addr_val),
+	.size (warp_axi_read_inst_size),
+	.mem_even_clken (warp_axi_read_inst_mem_even_clken),
+	.mem_even_write_en_a (warp_axi_read_inst_mem_even_write_en_a),
+	.mem_even_write_data_a (warp_axi_read_inst_mem_even_write_data_a),
+	.mem_even_read_en_a (warp_axi_read_inst_mem_even_read_en_a),
+	.mem_even_address_a (warp_axi_read_inst_mem_even_address_a),
+	.mem_even_read_data_a (warp_axi_read_inst_mem_even_read_data_a),
+	.mem_even_waitrequest_a (warp_axi_read_inst_mem_even_waitrequest_a),
+	.mem_even_write_en_b (warp_axi_read_inst_mem_even_write_en_b),
+	.mem_even_write_data_b (warp_axi_read_inst_mem_even_write_data_b),
+	.mem_even_read_en_b (warp_axi_read_inst_mem_even_read_en_b),
+	.mem_even_address_b (warp_axi_read_inst_mem_even_address_b),
+	.mem_even_read_data_b (warp_axi_read_inst_mem_even_read_data_b),
+	.mem_even_waitrequest_b (warp_axi_read_inst_mem_even_waitrequest_b),
+	.mem_odd_clken (warp_axi_read_inst_mem_odd_clken),
+	.mem_odd_write_en_a (warp_axi_read_inst_mem_odd_write_en_a),
+	.mem_odd_write_data_a (warp_axi_read_inst_mem_odd_write_data_a),
+	.mem_odd_read_en_a (warp_axi_read_inst_mem_odd_read_en_a),
+	.mem_odd_address_a (warp_axi_read_inst_mem_odd_address_a),
+	.mem_odd_read_data_a (warp_axi_read_inst_mem_odd_read_data_a),
+	.mem_odd_waitrequest_a (warp_axi_read_inst_mem_odd_waitrequest_a),
+	.mem_odd_write_en_b (warp_axi_read_inst_mem_odd_write_en_b),
+	.mem_odd_write_data_b (warp_axi_read_inst_mem_odd_write_data_b),
+	.mem_odd_read_en_b (warp_axi_read_inst_mem_odd_read_en_b),
+	.mem_odd_address_b (warp_axi_read_inst_mem_odd_address_b),
+	.mem_odd_read_data_b (warp_axi_read_inst_mem_odd_read_data_b),
+	.mem_odd_waitrequest_b (warp_axi_read_inst_mem_odd_waitrequest_b),
+	.master_ar_addr (warp_axi_read_inst_master_ar_addr),
+	.master_ar_ready (warp_axi_read_inst_master_ar_ready),
+	.master_ar_valid (warp_axi_read_inst_master_ar_valid),
+	.master_ar_burst (warp_axi_read_inst_master_ar_burst),
+	.master_ar_size (warp_axi_read_inst_master_ar_size),
+	.master_ar_len (warp_axi_read_inst_master_ar_len),
+	.master_r_data (warp_axi_read_inst_master_r_data),
+	.master_r_ready (warp_axi_read_inst_master_r_ready),
+	.master_r_valid (warp_axi_read_inst_master_r_valid),
+	.master_r_resp (warp_axi_read_inst_master_r_resp),
+	.master_r_last (warp_axi_read_inst_master_r_last)
+);
+
+
+
+axi_master_warpPerspective_ram_dual_port mem_even_inst (
+	.clk (mem_even_inst_clk),
+	.clken (mem_even_inst_clken),
+	.address_a (mem_even_inst_address_a),
+	.write_en_a (mem_even_inst_write_en_a),
+	.write_data_a (mem_even_inst_write_data_a),
+	.read_data_a (mem_even_inst_read_data_a),
+	.read_en_a (mem_even_inst_read_en_a),
+	.address_b (mem_even_inst_address_b),
+	.write_en_b (mem_even_inst_write_en_b),
+	.write_data_b (mem_even_inst_write_data_b),
+	.read_data_b (mem_even_inst_read_data_b),
+	.read_en_b (mem_even_inst_read_en_b)
+);
+
+defparam
+	mem_even_inst.width_a = 16,
+	mem_even_inst.widthad_a = 14,
+	mem_even_inst.numwords_a = 12545,
+	mem_even_inst.width_b = 16,
+	mem_even_inst.widthad_b = 14,
+	mem_even_inst.numwords_b = 12545,
+	mem_even_inst.latency = 1,
+	mem_even_inst.fpga_device = "PolarFire",
+	mem_even_inst.init_file = {`MEM_INIT_DIR, "mem_even.mem"};
+
+
+axi_master_warpPerspective_ram_dual_port mem_odd_inst (
+	.clk (mem_odd_inst_clk),
+	.clken (mem_odd_inst_clken),
+	.address_a (mem_odd_inst_address_a),
+	.write_en_a (mem_odd_inst_write_en_a),
+	.write_data_a (mem_odd_inst_write_data_a),
+	.read_data_a (mem_odd_inst_read_data_a),
+	.read_en_a (mem_odd_inst_read_en_a),
+	.address_b (mem_odd_inst_address_b),
+	.write_en_b (mem_odd_inst_write_en_b),
+	.write_data_b (mem_odd_inst_write_data_b),
+	.read_data_b (mem_odd_inst_read_data_b),
+	.read_en_b (mem_odd_inst_read_en_b)
+);
+
+defparam
+	mem_odd_inst.width_a = 16,
+	mem_odd_inst.widthad_a = 14,
+	mem_odd_inst.numwords_a = 12545,
+	mem_odd_inst.width_b = 16,
+	mem_odd_inst.widthad_b = 14,
+	mem_odd_inst.numwords_b = 12545,
+	mem_odd_inst.latency = 1,
+	mem_odd_inst.fpga_device = "PolarFire",
+	mem_odd_inst.init_file = {`MEM_INIT_DIR, "mem_odd.mem"};
+
+
+axi_master_warpPerspective_warpPerspective_hw warpPerspective_hw_inst (
+	.clk (warpPerspective_hw_inst_clk),
+	.reset (warpPerspective_hw_inst_reset),
+	.start (warpPerspective_hw_inst_start),
+	.ready (warpPerspective_hw_inst_ready),
+	.finish (warpPerspective_hw_inst_finish),
+	.dst_height (warpPerspective_hw_inst_dst_height),
+	.dst_width (warpPerspective_hw_inst_dst_width),
+	.warp_matrix_m (warpPerspective_hw_inst_warp_matrix_m),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__clken (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__clken),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__address_a (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__address_b (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b),
+	.axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b),
+	.mem_even_clken (warpPerspective_hw_inst_mem_even_clken),
+	.mem_even_write_en_a (warpPerspective_hw_inst_mem_even_write_en_a),
+	.mem_even_write_data_a (warpPerspective_hw_inst_mem_even_write_data_a),
+	.mem_even_read_en_a (warpPerspective_hw_inst_mem_even_read_en_a),
+	.mem_even_address_a (warpPerspective_hw_inst_mem_even_address_a),
+	.mem_even_read_data_a (warpPerspective_hw_inst_mem_even_read_data_a),
+	.mem_even_waitrequest_a (warpPerspective_hw_inst_mem_even_waitrequest_a),
+	.mem_even_write_en_b (warpPerspective_hw_inst_mem_even_write_en_b),
+	.mem_even_write_data_b (warpPerspective_hw_inst_mem_even_write_data_b),
+	.mem_even_read_en_b (warpPerspective_hw_inst_mem_even_read_en_b),
+	.mem_even_address_b (warpPerspective_hw_inst_mem_even_address_b),
+	.mem_even_read_data_b (warpPerspective_hw_inst_mem_even_read_data_b),
+	.mem_even_waitrequest_b (warpPerspective_hw_inst_mem_even_waitrequest_b),
+	.mem_odd_clken (warpPerspective_hw_inst_mem_odd_clken),
+	.mem_odd_write_en_a (warpPerspective_hw_inst_mem_odd_write_en_a),
+	.mem_odd_write_data_a (warpPerspective_hw_inst_mem_odd_write_data_a),
+	.mem_odd_read_en_a (warpPerspective_hw_inst_mem_odd_read_en_a),
+	.mem_odd_address_a (warpPerspective_hw_inst_mem_odd_address_a),
+	.mem_odd_read_data_a (warpPerspective_hw_inst_mem_odd_read_data_a),
+	.mem_odd_waitrequest_a (warpPerspective_hw_inst_mem_odd_waitrequest_a),
+	.mem_odd_write_en_b (warpPerspective_hw_inst_mem_odd_write_en_b),
+	.mem_odd_write_data_b (warpPerspective_hw_inst_mem_odd_write_data_b),
+	.mem_odd_read_en_b (warpPerspective_hw_inst_mem_odd_read_en_b),
+	.mem_odd_address_b (warpPerspective_hw_inst_mem_odd_address_b),
+	.mem_odd_read_data_b (warpPerspective_hw_inst_mem_odd_read_data_b),
+	.mem_odd_waitrequest_b (warpPerspective_hw_inst_mem_odd_waitrequest_b),
+	.fifo (warpPerspective_hw_inst_fifo),
+	.fifo_ready (warpPerspective_hw_inst_fifo_ready),
+	.fifo_valid (warpPerspective_hw_inst_fifo_valid),
+	.burst_size (warpPerspective_hw_inst_burst_size),
+	.burst_size_ready (warpPerspective_hw_inst_burst_size_ready),
+	.burst_size_valid (warpPerspective_hw_inst_burst_size_valid),
+	.grant_0_0 (warpPerspective_hw_inst_mem_even_inst_grant_a),
+	.grant_1_1 (warpPerspective_hw_inst_mem_even_inst_grant_b),
+	.grant_0_2 (warpPerspective_hw_inst_mem_odd_inst_grant_a),
+	.grant_1_3 (warpPerspective_hw_inst_mem_odd_inst_grant_b)
+);
+
+
+
+axi_master_warpPerspective_axi_channel_write axi_channel_write_inst (
+	.clk (axi_channel_write_inst_clk),
+	.reset (axi_channel_write_inst_reset),
+	.start (axi_channel_write_inst_start),
+	.ready (axi_channel_write_inst_ready),
+	.finish (axi_channel_write_inst_finish),
+	.addr_val (axi_channel_write_inst_addr_val),
+	.width_val (axi_channel_write_inst_width_val),
+	.height_val (axi_channel_write_inst_height_val),
+	.burst_size (axi_channel_write_inst_burst_size),
+	.burst_size_ready (axi_channel_write_inst_burst_size_ready),
+	.burst_size_valid (axi_channel_write_inst_burst_size_valid),
+	.master_aw_addr (axi_channel_write_inst_master_aw_addr),
+	.master_aw_ready (axi_channel_write_inst_master_aw_ready),
+	.master_aw_valid (axi_channel_write_inst_master_aw_valid),
+	.master_aw_burst (axi_channel_write_inst_master_aw_burst),
+	.master_aw_size (axi_channel_write_inst_master_aw_size),
+	.master_aw_len (axi_channel_write_inst_master_aw_len),
+	.fifo (axi_channel_write_inst_fifo),
+	.fifo_ready (axi_channel_write_inst_fifo_ready),
+	.fifo_valid (axi_channel_write_inst_fifo_valid),
+	.master_w_data (axi_channel_write_inst_master_w_data),
+	.master_w_ready (axi_channel_write_inst_master_w_ready),
+	.master_w_valid (axi_channel_write_inst_master_w_valid),
+	.master_w_strb (axi_channel_write_inst_master_w_strb),
+	.master_w_last (axi_channel_write_inst_master_w_last),
+	.master_b_resp (axi_channel_write_inst_master_b_resp),
+	.master_b_resp_ready (axi_channel_write_inst_master_b_resp_ready),
+	.master_b_resp_valid (axi_channel_write_inst_master_b_resp_valid)
+);
+
+
+
+axi_master_warpPerspective_bilinear_warp_control_memory_read bilinear_warp_control_memory_read_inst (
+	.clk (bilinear_warp_control_memory_read_inst_clk),
+	.reset (bilinear_warp_control_memory_read_inst_reset),
+	.start (bilinear_warp_control_memory_read_inst_start),
+	.ready (bilinear_warp_control_memory_read_inst_ready),
+	.finish (bilinear_warp_control_memory_read_inst_finish),
+	.s_ar_addr (bilinear_warp_control_memory_read_inst_s_ar_addr),
+	.axi_s_ar_ready (bilinear_warp_control_memory_read_inst_axi_s_ar_ready),
+	.axi_s_ar_valid (bilinear_warp_control_memory_read_inst_axi_s_ar_valid),
+	.s_ar_burst (bilinear_warp_control_memory_read_inst_s_ar_burst),
+	.s_ar_size (bilinear_warp_control_memory_read_inst_s_ar_size),
+	.s_ar_len (bilinear_warp_control_memory_read_inst_s_ar_len),
+	.bilinear_warp_control_memory_out_addr_write_en (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_write_en),
+	.bilinear_warp_control_memory_out_addr_write_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_write_data),
+	.bilinear_warp_control_memory_out_addr_read_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_read_data),
+	.bilinear_warp_control_memory_in_addr_write_en (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_write_en),
+	.bilinear_warp_control_memory_in_addr_write_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_write_data),
+	.bilinear_warp_control_memory_in_addr_read_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_read_data),
+	.bilinear_warp_control_memory_out_height_write_en (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_write_en),
+	.bilinear_warp_control_memory_out_height_write_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_write_data),
+	.bilinear_warp_control_memory_out_height_read_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_read_data),
+	.bilinear_warp_control_memory_out_width_write_en (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_write_en),
+	.bilinear_warp_control_memory_out_width_write_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_write_data),
+	.bilinear_warp_control_memory_out_width_read_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_read_data),
+	.bilinear_warp_control_memory_m_clken (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_clken),
+	.bilinear_warp_control_memory_m_write_en_a (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_en_a),
+	.bilinear_warp_control_memory_m_write_data_a (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_data_a),
+	.bilinear_warp_control_memory_m_read_en_a (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_en_a),
+	.bilinear_warp_control_memory_m_address_a (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_address_a),
+	.bilinear_warp_control_memory_m_read_data_a (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_data_a),
+	.bilinear_warp_control_memory_m_write_en_b (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_en_b),
+	.bilinear_warp_control_memory_m_write_data_b (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_data_b),
+	.bilinear_warp_control_memory_m_read_en_b (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_en_b),
+	.bilinear_warp_control_memory_m_address_b (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_address_b),
+	.bilinear_warp_control_memory_m_read_data_b (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_data_b),
+	.bilinear_warp_control_memory_ctrl_write_en (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_ctrl_write_en),
+	.bilinear_warp_control_memory_ctrl_write_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_ctrl_write_data),
+	.bilinear_warp_control_memory_ctrl_read_data (bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_ctrl_read_data),
+	.s_r_data (bilinear_warp_control_memory_read_inst_s_r_data),
+	.axi_s_r_ready (bilinear_warp_control_memory_read_inst_axi_s_r_ready),
+	.axi_s_r_valid (bilinear_warp_control_memory_read_inst_axi_s_r_valid),
+	.s_r_resp (bilinear_warp_control_memory_read_inst_s_r_resp),
+	.s_r_last (bilinear_warp_control_memory_read_inst_s_r_last)
+);
+
+
+
+axi_master_warpPerspective_hls_register bilinear_warp_control_memory_ctrl_inst (
+	.clk (bilinear_warp_control_memory_ctrl_inst_clk),
+	.reset (bilinear_warp_control_memory_ctrl_inst_reset),
+	.write_en (bilinear_warp_control_memory_ctrl_inst_write_en),
+	.read_data (bilinear_warp_control_memory_ctrl_inst_read_data),
+	.write_data (bilinear_warp_control_memory_ctrl_inst_write_data)
+);
+
+defparam
+	bilinear_warp_control_memory_ctrl_inst.width = 1,
+	bilinear_warp_control_memory_ctrl_inst.init_value = 1'd0;
+
+
+axi_master_warpPerspective_bilinear_warp_control_memory_write bilinear_warp_control_memory_write_inst (
+	.clk (bilinear_warp_control_memory_write_inst_clk),
+	.reset (bilinear_warp_control_memory_write_inst_reset),
+	.start (bilinear_warp_control_memory_write_inst_start),
+	.ready (bilinear_warp_control_memory_write_inst_ready),
+	.finish (bilinear_warp_control_memory_write_inst_finish),
+	.s_aw_addr (bilinear_warp_control_memory_write_inst_s_aw_addr),
+	.axi_s_aw_ready (bilinear_warp_control_memory_write_inst_axi_s_aw_ready),
+	.axi_s_aw_valid (bilinear_warp_control_memory_write_inst_axi_s_aw_valid),
+	.s_w_data (bilinear_warp_control_memory_write_inst_s_w_data),
+	.axi_s_w_ready (bilinear_warp_control_memory_write_inst_axi_s_w_ready),
+	.axi_s_w_valid (bilinear_warp_control_memory_write_inst_axi_s_w_valid),
+	.s_aw_burst (bilinear_warp_control_memory_write_inst_s_aw_burst),
+	.s_aw_size (bilinear_warp_control_memory_write_inst_s_aw_size),
+	.s_aw_len (bilinear_warp_control_memory_write_inst_s_aw_len),
+	.s_w_strb (bilinear_warp_control_memory_write_inst_s_w_strb),
+	.s_w_last (bilinear_warp_control_memory_write_inst_s_w_last),
+	.bilinear_warp_control_memory_ctrl_write_en (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_write_en),
+	.bilinear_warp_control_memory_ctrl_write_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_write_data),
+	.bilinear_warp_control_memory_ctrl_read_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_read_data),
+	.bilinear_warp_control_memory_in_addr_write_en (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_write_en),
+	.bilinear_warp_control_memory_in_addr_write_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_write_data),
+	.bilinear_warp_control_memory_in_addr_read_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_read_data),
+	.bilinear_warp_control_memory_out_width_write_en (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_write_en),
+	.bilinear_warp_control_memory_out_width_write_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_write_data),
+	.bilinear_warp_control_memory_out_width_read_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_read_data),
+	.bilinear_warp_control_memory_m_clken (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_clken),
+	.bilinear_warp_control_memory_m_write_en_a (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_en_a),
+	.bilinear_warp_control_memory_m_write_data_a (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_data_a),
+	.bilinear_warp_control_memory_m_read_en_a (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_en_a),
+	.bilinear_warp_control_memory_m_address_a (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_address_a),
+	.bilinear_warp_control_memory_m_read_data_a (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_data_a),
+	.bilinear_warp_control_memory_m_write_en_b (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_en_b),
+	.bilinear_warp_control_memory_m_write_data_b (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_data_b),
+	.bilinear_warp_control_memory_m_read_en_b (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_en_b),
+	.bilinear_warp_control_memory_m_address_b (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_address_b),
+	.bilinear_warp_control_memory_m_read_data_b (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_data_b),
+	.bilinear_warp_control_memory_out_addr_write_en (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_write_en),
+	.bilinear_warp_control_memory_out_addr_write_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_write_data),
+	.bilinear_warp_control_memory_out_addr_read_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_read_data),
+	.bilinear_warp_control_memory_out_height_write_en (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_write_en),
+	.bilinear_warp_control_memory_out_height_write_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_write_data),
+	.bilinear_warp_control_memory_out_height_read_data (bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_read_data),
+	.s_b_resp (bilinear_warp_control_memory_write_inst_s_b_resp),
+	.s_b_resp_ready (bilinear_warp_control_memory_write_inst_s_b_resp_ready),
+	.s_b_resp_valid (bilinear_warp_control_memory_write_inst_s_b_resp_valid)
+);
+
+
+
+axi_master_warpPerspective_warp_round_robin_arbiter round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a (
+	.clk (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_clk),
+	.rst_an (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_rst_an),
+	.memory_controller_waitrequest (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_memory_controller_waitrequest),
+	.req_in (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_req_in),
+	.grant_final (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_grant_final)
+);
+
+defparam
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a.N = 2;
+
+
+axi_master_warpPerspective_warp_round_robin_arbiter round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b (
+	.clk (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_clk),
+	.rst_an (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_rst_an),
+	.memory_controller_waitrequest (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_memory_controller_waitrequest),
+	.req_in (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_req_in),
+	.grant_final (round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_grant_final)
+);
+
+defparam
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b.N = 2;
+
+
+axi_master_warpPerspective_warp_round_robin_arbiter round_robin_arbiter_inst_arbiter_mem_even_a (
+	.clk (round_robin_arbiter_inst_arbiter_mem_even_a_clk),
+	.rst_an (round_robin_arbiter_inst_arbiter_mem_even_a_rst_an),
+	.memory_controller_waitrequest (round_robin_arbiter_inst_arbiter_mem_even_a_memory_controller_waitrequest),
+	.req_in (round_robin_arbiter_inst_arbiter_mem_even_a_req_in),
+	.grant_final (round_robin_arbiter_inst_arbiter_mem_even_a_grant_final)
+);
+
+defparam
+	round_robin_arbiter_inst_arbiter_mem_even_a.N = 2;
+
+
+axi_master_warpPerspective_warp_round_robin_arbiter round_robin_arbiter_inst_arbiter_mem_even_b (
+	.clk (round_robin_arbiter_inst_arbiter_mem_even_b_clk),
+	.rst_an (round_robin_arbiter_inst_arbiter_mem_even_b_rst_an),
+	.memory_controller_waitrequest (round_robin_arbiter_inst_arbiter_mem_even_b_memory_controller_waitrequest),
+	.req_in (round_robin_arbiter_inst_arbiter_mem_even_b_req_in),
+	.grant_final (round_robin_arbiter_inst_arbiter_mem_even_b_grant_final)
+);
+
+defparam
+	round_robin_arbiter_inst_arbiter_mem_even_b.N = 2;
+
+
+axi_master_warpPerspective_warp_round_robin_arbiter round_robin_arbiter_inst_arbiter_mem_odd_a (
+	.clk (round_robin_arbiter_inst_arbiter_mem_odd_a_clk),
+	.rst_an (round_robin_arbiter_inst_arbiter_mem_odd_a_rst_an),
+	.memory_controller_waitrequest (round_robin_arbiter_inst_arbiter_mem_odd_a_memory_controller_waitrequest),
+	.req_in (round_robin_arbiter_inst_arbiter_mem_odd_a_req_in),
+	.grant_final (round_robin_arbiter_inst_arbiter_mem_odd_a_grant_final)
+);
+
+defparam
+	round_robin_arbiter_inst_arbiter_mem_odd_a.N = 2;
+
+
+axi_master_warpPerspective_warp_round_robin_arbiter round_robin_arbiter_inst_arbiter_mem_odd_b (
+	.clk (round_robin_arbiter_inst_arbiter_mem_odd_b_clk),
+	.rst_an (round_robin_arbiter_inst_arbiter_mem_odd_b_rst_an),
+	.memory_controller_waitrequest (round_robin_arbiter_inst_arbiter_mem_odd_b_memory_controller_waitrequest),
+	.req_in (round_robin_arbiter_inst_arbiter_mem_odd_b_req_in),
+	.grant_final (round_robin_arbiter_inst_arbiter_mem_odd_b_grant_final)
+);
+
+defparam
+	round_robin_arbiter_inst_arbiter_mem_odd_b.N = 2;
+
+
+always @(*) begin
+	axi_master_warpPerspective_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_reset = reset;
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_start = start;
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_finish = (~(axi_master_warpPerspective_orig_inst_start) & axi_master_warpPerspective_orig_inst_finish_reg);
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_axi_master_warpPerspective_orig_ready = axi_master_warpPerspective_orig_inst_ready;
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_finish = bilinear_warp_control_memory_read_inst_finish;
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_ready = bilinear_warp_control_memory_read_inst_ready;
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_finish = bilinear_warp_control_memory_write_inst_finish;
+end
+always @(*) begin
+	axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_ready = bilinear_warp_control_memory_write_inst_ready;
+end
+always @(posedge clk) begin
+	if ((reset | axi_master_warpPerspective_inst_start)) begin
+		axi_master_warpPerspective_inst_finish_reg <= 1'd0;
+	end
+	if (axi_master_warpPerspective_inst_finish) begin
+		axi_master_warpPerspective_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_reset = reset;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_start = (start | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_write_en);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_warp_axi_read_ready = warp_axi_read_inst_ready;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish = muxOutput_for_axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_warpPerspective_hw_ready = warpPerspective_hw_inst_ready;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_channel_write_ready = axi_channel_write_inst_ready;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_read_data = bilinear_warp_control_memory_out_width_inst_read_data;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_read_data = bilinear_warp_control_memory_out_height_inst_read_data;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_data_a = bilinear_warp_control_memory_m_inst_read_data_a;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_data_b = bilinear_warp_control_memory_m_inst_read_data_b;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a = axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_a;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a = (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a & ~(axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a));
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b = axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_b;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b = (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b & ~(axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b));
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_read_data = bilinear_warp_control_memory_in_addr_inst_read_data;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_read_data = bilinear_warp_control_memory_out_addr_inst_read_data;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_output_fifo_usedw = axi_master_warpPerspective_orig_entry_output_fifo_inst_usedw;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_burst_size_usedw = axi_master_warpPerspective_orig_entry_burst_size_inst_usedw;
+end
+always @(posedge clk) begin
+	if ((reset | axi_master_warpPerspective_orig_inst_start)) begin
+		axi_master_warpPerspective_orig_inst_finish_reg <= 1'd0;
+	end
+	if (axi_master_warpPerspective_orig_inst_finish) begin
+		axi_master_warpPerspective_orig_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_width_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_width_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_width_inst_write_en = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_write_en | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_write_en) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_write_en);
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_width_inst_write_data = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_width_write_data | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_write_data) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_write_data);
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_height_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_height_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_height_inst_write_en = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_write_en | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_write_en) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_write_en);
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_height_inst_write_data = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_height_write_data | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_write_data) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_write_data);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_clken = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_clken | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_clken) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_clken);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_address_a = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_address_a | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_address_a) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_address_a);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_write_en_a = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_en_a | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_en_a) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_en_a);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_write_data_a = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_data_a | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_data_a) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_data_a);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_read_en_a = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_en_a | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_en_a) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_en_a);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_address_b = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_address_b | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_address_b) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_address_b);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_write_en_b = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_en_b | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_en_b) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_en_b);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_write_data_b = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_write_data_b | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_write_data_b) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_write_data_b);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_inst_read_en_b = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_m_read_en_b | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_en_b) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_en_b);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst_clk = clk;
+end
+assign axi_master_warpPerspective_orig_entry_warp_matrix_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst_address_a = arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_address_a;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_en_a = arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_en_a;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_data_a = arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_data_a;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst_address_b = arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_address_b;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_en_b = arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_en_b;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix_inst_write_data_b = arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_data_b;
+end
+always @(*) begin
+	bilinear_warp_control_memory_in_addr_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_in_addr_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_warp_control_memory_in_addr_inst_write_en = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_write_en | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_write_en) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_write_en);
+end
+always @(*) begin
+	bilinear_warp_control_memory_in_addr_inst_write_data = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_in_addr_write_data | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_write_data) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_write_data);
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_addr_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_addr_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_addr_inst_write_en = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_write_en | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_write_en) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_write_en);
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_addr_inst_write_data = ((axi_master_warpPerspective_orig_inst_bilinear_warp_control_memory_out_addr_write_data | bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_write_data) | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_write_data);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_inst_reset = reset;
+end
+assign axi_master_warpPerspective_orig_entry_output_fifo_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_inst_write_en = warpPerspective_hw_inst_fifo_valid;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_inst_write_data = warpPerspective_hw_inst_fifo;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_inst_read_en = axi_channel_write_inst_fifo_ready;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_inst_reset = reset;
+end
+assign axi_master_warpPerspective_orig_entry_burst_size_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_inst_write_en = warpPerspective_hw_inst_burst_size_valid;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_inst_write_data = warpPerspective_hw_inst_burst_size;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_inst_read_en = axi_channel_write_inst_burst_size_ready;
+end
+always @(*) begin
+	warp_axi_read_inst_clk = clk;
+end
+always @(*) begin
+	warp_axi_read_inst_reset = reset;
+end
+always @(*) begin
+	warp_axi_read_inst_start = 1'd0;
+	if ((axi_master_warpPerspective_orig_inst_warp_axi_read_threadID == 16'd0)) begin
+		warp_axi_read_inst_start = axi_master_warpPerspective_orig_inst_warp_axi_read_start;
+	end
+end
+always @(*) begin
+	warp_axi_read_inst_addr_val = 0;
+	if ((axi_master_warpPerspective_orig_inst_warp_axi_read_threadID == 16'd0)) begin
+		warp_axi_read_inst_addr_val = axi_master_warpPerspective_orig_inst_warp_axi_read_addr_val;
+	end
+end
+always @(*) begin
+	warp_axi_read_inst_size = 22'd0;
+	if ((axi_master_warpPerspective_orig_inst_warp_axi_read_threadID == 16'd0)) begin
+		warp_axi_read_inst_size = axi_master_warpPerspective_orig_inst_warp_axi_read_size;
+	end
+end
+always @(*) begin
+	warp_axi_read_inst_mem_even_read_data_a = mem_even_inst_read_data_a;
+end
+always @(*) begin
+	warp_axi_read_inst_mem_even_waitrequest_a = (warp_axi_read_inst_mem_even_read_en_a & ~(warp_axi_read_inst_mem_even_inst_grant_a));
+end
+always @(*) begin
+	warp_axi_read_inst_mem_even_read_data_b = mem_even_inst_read_data_b;
+end
+always @(*) begin
+	warp_axi_read_inst_mem_even_waitrequest_b = (warp_axi_read_inst_mem_even_read_en_b & ~(warp_axi_read_inst_mem_even_inst_grant_b));
+end
+always @(*) begin
+	warp_axi_read_inst_mem_odd_read_data_a = mem_odd_inst_read_data_a;
+end
+always @(*) begin
+	warp_axi_read_inst_mem_odd_waitrequest_a = (warp_axi_read_inst_mem_odd_read_en_a & ~(warp_axi_read_inst_mem_odd_inst_grant_a));
+end
+always @(*) begin
+	warp_axi_read_inst_mem_odd_read_data_b = mem_odd_inst_read_data_b;
+end
+always @(*) begin
+	warp_axi_read_inst_mem_odd_waitrequest_b = (warp_axi_read_inst_mem_odd_read_en_b & ~(warp_axi_read_inst_mem_odd_inst_grant_b));
+end
+always @(*) begin
+	warp_axi_read_inst_master_ar_ready = master_ar_ready;
+end
+always @(*) begin
+	warp_axi_read_inst_master_r_data = master_r_data;
+end
+always @(*) begin
+	warp_axi_read_inst_master_r_valid = master_r_valid;
+end
+always @(*) begin
+	warp_axi_read_inst_master_r_resp = master_r_resp;
+end
+always @(*) begin
+	warp_axi_read_inst_master_r_last = master_r_last;
+end
+always @(posedge clk) begin
+	if ((reset | warp_axi_read_inst_start)) begin
+		warp_axi_read_inst_finish_reg <= 1'd0;
+	end
+	if (warp_axi_read_inst_finish) begin
+		warp_axi_read_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	mem_even_inst_clk = clk;
+end
+assign mem_even_inst_clken = 1'd1;
+always @(*) begin
+	mem_even_inst_address_a = arbiter_mem_even_a_address_a;
+end
+always @(*) begin
+	mem_even_inst_write_en_a = arbiter_mem_even_a_write_en_a;
+end
+always @(*) begin
+	mem_even_inst_write_data_a = arbiter_mem_even_a_write_data_a;
+end
+always @(*) begin
+	mem_even_inst_address_b = arbiter_mem_even_b_address_b;
+end
+always @(*) begin
+	mem_even_inst_write_en_b = arbiter_mem_even_b_write_en_b;
+end
+always @(*) begin
+	mem_even_inst_write_data_b = arbiter_mem_even_b_write_data_b;
+end
+always @(*) begin
+	mem_odd_inst_clk = clk;
+end
+assign mem_odd_inst_clken = 1'd1;
+always @(*) begin
+	mem_odd_inst_address_a = arbiter_mem_odd_a_address_a;
+end
+always @(*) begin
+	mem_odd_inst_write_en_a = arbiter_mem_odd_a_write_en_a;
+end
+always @(*) begin
+	mem_odd_inst_write_data_a = arbiter_mem_odd_a_write_data_a;
+end
+always @(*) begin
+	mem_odd_inst_address_b = arbiter_mem_odd_b_address_b;
+end
+always @(*) begin
+	mem_odd_inst_write_en_b = arbiter_mem_odd_b_write_en_b;
+end
+always @(*) begin
+	mem_odd_inst_write_data_b = arbiter_mem_odd_b_write_data_b;
+end
+always @(*) begin
+	warpPerspective_hw_inst_clk = clk;
+end
+always @(*) begin
+	warpPerspective_hw_inst_reset = reset;
+end
+always @(*) begin
+	warpPerspective_hw_inst_start = 1'd0;
+	if ((axi_master_warpPerspective_orig_inst_warpPerspective_hw_threadID == 16'd0)) begin
+		warpPerspective_hw_inst_start = axi_master_warpPerspective_orig_inst_warpPerspective_hw_start;
+	end
+end
+always @(*) begin
+	warpPerspective_hw_inst_dst_height = 12'd0;
+	if ((axi_master_warpPerspective_orig_inst_warpPerspective_hw_threadID == 16'd0)) begin
+		warpPerspective_hw_inst_dst_height = axi_master_warpPerspective_orig_inst_warpPerspective_hw_dst_height;
+	end
+end
+always @(*) begin
+	warpPerspective_hw_inst_dst_width = 12'd0;
+	if ((axi_master_warpPerspective_orig_inst_warpPerspective_hw_threadID == 16'd0)) begin
+		warpPerspective_hw_inst_dst_width = axi_master_warpPerspective_orig_inst_warpPerspective_hw_dst_width;
+	end
+end
+always @(*) begin
+	warpPerspective_hw_inst_warp_matrix_m = 0;
+	if ((axi_master_warpPerspective_orig_inst_warpPerspective_hw_threadID == 16'd0)) begin
+		warpPerspective_hw_inst_warp_matrix_m = axi_master_warpPerspective_orig_inst_warpPerspective_hw_warp_matrix_m;
+	end
+end
+always @(*) begin
+	warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a = axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_a;
+end
+always @(*) begin
+	warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a = (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a & ~(warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a));
+end
+always @(*) begin
+	warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b = axi_master_warpPerspective_orig_entry_warp_matrix_inst_read_data_b;
+end
+always @(*) begin
+	warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b = (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b & ~(warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b));
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_even_read_data_a = mem_even_inst_read_data_a;
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_even_waitrequest_a = (warpPerspective_hw_inst_mem_even_read_en_a & ~(warpPerspective_hw_inst_mem_even_inst_grant_a));
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_even_read_data_b = mem_even_inst_read_data_b;
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_even_waitrequest_b = (warpPerspective_hw_inst_mem_even_read_en_b & ~(warpPerspective_hw_inst_mem_even_inst_grant_b));
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_odd_read_data_a = mem_odd_inst_read_data_a;
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_odd_waitrequest_a = (warpPerspective_hw_inst_mem_odd_read_en_a & ~(warpPerspective_hw_inst_mem_odd_inst_grant_a));
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_odd_read_data_b = mem_odd_inst_read_data_b;
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_odd_waitrequest_b = (warpPerspective_hw_inst_mem_odd_read_en_b & ~(warpPerspective_hw_inst_mem_odd_inst_grant_b));
+end
+always @(*) begin
+	warpPerspective_hw_inst_fifo_ready = ~(axi_master_warpPerspective_orig_entry_output_fifo_inst_full);
+end
+always @(*) begin
+	warpPerspective_hw_inst_burst_size_ready = ~(axi_master_warpPerspective_orig_entry_burst_size_inst_full);
+end
+always @(posedge clk) begin
+	if ((reset | warpPerspective_hw_inst_start)) begin
+		warpPerspective_hw_inst_finish_reg <= 1'd0;
+	end
+	if (warpPerspective_hw_inst_finish) begin
+		warpPerspective_hw_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	axi_channel_write_inst_clk = clk;
+end
+always @(*) begin
+	axi_channel_write_inst_reset = reset;
+end
+always @(*) begin
+	axi_channel_write_inst_start = 1'd0;
+	if ((axi_master_warpPerspective_orig_inst_axi_channel_write_threadID == 16'd0)) begin
+		axi_channel_write_inst_start = axi_master_warpPerspective_orig_inst_axi_channel_write_start;
+	end
+end
+always @(*) begin
+	axi_channel_write_inst_addr_val = 0;
+	if ((axi_master_warpPerspective_orig_inst_axi_channel_write_threadID == 16'd0)) begin
+		axi_channel_write_inst_addr_val = axi_master_warpPerspective_orig_inst_axi_channel_write_addr_val;
+	end
+end
+always @(*) begin
+	axi_channel_write_inst_width_val = 12'd0;
+	if ((axi_master_warpPerspective_orig_inst_axi_channel_write_threadID == 16'd0)) begin
+		axi_channel_write_inst_width_val = axi_master_warpPerspective_orig_inst_axi_channel_write_width_val;
+	end
+end
+always @(*) begin
+	axi_channel_write_inst_height_val = 12'd0;
+	if ((axi_master_warpPerspective_orig_inst_axi_channel_write_threadID == 16'd0)) begin
+		axi_channel_write_inst_height_val = axi_master_warpPerspective_orig_inst_axi_channel_write_height_val;
+	end
+end
+always @(*) begin
+	axi_channel_write_inst_burst_size = axi_master_warpPerspective_orig_entry_burst_size_inst_read_data;
+end
+always @(*) begin
+	axi_channel_write_inst_burst_size_valid = ~(axi_master_warpPerspective_orig_entry_burst_size_inst_empty);
+end
+always @(*) begin
+	axi_channel_write_inst_master_aw_ready = master_aw_ready;
+end
+always @(*) begin
+	axi_channel_write_inst_fifo = axi_master_warpPerspective_orig_entry_output_fifo_inst_read_data;
+end
+always @(*) begin
+	axi_channel_write_inst_fifo_valid = ~(axi_master_warpPerspective_orig_entry_output_fifo_inst_empty);
+end
+always @(*) begin
+	axi_channel_write_inst_master_w_ready = master_w_ready;
+end
+always @(*) begin
+	axi_channel_write_inst_master_b_resp = master_b_resp;
+end
+always @(*) begin
+	axi_channel_write_inst_master_b_resp_valid = master_b_resp_valid;
+end
+always @(posedge clk) begin
+	if ((reset | axi_channel_write_inst_start)) begin
+		axi_channel_write_inst_finish_reg <= 1'd0;
+	end
+	if (axi_channel_write_inst_finish) begin
+		axi_channel_write_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_start = axi_master_warpPerspective_inst_bilinear_warp_control_memory_read_start;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_s_ar_addr = axi_s_ar_addr;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_axi_s_ar_valid = axi_s_ar_valid;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_s_ar_burst = axi_s_ar_burst;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_s_ar_size = axi_s_ar_size;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_s_ar_len = axi_s_ar_len;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_addr_read_data = bilinear_warp_control_memory_out_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_in_addr_read_data = bilinear_warp_control_memory_in_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_height_read_data = bilinear_warp_control_memory_out_height_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_out_width_read_data = bilinear_warp_control_memory_out_width_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_data_a = bilinear_warp_control_memory_m_inst_read_data_a;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_m_read_data_b = bilinear_warp_control_memory_m_inst_read_data_b;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_bilinear_warp_control_memory_ctrl_read_data = bilinear_warp_control_memory_ctrl_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_inst_axi_s_r_ready = axi_s_r_ready;
+end
+always @(posedge clk) begin
+	if ((reset | bilinear_warp_control_memory_read_inst_start)) begin
+		bilinear_warp_control_memory_read_inst_finish_reg <= 1'd0;
+	end
+	if (bilinear_warp_control_memory_read_inst_finish) begin
+		bilinear_warp_control_memory_read_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_ctrl_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_ctrl_inst_reset = ((reset | bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_ctrl_write_en) | start);
+end
+always @(*) begin
+	bilinear_warp_control_memory_ctrl_inst_write_en = axi_master_warpPerspective_orig_inst_finish;
+end
+assign bilinear_warp_control_memory_ctrl_inst_write_data = 1'd1;
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_start = axi_master_warpPerspective_inst_bilinear_warp_control_memory_write_start;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_aw_addr = axi_s_aw_addr;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_axi_s_aw_valid = axi_s_aw_valid;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_w_data = axi_s_w_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_axi_s_w_valid = axi_s_w_valid;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_aw_burst = axi_s_aw_burst;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_aw_size = axi_s_aw_size;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_aw_len = axi_s_aw_len;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_w_strb = axi_s_w_strb;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_w_last = axi_s_w_last;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_in_addr_read_data = bilinear_warp_control_memory_in_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_width_read_data = bilinear_warp_control_memory_out_width_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_data_a = bilinear_warp_control_memory_m_inst_read_data_a;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_m_read_data_b = bilinear_warp_control_memory_m_inst_read_data_b;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_addr_read_data = bilinear_warp_control_memory_out_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_bilinear_warp_control_memory_out_height_read_data = bilinear_warp_control_memory_out_height_inst_read_data;
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_inst_s_b_resp_ready = axi_s_b_resp_ready;
+end
+always @(posedge clk) begin
+	if ((reset | bilinear_warp_control_memory_write_inst_start)) begin
+		bilinear_warp_control_memory_write_inst_finish_reg <= 1'd0;
+	end
+	if (bilinear_warp_control_memory_write_inst_finish) begin
+		bilinear_warp_control_memory_write_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_clk = clk;
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_rst_an = ~(reset);
+end
+assign round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_memory_controller_waitrequest = ~(1'd1);
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_req_in = ((axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a <<< 1'd0) | (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a <<< 2'd1));
+end
+always @(*) begin
+	arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_address_a = 4'd0;
+	if (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_address_a = axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_a;
+	end
+	if (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_address_a = warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_a;
+	end
+end
+always @(*) begin
+	arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_en_a = 1'd0;
+	if (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_en_a = axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a;
+	end
+	if (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_en_a = warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a;
+	end
+end
+always @(*) begin
+	arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_data_a = 17'd0;
+	if (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_data_a = axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a;
+	end
+	if (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__a_write_data_a = warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a;
+	end
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_clk = clk;
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_rst_an = ~(reset);
+end
+assign round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_memory_controller_waitrequest = ~(1'd1);
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_req_in = ((axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b <<< 1'd0) | (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b <<< 2'd1));
+end
+always @(*) begin
+	arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_address_b = 4'd0;
+	if (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_address_b = axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_b;
+	end
+	if (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_address_b = warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__address_b;
+	end
+end
+always @(*) begin
+	arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_en_b = 1'd0;
+	if (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_en_b = axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b;
+	end
+	if (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_en_b = warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b;
+	end
+end
+always @(*) begin
+	arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_data_b = 17'd0;
+	if (axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_data_b = axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b;
+	end
+	if (warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b) begin
+		arbiter_axi_master_warpPerspective_orig_entry_warp_matrix__b_write_data_b = warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a = round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_grant_final[0];
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b = round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_grant_final[0];
+end
+always @(*) begin
+	muxOutput_for_axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish = 1'd0;
+	if (((axi_master_warpPerspective_orig_inst_legup_pthreadpoll_functionID == 16'd1) == (axi_master_warpPerspective_orig_inst_legup_pthreadpoll_threadID == 16'd0))) begin
+		muxOutput_for_axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish = (~(warp_axi_read_inst_start) & warp_axi_read_inst_finish_reg);
+	end
+	if (((axi_master_warpPerspective_orig_inst_legup_pthreadpoll_functionID == 16'd2) == (axi_master_warpPerspective_orig_inst_legup_pthreadpoll_threadID == 16'd0))) begin
+		muxOutput_for_axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish = (~(warpPerspective_hw_inst_start) & warpPerspective_hw_inst_finish_reg);
+	end
+	if (((axi_master_warpPerspective_orig_inst_legup_pthreadpoll_functionID == 16'd0) == (axi_master_warpPerspective_orig_inst_legup_pthreadpoll_threadID == 16'd0))) begin
+		muxOutput_for_axi_master_warpPerspective_orig_inst_legup_pthreadpoll_finish = (~(axi_channel_write_inst_start) & axi_channel_write_inst_finish_reg);
+	end
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_even_a_clk = clk;
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_even_a_rst_an = ~(reset);
+end
+assign round_robin_arbiter_inst_arbiter_mem_even_a_memory_controller_waitrequest = ~(1'd1);
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_even_a_req_in = ((warp_axi_read_inst_mem_even_read_en_a <<< 1'd0) | (warpPerspective_hw_inst_mem_even_read_en_a <<< 2'd1));
+end
+always @(*) begin
+	arbiter_mem_even_a_address_a = 14'd0;
+	if (warp_axi_read_inst_mem_even_inst_grant_a) begin
+		arbiter_mem_even_a_address_a = warp_axi_read_inst_mem_even_address_a;
+	end
+	if (warpPerspective_hw_inst_mem_even_inst_grant_a) begin
+		arbiter_mem_even_a_address_a = warpPerspective_hw_inst_mem_even_address_a;
+	end
+end
+always @(*) begin
+	arbiter_mem_even_a_write_en_a = 1'd0;
+	if (warp_axi_read_inst_mem_even_inst_grant_a) begin
+		arbiter_mem_even_a_write_en_a = warp_axi_read_inst_mem_even_write_en_a;
+	end
+	if (warpPerspective_hw_inst_mem_even_inst_grant_a) begin
+		arbiter_mem_even_a_write_en_a = warpPerspective_hw_inst_mem_even_write_en_a;
+	end
+end
+always @(*) begin
+	arbiter_mem_even_a_write_data_a = 16'd0;
+	if (warp_axi_read_inst_mem_even_inst_grant_a) begin
+		arbiter_mem_even_a_write_data_a = warp_axi_read_inst_mem_even_write_data_a;
+	end
+	if (warpPerspective_hw_inst_mem_even_inst_grant_a) begin
+		arbiter_mem_even_a_write_data_a = warpPerspective_hw_inst_mem_even_write_data_a;
+	end
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_even_b_clk = clk;
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_even_b_rst_an = ~(reset);
+end
+assign round_robin_arbiter_inst_arbiter_mem_even_b_memory_controller_waitrequest = ~(1'd1);
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_even_b_req_in = ((warp_axi_read_inst_mem_even_read_en_b <<< 1'd0) | (warpPerspective_hw_inst_mem_even_read_en_b <<< 2'd1));
+end
+always @(*) begin
+	arbiter_mem_even_b_address_b = 14'd0;
+	if (warp_axi_read_inst_mem_even_inst_grant_b) begin
+		arbiter_mem_even_b_address_b = warp_axi_read_inst_mem_even_address_b;
+	end
+	if (warpPerspective_hw_inst_mem_even_inst_grant_b) begin
+		arbiter_mem_even_b_address_b = warpPerspective_hw_inst_mem_even_address_b;
+	end
+end
+always @(*) begin
+	arbiter_mem_even_b_write_en_b = 1'd0;
+	if (warp_axi_read_inst_mem_even_inst_grant_b) begin
+		arbiter_mem_even_b_write_en_b = warp_axi_read_inst_mem_even_write_en_b;
+	end
+	if (warpPerspective_hw_inst_mem_even_inst_grant_b) begin
+		arbiter_mem_even_b_write_en_b = warpPerspective_hw_inst_mem_even_write_en_b;
+	end
+end
+always @(*) begin
+	arbiter_mem_even_b_write_data_b = 16'd0;
+	if (warp_axi_read_inst_mem_even_inst_grant_b) begin
+		arbiter_mem_even_b_write_data_b = warp_axi_read_inst_mem_even_write_data_b;
+	end
+	if (warpPerspective_hw_inst_mem_even_inst_grant_b) begin
+		arbiter_mem_even_b_write_data_b = warpPerspective_hw_inst_mem_even_write_data_b;
+	end
+end
+always @(*) begin
+	warp_axi_read_inst_mem_even_inst_grant_a = round_robin_arbiter_inst_arbiter_mem_even_a_grant_final[0];
+end
+always @(*) begin
+	warp_axi_read_inst_mem_even_inst_grant_b = round_robin_arbiter_inst_arbiter_mem_even_b_grant_final[0];
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_odd_a_clk = clk;
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_odd_a_rst_an = ~(reset);
+end
+assign round_robin_arbiter_inst_arbiter_mem_odd_a_memory_controller_waitrequest = ~(1'd1);
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_odd_a_req_in = ((warp_axi_read_inst_mem_odd_read_en_a <<< 1'd0) | (warpPerspective_hw_inst_mem_odd_read_en_a <<< 2'd1));
+end
+always @(*) begin
+	arbiter_mem_odd_a_address_a = 14'd0;
+	if (warp_axi_read_inst_mem_odd_inst_grant_a) begin
+		arbiter_mem_odd_a_address_a = warp_axi_read_inst_mem_odd_address_a;
+	end
+	if (warpPerspective_hw_inst_mem_odd_inst_grant_a) begin
+		arbiter_mem_odd_a_address_a = warpPerspective_hw_inst_mem_odd_address_a;
+	end
+end
+always @(*) begin
+	arbiter_mem_odd_a_write_en_a = 1'd0;
+	if (warp_axi_read_inst_mem_odd_inst_grant_a) begin
+		arbiter_mem_odd_a_write_en_a = warp_axi_read_inst_mem_odd_write_en_a;
+	end
+	if (warpPerspective_hw_inst_mem_odd_inst_grant_a) begin
+		arbiter_mem_odd_a_write_en_a = warpPerspective_hw_inst_mem_odd_write_en_a;
+	end
+end
+always @(*) begin
+	arbiter_mem_odd_a_write_data_a = 16'd0;
+	if (warp_axi_read_inst_mem_odd_inst_grant_a) begin
+		arbiter_mem_odd_a_write_data_a = warp_axi_read_inst_mem_odd_write_data_a;
+	end
+	if (warpPerspective_hw_inst_mem_odd_inst_grant_a) begin
+		arbiter_mem_odd_a_write_data_a = warpPerspective_hw_inst_mem_odd_write_data_a;
+	end
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_odd_b_clk = clk;
+end
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_odd_b_rst_an = ~(reset);
+end
+assign round_robin_arbiter_inst_arbiter_mem_odd_b_memory_controller_waitrequest = ~(1'd1);
+always @(*) begin
+	round_robin_arbiter_inst_arbiter_mem_odd_b_req_in = ((warp_axi_read_inst_mem_odd_read_en_b <<< 1'd0) | (warpPerspective_hw_inst_mem_odd_read_en_b <<< 2'd1));
+end
+always @(*) begin
+	arbiter_mem_odd_b_address_b = 14'd0;
+	if (warp_axi_read_inst_mem_odd_inst_grant_b) begin
+		arbiter_mem_odd_b_address_b = warp_axi_read_inst_mem_odd_address_b;
+	end
+	if (warpPerspective_hw_inst_mem_odd_inst_grant_b) begin
+		arbiter_mem_odd_b_address_b = warpPerspective_hw_inst_mem_odd_address_b;
+	end
+end
+always @(*) begin
+	arbiter_mem_odd_b_write_en_b = 1'd0;
+	if (warp_axi_read_inst_mem_odd_inst_grant_b) begin
+		arbiter_mem_odd_b_write_en_b = warp_axi_read_inst_mem_odd_write_en_b;
+	end
+	if (warpPerspective_hw_inst_mem_odd_inst_grant_b) begin
+		arbiter_mem_odd_b_write_en_b = warpPerspective_hw_inst_mem_odd_write_en_b;
+	end
+end
+always @(*) begin
+	arbiter_mem_odd_b_write_data_b = 16'd0;
+	if (warp_axi_read_inst_mem_odd_inst_grant_b) begin
+		arbiter_mem_odd_b_write_data_b = warp_axi_read_inst_mem_odd_write_data_b;
+	end
+	if (warpPerspective_hw_inst_mem_odd_inst_grant_b) begin
+		arbiter_mem_odd_b_write_data_b = warpPerspective_hw_inst_mem_odd_write_data_b;
+	end
+end
+always @(*) begin
+	warp_axi_read_inst_mem_odd_inst_grant_a = round_robin_arbiter_inst_arbiter_mem_odd_a_grant_final[0];
+end
+always @(*) begin
+	warp_axi_read_inst_mem_odd_inst_grant_b = round_robin_arbiter_inst_arbiter_mem_odd_b_grant_final[0];
+end
+always @(*) begin
+	warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_a = round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_a_grant_final[1];
+end
+always @(*) begin
+	warpPerspective_hw_inst_axi_master_warpPerspective_orig_entry_warp_matrix_inst_grant_b = round_robin_arbiter_inst_arbiter_axi_master_warpPerspective_orig_entry_warp_matrix_b_grant_final[1];
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_even_inst_grant_a = round_robin_arbiter_inst_arbiter_mem_even_a_grant_final[1];
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_even_inst_grant_b = round_robin_arbiter_inst_arbiter_mem_even_b_grant_final[1];
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_odd_inst_grant_a = round_robin_arbiter_inst_arbiter_mem_odd_a_grant_final[1];
+end
+always @(*) begin
+	warpPerspective_hw_inst_mem_odd_inst_grant_b = round_robin_arbiter_inst_arbiter_mem_odd_b_grant_final[1];
+end
+always @(*) begin
+	ready = axi_master_warpPerspective_inst_ready;
+end
+always @(*) begin
+	finish = axi_master_warpPerspective_inst_finish;
+end
+always @(*) begin
+	axi_s_aw_ready = bilinear_warp_control_memory_write_inst_axi_s_aw_ready;
+end
+always @(*) begin
+	axi_s_w_ready = bilinear_warp_control_memory_write_inst_axi_s_w_ready;
+end
+always @(*) begin
+	axi_s_b_resp = bilinear_warp_control_memory_write_inst_s_b_resp;
+end
+always @(*) begin
+	axi_s_b_resp_valid = bilinear_warp_control_memory_write_inst_s_b_resp_valid;
+end
+always @(*) begin
+	axi_s_ar_ready = bilinear_warp_control_memory_read_inst_axi_s_ar_ready;
+end
+always @(*) begin
+	axi_s_r_data = bilinear_warp_control_memory_read_inst_s_r_data;
+end
+always @(*) begin
+	axi_s_r_valid = bilinear_warp_control_memory_read_inst_axi_s_r_valid;
+end
+always @(*) begin
+	axi_s_r_resp = bilinear_warp_control_memory_read_inst_s_r_resp;
+end
+always @(*) begin
+	axi_s_r_last = bilinear_warp_control_memory_read_inst_s_r_last;
+end
+always @(*) begin
+	master_aw_addr = axi_channel_write_inst_master_aw_addr;
+end
+always @(*) begin
+	master_aw_valid = axi_channel_write_inst_master_aw_valid;
+end
+always @(*) begin
+	master_aw_burst = axi_channel_write_inst_master_aw_burst;
+end
+always @(*) begin
+	master_aw_size = axi_channel_write_inst_master_aw_size;
+end
+always @(*) begin
+	master_aw_len = axi_channel_write_inst_master_aw_len;
+end
+always @(*) begin
+	master_w_data = axi_channel_write_inst_master_w_data;
+end
+always @(*) begin
+	master_w_valid = axi_channel_write_inst_master_w_valid;
+end
+always @(*) begin
+	master_w_strb = axi_channel_write_inst_master_w_strb;
+end
+always @(*) begin
+	master_w_last = axi_channel_write_inst_master_w_last;
+end
+always @(*) begin
+	master_b_resp_ready = axi_channel_write_inst_master_b_resp_ready;
+end
+always @(*) begin
+	master_ar_addr = warp_axi_read_inst_master_ar_addr;
+end
+always @(*) begin
+	master_ar_valid = warp_axi_read_inst_master_ar_valid;
+end
+always @(*) begin
+	master_ar_burst = warp_axi_read_inst_master_ar_burst;
+end
+always @(*) begin
+	master_ar_size = warp_axi_read_inst_master_ar_size;
+end
+always @(*) begin
+	master_ar_len = warp_axi_read_inst_master_ar_len;
+end
+always @(*) begin
+	master_r_ready = warp_axi_read_inst_master_r_ready;
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_axi_master_warpPerspective
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	axi_master_warpPerspective_orig_start,
+	axi_master_warpPerspective_orig_finish,
+	axi_master_warpPerspective_orig_ready,
+	bilinear_warp_control_memory_read_start,
+	bilinear_warp_control_memory_read_finish,
+	bilinear_warp_control_memory_read_ready,
+	bilinear_warp_control_memory_write_start,
+	bilinear_warp_control_memory_write_finish,
+	bilinear_warp_control_memory_write_ready
+);
+
+parameter [2:0] LEGUP_0 = 3'd0;
+parameter [2:0] LEGUP_F_axi_master_warpPerspective_BB_entry_1 = 3'd1;
+parameter [2:0] LEGUP_F_axi_master_warpPerspective_BB_entry_3 = 3'd3;
+parameter [2:0] LEGUP_F_axi_master_warpPerspective_BB_entry_5 = 3'd5;
+parameter [2:0] LEGUP_F_axi_master_warpPerspective_BB_entry_7 = 3'd7;
+parameter [2:0] LEGUP_function_call_2 = 3'd2;
+parameter [2:0] LEGUP_function_call_4 = 3'd4;
+parameter [2:0] LEGUP_function_call_6 = 3'd6;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+output reg  axi_master_warpPerspective_orig_start;
+input  axi_master_warpPerspective_orig_finish;
+input  axi_master_warpPerspective_orig_ready;
+output reg  bilinear_warp_control_memory_read_start;
+input  bilinear_warp_control_memory_read_finish;
+input  bilinear_warp_control_memory_read_ready;
+output reg  bilinear_warp_control_memory_write_start;
+input  bilinear_warp_control_memory_write_finish;
+input  bilinear_warp_control_memory_write_ready;
+reg [2:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [2:0] next_state;
+wire  fsm_stall;
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_BB_entry_1;
+LEGUP_F_axi_master_warpPerspective_BB_entry_1:
+		next_state = LEGUP_function_call_2;
+LEGUP_F_axi_master_warpPerspective_BB_entry_3:
+		next_state = LEGUP_function_call_4;
+LEGUP_F_axi_master_warpPerspective_BB_entry_5:
+		next_state = LEGUP_function_call_6;
+LEGUP_F_axi_master_warpPerspective_BB_entry_7:
+		next_state = LEGUP_0;
+LEGUP_function_call_2:
+	if ((fsm_stall == 1'd0) && (axi_master_warpPerspective_orig_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_BB_entry_3;
+LEGUP_function_call_4:
+	if ((fsm_stall == 1'd0) && (bilinear_warp_control_memory_read_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_BB_entry_5;
+LEGUP_function_call_6:
+	if ((fsm_stall == 1'd0) && (bilinear_warp_control_memory_write_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_BB_entry_7;
+default:
+	next_state = cur_state;
+endcase
+
+end
+assign fsm_stall = 1'd0;
+always @(*) begin
+	ready = axi_master_warpPerspective_orig_ready;
+end
+always @(posedge clk) begin
+	finish <= axi_master_warpPerspective_orig_finish;
+end
+always @(*) begin
+	if (reset) begin
+		axi_master_warpPerspective_orig_start = 1'd0;
+	end
+	else if ((cur_state == LEGUP_F_axi_master_warpPerspective_BB_entry_1)) begin
+		axi_master_warpPerspective_orig_start = (fsm_stall == 1'd0);
+	end
+	else /* if ((cur_state == LEGUP_function_call_2)) */ begin
+		axi_master_warpPerspective_orig_start = 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_start = 1'd1;
+	if (reset) begin
+		bilinear_warp_control_memory_read_start = 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_start = 1'd1;
+	if (reset) begin
+		bilinear_warp_control_memory_write_start = 1'd0;
+	end
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_axi_master_warpPerspective_orig
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	warp_axi_read_start,
+	warp_axi_read_ready,
+	warp_axi_read_addr_val,
+	warp_axi_read_size,
+	warp_axi_read_threadID,
+	legup_pthreadpoll_threadID,
+	legup_pthreadpoll_functionID,
+	legup_pthreadpoll_finish,
+	legup_pthreadpoll_return_val,
+	warpPerspective_hw_start,
+	warpPerspective_hw_ready,
+	warpPerspective_hw_dst_height,
+	warpPerspective_hw_dst_width,
+	warpPerspective_hw_warp_matrix_m,
+	warpPerspective_hw_threadID,
+	axi_channel_write_start,
+	axi_channel_write_ready,
+	axi_channel_write_addr_val,
+	axi_channel_write_width_val,
+	axi_channel_write_height_val,
+	axi_channel_write_threadID,
+	bilinear_warp_control_memory_out_width_write_en,
+	bilinear_warp_control_memory_out_width_write_data,
+	bilinear_warp_control_memory_out_width_read_data,
+	bilinear_warp_control_memory_out_height_write_en,
+	bilinear_warp_control_memory_out_height_write_data,
+	bilinear_warp_control_memory_out_height_read_data,
+	bilinear_warp_control_memory_m_clken,
+	bilinear_warp_control_memory_m_write_en_a,
+	bilinear_warp_control_memory_m_write_data_a,
+	bilinear_warp_control_memory_m_read_en_a,
+	bilinear_warp_control_memory_m_address_a,
+	bilinear_warp_control_memory_m_read_data_a,
+	bilinear_warp_control_memory_m_write_en_b,
+	bilinear_warp_control_memory_m_write_data_b,
+	bilinear_warp_control_memory_m_read_en_b,
+	bilinear_warp_control_memory_m_address_b,
+	bilinear_warp_control_memory_m_read_data_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__clken,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__address_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__address_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b,
+	bilinear_warp_control_memory_in_addr_write_en,
+	bilinear_warp_control_memory_in_addr_write_data,
+	bilinear_warp_control_memory_in_addr_read_data,
+	bilinear_warp_control_memory_out_addr_write_en,
+	bilinear_warp_control_memory_out_addr_write_data,
+	bilinear_warp_control_memory_out_addr_read_data,
+	axi_master_warpPerspective_orig_entry_output_fifo_usedw,
+	axi_master_warpPerspective_orig_entry_burst_size_usedw
+);
+
+parameter [4:0] LEGUP_0 = 5'd0;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_entry_1 = 5'd1;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_2 = 5'd2;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_3 = 5'd3;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_thread_4 = 5'd4;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_5 = 5'd5;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_cond_false_i_i_i_6 = 5'd6;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7 = 5'd7;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_8 = 5'd8;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9 = 5'd9;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_11 = 5'd11;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13 = 5'd13;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15 = 5'd15;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_17 = 5'd17;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_19 = 5'd19;
+parameter [4:0] LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_21 = 5'd21;
+parameter [4:0] LEGUP_function_call_10 = 5'd10;
+parameter [4:0] LEGUP_function_call_12 = 5'd12;
+parameter [4:0] LEGUP_function_call_14 = 5'd14;
+parameter [4:0] LEGUP_function_call_16 = 5'd16;
+parameter [4:0] LEGUP_function_call_18 = 5'd18;
+parameter [4:0] LEGUP_function_call_20 = 5'd20;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+output reg  warp_axi_read_start;
+input  warp_axi_read_ready;
+output reg [31:0] warp_axi_read_addr_val;
+output reg [21:0] warp_axi_read_size;
+output reg [15:0] warp_axi_read_threadID;
+output reg [15:0] legup_pthreadpoll_threadID;
+output reg [15:0] legup_pthreadpoll_functionID;
+input  legup_pthreadpoll_finish;
+input [63:0] legup_pthreadpoll_return_val;
+output reg  warpPerspective_hw_start;
+input  warpPerspective_hw_ready;
+output reg [11:0] warpPerspective_hw_dst_height;
+output reg [11:0] warpPerspective_hw_dst_width;
+output reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_warp_matrix_m;
+output reg [15:0] warpPerspective_hw_threadID;
+output reg  axi_channel_write_start;
+input  axi_channel_write_ready;
+output reg [31:0] axi_channel_write_addr_val;
+output reg [11:0] axi_channel_write_width_val;
+output reg [11:0] axi_channel_write_height_val;
+output reg [15:0] axi_channel_write_threadID;
+output  bilinear_warp_control_memory_out_width_write_en;
+output [31:0] bilinear_warp_control_memory_out_width_write_data;
+input [31:0] bilinear_warp_control_memory_out_width_read_data;
+output  bilinear_warp_control_memory_out_height_write_en;
+output [31:0] bilinear_warp_control_memory_out_height_write_data;
+input [31:0] bilinear_warp_control_memory_out_height_read_data;
+output reg  bilinear_warp_control_memory_m_clken;
+output  bilinear_warp_control_memory_m_write_en_a;
+output [31:0] bilinear_warp_control_memory_m_write_data_a;
+output reg  bilinear_warp_control_memory_m_read_en_a;
+output reg [3:0] bilinear_warp_control_memory_m_address_a;
+input [31:0] bilinear_warp_control_memory_m_read_data_a;
+output  bilinear_warp_control_memory_m_write_en_b;
+output [31:0] bilinear_warp_control_memory_m_write_data_b;
+output  bilinear_warp_control_memory_m_read_en_b;
+output [3:0] bilinear_warp_control_memory_m_address_b;
+input [31:0] bilinear_warp_control_memory_m_read_data_b;
+output  axi_master_warpPerspective_orig_entry_warp_matrix__clken;
+output reg  axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a;
+output reg [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a;
+output reg  axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a;
+output reg [3:0] axi_master_warpPerspective_orig_entry_warp_matrix__address_a;
+input [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a;
+input  axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a;
+output  axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b;
+output [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b;
+output  axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b;
+output [3:0] axi_master_warpPerspective_orig_entry_warp_matrix__address_b;
+input [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b;
+input  axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b;
+output  bilinear_warp_control_memory_in_addr_write_en;
+output [31:0] bilinear_warp_control_memory_in_addr_write_data;
+input [31:0] bilinear_warp_control_memory_in_addr_read_data;
+output  bilinear_warp_control_memory_out_addr_write_en;
+output [31:0] bilinear_warp_control_memory_out_addr_write_data;
+input [31:0] bilinear_warp_control_memory_out_addr_read_data;
+input [8:0] axi_master_warpPerspective_orig_entry_output_fifo_usedw;
+input [1:0] axi_master_warpPerspective_orig_entry_burst_size_usedw;
+reg [4:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [4:0] next_state;
+reg  fsm_stall;
+reg [31:0] axi_master_warpPerspective_orig_entry_0;
+reg [11:0] axi_master_warpPerspective_orig_entry_bit_select1;
+reg [11:0] axi_master_warpPerspective_orig_entry_bit_select1_reg;
+reg [31:0] axi_master_warpPerspective_orig_entry_1;
+reg [11:0] axi_master_warpPerspective_orig_entry_bit_select;
+reg [11:0] axi_master_warpPerspective_orig_entry_bit_select_reg;
+reg [3:0] axi_master_warpPerspective_orig_for_body_i_05;
+reg [3:0] axi_master_warpPerspective_orig_for_body_i_05_reg;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] axi_master_warpPerspective_orig_for_body_mem_flat_;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] axi_master_warpPerspective_orig_for_body_mem_flat__0;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] axi_master_warpPerspective_orig_for_body_mem_flat__0_reg;
+reg [31:0] axi_master_warpPerspective_orig_for_body_2;
+reg [31:0] axi_master_warpPerspective_orig_for_body_3;
+reg [20:0] axi_master_warpPerspective_orig_for_body_bit_selec;
+reg  axi_master_warpPerspective_orig_for_body_bit_selec_1;
+reg  axi_master_warpPerspective_orig_for_body_bit_conca;
+reg  axi_master_warpPerspective_orig_for_body_4;
+reg  axi_master_warpPerspective_orig_for_body_bit_selec_2;
+reg  axi_master_warpPerspective_orig_for_body_conv_i_i_;
+reg [21:0] axi_master_warpPerspective_orig_for_body_5;
+reg [21:0] axi_master_warpPerspective_orig_for_body_5_reg;
+reg [16:0] axi_master_warpPerspective_orig_for_body_bit_selec_3;
+reg [16:0] axi_master_warpPerspective_orig_for_body_bit_selec_3_reg;
+reg  axi_master_warpPerspective_orig_for_body_6;
+reg  axi_master_warpPerspective_orig_it_i_i_i_thread_7;
+reg [16:0] axi_master_warpPerspective_orig_it_i_i_i_thread_co;
+reg  axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln;
+reg [16:0] axi_master_warpPerspective_orig_ond_false_i_i_i_co;
+reg [16:0] axi_master_warpPerspective_orig_ond_false_i_i_i_co_reg;
+reg [16:0] axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co;
+reg [16:0] axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co_reg;
+reg [4:0] axi_master_warpPerspective_orig_1_EXT2_EEE_exit_8;
+reg [4:0] axi_master_warpPerspective_orig_1_EXT2_EEE_exit_8_reg;
+reg  axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex;
+reg  axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex_reg;
+reg [31:0] axi_master_warpPerspective_orig_for_end_9;
+reg [31:0] axi_master_warpPerspective_orig_for_end_10;
+reg [31:0] axi_master_warpPerspective_orig_for_end_10_reg;
+reg [31:0] axi_master_warpPerspective_orig_for_end_t1_0_t1_0_;
+reg [31:0] axi_master_warpPerspective_orig_for_end_t1_0_t1_0__reg;
+reg [31:0] axi_master_warpPerspective_orig_for_end_t2_0_t2_0_;
+reg [31:0] axi_master_warpPerspective_orig_for_end_t2_0_t2_0__reg;
+reg [31:0] axi_master_warpPerspective_orig_for_end_t3_0_t3_0_;
+reg [31:0] axi_master_warpPerspective_orig_for_end_t3_0_t3_0__reg;
+wire [8:0] axi_master_warpPerspective_orig_for_end_14;
+reg [31:0] axi_master_warpPerspective_orig_for_end_14_reg;
+wire [1:0] axi_master_warpPerspective_orig_for_end_15;
+reg [31:0] axi_master_warpPerspective_orig_for_end_15_reg;
+reg [31:0] axi_master_warpPerspective_orig_entry_t1_inferred_reg;
+reg [31:0] axi_master_warpPerspective_orig_entry_t2_inferred_reg;
+reg [31:0] axi_master_warpPerspective_orig_entry_t3_inferred_reg;
+reg [31:0] bilinear_warp_control_memory_m_read_data_wire_a;
+wire  bilinear_warp_control_memory_m_clken_not_in_pipeline;
+reg  bilinear_warp_control_memory_m_clken_sequential_cond;
+reg [32:0] axi_master_warpPerspective_orig_for_body_3_width_extended;
+wire [31:0] axi_master_warpPerspective_orig_for_body_bit_conca_bit_select_operand_0;
+reg [21:0] axi_master_warpPerspective_orig_for_body_4_width_extended;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_enable_cond_a;
+
+
+/* Unsynthesizable Statements */
+/* synthesis translate_off */
+always @(posedge clk)
+	if (!fsm_stall) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_21)) begin
+		$write("warp.cpp:%d output_fifo.get_usedw()=%d\n", $signed(32'd386), $signed(axi_master_warpPerspective_orig_for_end_14_reg));
+		// to fix quartus warning
+		if (reset == 1'b0 && ^(32'd386) === 1'bX) finish <= 0;
+		if (reset == 1'b0 && ^(axi_master_warpPerspective_orig_for_end_14_reg) === 1'bX) finish <= 0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_21)) begin
+		$write("warp.cpp:%d burst_size.get_usedw()=%d\n", $signed(32'd387), $signed(axi_master_warpPerspective_orig_for_end_15_reg));
+		// to fix quartus warning
+		if (reset == 1'b0 && ^(32'd387) === 1'bX) finish <= 0;
+		if (reset == 1'b0 && ^(axi_master_warpPerspective_orig_for_end_15_reg) === 1'bX) finish <= 0;
+	end
+end
+/* synthesis translate_on */
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_entry_1;
+LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_5:
+	if ((fsm_stall == 0) && (axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7;
+	else if ((fsm_stall == 0) && (axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln == 0))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_cond_false_i_i_i_6;
+LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_thread_4:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_cond_false_i_i_i_6;
+LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_8;
+LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_8:
+	if ((fsm_stall == 0) && (axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex_reg == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9;
+	else if ((fsm_stall == 0) && (axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex_reg == 0))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_2;
+LEGUP_F_axi_master_warpPerspective_orig_BB_cond_false_i_i_i_6:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7;
+LEGUP_F_axi_master_warpPerspective_orig_BB_entry_1:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_2;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_2:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_3;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_3:
+	if ((fsm_stall == 0) && (axi_master_warpPerspective_orig_for_body_6 == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_thread_4;
+	else if ((fsm_stall == 0) && (axi_master_warpPerspective_orig_for_body_6 == 0))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_5;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_11:
+		next_state = LEGUP_function_call_12;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13:
+		next_state = LEGUP_function_call_14;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15:
+		next_state = LEGUP_function_call_16;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_17:
+		next_state = LEGUP_function_call_18;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_19:
+		next_state = LEGUP_function_call_20;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_21:
+		next_state = LEGUP_0;
+LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9:
+		next_state = LEGUP_function_call_10;
+LEGUP_function_call_10:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_11;
+LEGUP_function_call_12:
+	if ((fsm_stall == 0) && (legup_pthreadpoll_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13;
+LEGUP_function_call_14:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15;
+LEGUP_function_call_16:
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_17;
+LEGUP_function_call_18:
+	if ((fsm_stall == 0) && (legup_pthreadpoll_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_19;
+LEGUP_function_call_20:
+	if ((fsm_stall == 0) && (legup_pthreadpoll_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_21;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(*) begin
+	fsm_stall = 0;
+	if (((cur_state != LEGUP_0) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a)) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_entry_0 = bilinear_warp_control_memory_out_width_read_data;
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_entry_bit_select1 = axi_master_warpPerspective_orig_entry_0[11:0];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_entry_1)) begin
+		axi_master_warpPerspective_orig_entry_bit_select1_reg <= axi_master_warpPerspective_orig_entry_bit_select1;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_entry_1 = bilinear_warp_control_memory_out_height_read_data;
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_entry_bit_select = axi_master_warpPerspective_orig_entry_1[11:0];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_entry_1)) begin
+		axi_master_warpPerspective_orig_entry_bit_select_reg <= axi_master_warpPerspective_orig_entry_bit_select;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_entry_1) & (fsm_stall == 0))) begin
+		axi_master_warpPerspective_orig_for_body_i_05 = 32'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_8) & (fsm_stall == 0)) & (axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex_reg == 0))) */ begin
+		axi_master_warpPerspective_orig_for_body_i_05 = axi_master_warpPerspective_orig_1_EXT2_EEE_exit_8_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_entry_1) & (fsm_stall == 0))) begin
+		axi_master_warpPerspective_orig_for_body_i_05_reg <= axi_master_warpPerspective_orig_for_body_i_05;
+	end
+	if ((((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_8) & (fsm_stall == 0)) & (axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex_reg == 0))) begin
+		axi_master_warpPerspective_orig_for_body_i_05_reg <= axi_master_warpPerspective_orig_for_body_i_05;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_mem_flat_ = (0 + (4 * {28'd0,axi_master_warpPerspective_orig_for_body_i_05_reg}));
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_mem_flat__0 = (0 + (4 * {28'd0,axi_master_warpPerspective_orig_for_body_i_05_reg}));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_2)) begin
+		axi_master_warpPerspective_orig_for_body_mem_flat__0_reg <= axi_master_warpPerspective_orig_for_body_mem_flat__0;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_2 = bilinear_warp_control_memory_m_read_data_wire_a;
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_3 = $signed(axi_master_warpPerspective_orig_for_body_2);
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_bit_selec = axi_master_warpPerspective_orig_for_body_3_width_extended[32:11];
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_bit_selec_1 = axi_master_warpPerspective_orig_for_body_3[10];
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_bit_conca = {axi_master_warpPerspective_orig_for_body_bit_conca_bit_select_operand_0[31:0], axi_master_warpPerspective_orig_for_body_bit_selec_1};
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_4 = (axi_master_warpPerspective_orig_for_body_bit_conca ^ 33'd1);
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_bit_selec_2 = axi_master_warpPerspective_orig_for_body_4_width_extended[21:0];
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_conv_i_i_ = (axi_master_warpPerspective_orig_for_body_bit_selec_2 ^ 22'd1);
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_5 = (axi_master_warpPerspective_orig_for_body_conv_i_i_ + $signed({{1{axi_master_warpPerspective_orig_for_body_bit_selec[20]}},axi_master_warpPerspective_orig_for_body_bit_selec}));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_3)) begin
+		axi_master_warpPerspective_orig_for_body_5_reg <= axi_master_warpPerspective_orig_for_body_5;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_bit_selec_3 = axi_master_warpPerspective_orig_for_body_5[16:0];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_3)) begin
+		axi_master_warpPerspective_orig_for_body_bit_selec_3_reg <= axi_master_warpPerspective_orig_for_body_bit_selec_3;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_body_6 = ($signed(axi_master_warpPerspective_orig_for_body_5) > $signed(-22'd1));
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_it_i_i_i_thread_7 = (axi_master_warpPerspective_orig_for_body_5_reg < 22'd65536);
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_it_i_i_i_thread_co = (axi_master_warpPerspective_orig_it_i_i_i_thread_7 ? axi_master_warpPerspective_orig_for_body_bit_selec_3_reg : 17'd65535);
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln = (axi_master_warpPerspective_orig_for_body_5_reg < -22'd65536);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_thread_4) & (fsm_stall == 0))) begin
+		axi_master_warpPerspective_orig_ond_false_i_i_i_co = axi_master_warpPerspective_orig_it_i_i_i_thread_co;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_5) & (fsm_stall == 0)) & (axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln == 0))) */ begin
+		axi_master_warpPerspective_orig_ond_false_i_i_i_co = axi_master_warpPerspective_orig_for_body_bit_selec_3_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_thread_4) & (fsm_stall == 0))) begin
+		axi_master_warpPerspective_orig_ond_false_i_i_i_co_reg <= axi_master_warpPerspective_orig_ond_false_i_i_i_co;
+	end
+	if ((((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_5) & (fsm_stall == 0)) & (axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln == 0))) begin
+		axi_master_warpPerspective_orig_ond_false_i_i_i_co_reg <= axi_master_warpPerspective_orig_ond_false_i_i_i_co;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_5) & (fsm_stall == 0)) & (axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln == 1'd1))) begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co = -17'd65536;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_cond_false_i_i_i_6) & (fsm_stall == 0))) */ begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co = axi_master_warpPerspective_orig_ond_false_i_i_i_co_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls18AssignmentOverflowILj22ELj5ELb1ELb1EE5checkERKNS_9LLVMIntTyILj22EEE_exit_i_i_i_5) & (fsm_stall == 0)) & (axi_master_warpPerspective_orig_2EEE_exit_i_i_i_ln == 1'd1))) begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co_reg <= axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co;
+	end
+	if (((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_cond_false_i_i_i_6) & (fsm_stall == 0))) begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co_reg <= axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_8 = ({1'd0,axi_master_warpPerspective_orig_for_body_i_05_reg} + 32'd1);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7)) begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_8_reg <= axi_master_warpPerspective_orig_1_EXT2_EEE_exit_8;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex = ({27'd0,axi_master_warpPerspective_orig_1_EXT2_EEE_exit_8} == 32'd9);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7)) begin
+		axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex_reg <= axi_master_warpPerspective_orig_1_EXT2_EEE_exit_ex;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_end_9 = bilinear_warp_control_memory_in_addr_read_data;
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_end_10 = bilinear_warp_control_memory_out_addr_read_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		axi_master_warpPerspective_orig_for_end_10_reg <= axi_master_warpPerspective_orig_for_end_10;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_end_t1_0_t1_0_ = axi_master_warpPerspective_orig_entry_t1_inferred_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_11)) begin
+		axi_master_warpPerspective_orig_for_end_t1_0_t1_0__reg <= axi_master_warpPerspective_orig_for_end_t1_0_t1_0_;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_end_t2_0_t2_0_ = axi_master_warpPerspective_orig_entry_t2_inferred_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_17)) begin
+		axi_master_warpPerspective_orig_for_end_t2_0_t2_0__reg <= axi_master_warpPerspective_orig_for_end_t2_0_t2_0_;
+	end
+end
+always @(*) begin
+		axi_master_warpPerspective_orig_for_end_t3_0_t3_0_ = axi_master_warpPerspective_orig_entry_t3_inferred_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_19)) begin
+		axi_master_warpPerspective_orig_for_end_t3_0_t3_0__reg <= axi_master_warpPerspective_orig_for_end_t3_0_t3_0_;
+	end
+end
+assign axi_master_warpPerspective_orig_for_end_14 = axi_master_warpPerspective_orig_entry_output_fifo_usedw;
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		axi_master_warpPerspective_orig_for_end_14_reg <= {23'd0,axi_master_warpPerspective_orig_for_end_14};
+	end
+end
+assign axi_master_warpPerspective_orig_for_end_15 = axi_master_warpPerspective_orig_entry_burst_size_usedw;
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		axi_master_warpPerspective_orig_for_end_15_reg <= {30'd0,axi_master_warpPerspective_orig_for_end_15};
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_master_warpPerspective_orig_entry_t1_inferred_reg <= 32'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		axi_master_warpPerspective_orig_entry_t1_inferred_reg <= 32'd65536;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_master_warpPerspective_orig_entry_t2_inferred_reg <= 32'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		axi_master_warpPerspective_orig_entry_t2_inferred_reg <= 32'd131072;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_master_warpPerspective_orig_entry_t3_inferred_reg <= 32'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		axi_master_warpPerspective_orig_entry_t3_inferred_reg <= 32'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_read_data_wire_a = bilinear_warp_control_memory_m_read_data_a;
+end
+assign bilinear_warp_control_memory_m_clken_not_in_pipeline = 1'd1;
+always @(*) begin
+	bilinear_warp_control_memory_m_clken_sequential_cond = ((((((((bilinear_warp_control_memory_m_clken_not_in_pipeline & (cur_state != LEGUP_0)) & (cur_state != LEGUP_function_call_10)) & (cur_state != LEGUP_function_call_12)) & (cur_state != LEGUP_function_call_14)) & (cur_state != LEGUP_function_call_16)) & (cur_state != LEGUP_function_call_18)) & (cur_state != LEGUP_function_call_20)) & ~(fsm_stall));
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_for_body_3_width_extended = {{1{axi_master_warpPerspective_orig_for_body_3[31]}},axi_master_warpPerspective_orig_for_body_3};
+end
+assign axi_master_warpPerspective_orig_for_body_bit_conca_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	axi_master_warpPerspective_orig_for_body_4_width_extended = axi_master_warpPerspective_orig_for_body_4;
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_not_accessed_due_to_stall_a <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a);
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_enable_cond_a = ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_stalln_reg));
+end
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_21)) begin
+		finish <= (fsm_stall == 0);
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		warp_axi_read_start <= 0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		warp_axi_read_start <= (fsm_stall == 0);
+	end
+	if ((cur_state == LEGUP_function_call_10)) begin
+		warp_axi_read_start <= 0;
+	end
+end
+always @(posedge clk) begin
+	warp_axi_read_addr_val <= 0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		warp_axi_read_addr_val <= axi_master_warpPerspective_orig_for_end_9;
+	end
+end
+always @(posedge clk) begin
+	warp_axi_read_size <= 22'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		warp_axi_read_size <= 22'd12544;
+	end
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_9)) begin
+		warp_axi_read_threadID <= 32'd65536;
+	end
+end
+always @(*) begin
+	if ((cur_state == LEGUP_function_call_12)) begin
+		legup_pthreadpoll_threadID = axi_master_warpPerspective_orig_for_end_t1_0_t1_0__reg[15:0];
+	end
+	else if ((cur_state == LEGUP_function_call_18)) begin
+		legup_pthreadpoll_threadID = axi_master_warpPerspective_orig_for_end_t2_0_t2_0__reg[15:0];
+	end
+	else /* if ((cur_state == LEGUP_function_call_20)) */ begin
+		legup_pthreadpoll_threadID = axi_master_warpPerspective_orig_for_end_t3_0_t3_0__reg[15:0];
+	end
+end
+always @(*) begin
+	if ((cur_state == LEGUP_function_call_12)) begin
+		legup_pthreadpoll_functionID = axi_master_warpPerspective_orig_for_end_t1_0_t1_0__reg[31:16];
+	end
+	else if ((cur_state == LEGUP_function_call_18)) begin
+		legup_pthreadpoll_functionID = axi_master_warpPerspective_orig_for_end_t2_0_t2_0__reg[31:16];
+	end
+	else /* if ((cur_state == LEGUP_function_call_20)) */ begin
+		legup_pthreadpoll_functionID = axi_master_warpPerspective_orig_for_end_t3_0_t3_0__reg[31:16];
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		warpPerspective_hw_start <= 0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13)) begin
+		warpPerspective_hw_start <= (fsm_stall == 0);
+	end
+	if ((cur_state == LEGUP_function_call_14)) begin
+		warpPerspective_hw_start <= 0;
+	end
+end
+always @(posedge clk) begin
+	warpPerspective_hw_dst_height <= 12'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13)) begin
+		warpPerspective_hw_dst_height <= axi_master_warpPerspective_orig_entry_bit_select_reg;
+	end
+end
+always @(posedge clk) begin
+	warpPerspective_hw_dst_width <= 12'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13)) begin
+		warpPerspective_hw_dst_width <= axi_master_warpPerspective_orig_entry_bit_select1_reg;
+	end
+end
+always @(posedge clk) begin
+	warpPerspective_hw_warp_matrix_m <= 0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13)) begin
+		warpPerspective_hw_warp_matrix_m <= 0;
+	end
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_13)) begin
+		warpPerspective_hw_threadID <= 32'd131072;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_channel_write_start <= 0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15)) begin
+		axi_channel_write_start <= (fsm_stall == 0);
+	end
+	if ((cur_state == LEGUP_function_call_16)) begin
+		axi_channel_write_start <= 0;
+	end
+end
+always @(posedge clk) begin
+	axi_channel_write_addr_val <= 0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15)) begin
+		axi_channel_write_addr_val <= axi_master_warpPerspective_orig_for_end_10_reg;
+	end
+end
+always @(posedge clk) begin
+	axi_channel_write_width_val <= 12'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15)) begin
+		axi_channel_write_width_val <= axi_master_warpPerspective_orig_entry_bit_select1_reg;
+	end
+end
+always @(posedge clk) begin
+	axi_channel_write_height_val <= 12'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15)) begin
+		axi_channel_write_height_val <= axi_master_warpPerspective_orig_entry_bit_select_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_end_15)) begin
+		axi_channel_write_threadID <= 32'd0;
+	end
+end
+assign bilinear_warp_control_memory_out_width_write_en = 0;
+assign bilinear_warp_control_memory_out_width_write_data = 0;
+assign bilinear_warp_control_memory_out_height_write_en = 0;
+assign bilinear_warp_control_memory_out_height_write_data = 0;
+always @(*) begin
+	bilinear_warp_control_memory_m_clken = bilinear_warp_control_memory_m_clken_sequential_cond;
+end
+assign bilinear_warp_control_memory_m_write_en_a = 0;
+assign bilinear_warp_control_memory_m_write_data_a = 0;
+always @(*) begin
+	bilinear_warp_control_memory_m_read_en_a = 0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_2)) begin
+		bilinear_warp_control_memory_m_read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_address_a = 4'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_for_body_2)) begin
+		bilinear_warp_control_memory_m_address_a = (axi_master_warpPerspective_orig_for_body_mem_flat_ >> 2'd2);
+	end
+end
+assign bilinear_warp_control_memory_m_write_en_b = 0;
+assign bilinear_warp_control_memory_m_write_data_b = 0;
+assign bilinear_warp_control_memory_m_read_en_b = 0;
+assign bilinear_warp_control_memory_m_address_b = 4'd0;
+assign axi_master_warpPerspective_orig_entry_warp_matrix__clken = 1'd1;
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a = 0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a = 17'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a = axi_master_warpPerspective_orig_1_EXT2_EEE_exit_co_reg;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 0;
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7_enable_cond_a) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__address_a = 4'd0;
+	if ((cur_state == LEGUP_F_axi_master_warpPerspective_orig_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj32ELi16ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_7)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_a = (axi_master_warpPerspective_orig_for_body_mem_flat__0_reg >> 2'd2);
+	end
+end
+assign axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b = 0;
+assign axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b = 17'd0;
+assign axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b = 0;
+assign axi_master_warpPerspective_orig_entry_warp_matrix__address_b = 4'd0;
+assign bilinear_warp_control_memory_in_addr_write_en = 0;
+assign bilinear_warp_control_memory_in_addr_write_data = 0;
+assign bilinear_warp_control_memory_out_addr_write_en = 0;
+assign bilinear_warp_control_memory_out_addr_write_data = 0;
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_warp_axi_read
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	addr_val,
+	size,
+	mem_even_clken,
+	mem_even_write_en_a,
+	mem_even_write_data_a,
+	mem_even_read_en_a,
+	mem_even_address_a,
+	mem_even_read_data_a,
+	mem_even_waitrequest_a,
+	mem_even_write_en_b,
+	mem_even_write_data_b,
+	mem_even_read_en_b,
+	mem_even_address_b,
+	mem_even_read_data_b,
+	mem_even_waitrequest_b,
+	mem_odd_clken,
+	mem_odd_write_en_a,
+	mem_odd_write_data_a,
+	mem_odd_read_en_a,
+	mem_odd_address_a,
+	mem_odd_read_data_a,
+	mem_odd_waitrequest_a,
+	mem_odd_write_en_b,
+	mem_odd_write_data_b,
+	mem_odd_read_en_b,
+	mem_odd_address_b,
+	mem_odd_read_data_b,
+	mem_odd_waitrequest_b,
+	master_ar_addr,
+	master_ar_ready,
+	master_ar_valid,
+	master_ar_burst,
+	master_ar_size,
+	master_ar_len,
+	master_r_data,
+	master_r_ready,
+	master_r_valid,
+	master_r_resp,
+	master_r_last
+);
+
+parameter [3:0] LEGUP_0 = 4'd0;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_entry_1 = 4'd1;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_body_preheader_2 = 4'd2;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_cond_cleanup_loopexit_3 = 4'd3;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4 = 4'd4;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_cond_cleanup_5 = 4'd5;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_body_6 = 4'd6;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_if_then_7 = 4'd7;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_if_end_8 = 4'd8;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_body46_preheader_9 = 4'd9;
+parameter [3:0] LEGUP_pipeline_wait_for_loop_warp_cpp_335_3_10 = 4'd10;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_inc67_loopexit_11 = 4'd11;
+parameter [3:0] LEGUP_F_warp_axi_read_BB_for_inc67_12 = 4'd12;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] addr_val;
+input [21:0] size;
+output  mem_even_clken;
+output reg  mem_even_write_en_a;
+output reg [15:0] mem_even_write_data_a;
+output reg  mem_even_read_en_a;
+output reg [13:0] mem_even_address_a;
+input [15:0] mem_even_read_data_a;
+input  mem_even_waitrequest_a;
+output  mem_even_write_en_b;
+output [15:0] mem_even_write_data_b;
+output  mem_even_read_en_b;
+output [13:0] mem_even_address_b;
+input [15:0] mem_even_read_data_b;
+input  mem_even_waitrequest_b;
+output  mem_odd_clken;
+output reg  mem_odd_write_en_a;
+output reg [15:0] mem_odd_write_data_a;
+output reg  mem_odd_read_en_a;
+output reg [13:0] mem_odd_address_a;
+input [15:0] mem_odd_read_data_a;
+input  mem_odd_waitrequest_a;
+output  mem_odd_write_en_b;
+output [15:0] mem_odd_write_data_b;
+output  mem_odd_read_en_b;
+output [13:0] mem_odd_address_b;
+input [15:0] mem_odd_read_data_b;
+input  mem_odd_waitrequest_b;
+output reg [31:0] master_ar_addr;
+input  master_ar_ready;
+output reg  master_ar_valid;
+output reg [1:0] master_ar_burst;
+output reg [2:0] master_ar_size;
+output reg [7:0] master_ar_len;
+input [31:0] master_r_data;
+output reg  master_r_ready;
+input  master_r_valid;
+input [1:0] master_r_resp;
+input  master_r_last;
+reg [3:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [3:0] next_state;
+reg [31:0] addr_val_reg;
+reg [21:0] size_reg;
+reg  fsm_stall;
+reg  warp_axi_read_entry_0;
+reg [21:0] warp_axi_read_body_preheader_bit_concat11;
+reg [21:0] warp_axi_read_body_preheader_bit_concat11_reg;
+reg [31:0] warp_axi_read_for_body_indvar;
+reg [31:0] warp_axi_read_for_body_indvar_reg;
+reg [21:0] warp_axi_read_for_body_burst_cnt_0;
+reg [21:0] warp_axi_read_for_body_burst_cnt_0_reg;
+reg [22:0] warp_axi_read_for_body_loop_init_phi;
+reg [22:0] warp_axi_read_for_body_loop_init_phi_reg;
+reg [22:0] warp_axi_read_for_body_bit_select9;
+reg [31:0] warp_axi_read_for_body_bit_concat10;
+reg [31:0] warp_axi_read_for_body_r_addr_0;
+reg [31:0] warp_axi_read_for_body_r_addr_0_reg;
+reg [22:0] warp_axi_read_for_body_1;
+reg  warp_axi_read_for_body_2;
+reg [22:0] warp_axi_read_if_then_3;
+reg [7:0] warp_axi_read_if_then_bit_select8;
+reg [7:0] warp_axi_read_if_end_burst_len_0;
+reg [7:0] warp_axi_read_if_end_burst_len_0_reg;
+reg [7:0] warp_axi_read_if_end_4;
+reg  warp_axi_read_if_end_5;
+reg [31:0] warp_axi_read_for_body46_7;
+reg [7:0] warp_axi_read_for_body46_bit_select6;
+reg [7:0] warp_axi_read_for_body46_bit_select5;
+reg [7:0] warp_axi_read_for_body46_bit_select3;
+reg [7:0] warp_axi_read_for_body46_bit_select;
+reg [15:0] warp_axi_read_for_body46_bit_concat7;
+reg [15:0] warp_axi_read_for_body46_bit_concat4;
+reg [7:0] warp_axi_read_for_body46_bit_concat2;
+reg [22:0] warp_axi_read_for_body46_10;
+reg [22:0] warp_axi_read_for_body46_bit_concat1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warp_axi_read_for_body46_mem_flat_gep20;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warp_axi_read_for_body46_mem_flat_gep26;
+reg [7:0] warp_axi_read_for_body46_11;
+reg  warp_axi_read_for_body46_exitcond;
+reg [21:0] warp_axi_read_for_inc67_12;
+reg  warp_axi_read_for_inc67_13;
+reg [31:0] warp_axi_read_for_inc67_indvar_next;
+reg [21:0] warp_axi_read_for_inc67_bit_concat;
+reg  for_loop_warp_cpp_335_3_valid_bit_0;
+reg  for_loop_warp_cpp_335_3_state_stall_0;
+reg  for_loop_warp_cpp_335_3_state_enable_0;
+reg  for_loop_warp_cpp_335_3_valid_bit_1;
+reg  for_loop_warp_cpp_335_3_state_stall_1;
+reg  for_loop_warp_cpp_335_3_state_enable_1;
+reg  for_loop_warp_cpp_335_3_valid_bit_2;
+wire  for_loop_warp_cpp_335_3_state_stall_2;
+reg  for_loop_warp_cpp_335_3_state_enable_2;
+reg  for_loop_warp_cpp_335_3_II_counter;
+reg  for_loop_warp_cpp_335_3_start;
+reg  for_loop_warp_cpp_335_3_activate_pipeline;
+reg [15:0] warp_axi_read_for_body46_bit_concat7_reg_stage1;
+reg [15:0] warp_axi_read_for_body46_bit_concat4_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warp_axi_read_for_body46_mem_flat_gep20_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warp_axi_read_for_body46_mem_flat_gep26_reg_stage1;
+reg [7:0] for_loop_warp_cpp_335_3_inductionVar_stage0;
+reg  for_loop_warp_cpp_335_3_pipeline_exit_cond;
+reg  for_loop_warp_cpp_335_3_active;
+reg  for_loop_warp_cpp_335_3_begin_pipeline;
+reg  for_loop_warp_cpp_335_3_epilogue;
+reg  for_loop_warp_cpp_335_3_pipeline_finish;
+reg  for_loop_warp_cpp_335_3_pipeline_finishing;
+reg  for_loop_warp_cpp_335_3_only_last_stage_enabled;
+reg [1:0] for_loop_warp_cpp_335_3_num_active_iterations;
+reg  for_loop_warp_cpp_335_3_inserting_new_iteration;
+reg  for_loop_warp_cpp_335_3_pipeline_finish_reg;
+wire  warp_axi_read_body_preheader_bit_concat11_bit_select_operand_0;
+reg  mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_not_accessed_due_to_stall_a;
+reg  mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_stalln_reg;
+reg  mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_enable_cond_a;
+reg  mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_not_accessed_due_to_stall_a;
+reg  mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_stalln_reg;
+reg  mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_enable_cond_a;
+wire [8:0] warp_axi_read_for_body_bit_concat10_bit_select_operand_2;
+reg  master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg;
+reg  master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a;
+reg  master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg;
+reg  master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a;
+reg  master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg;
+reg  master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a;
+reg  master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg;
+reg  master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a;
+reg  master_r_data_consumed_valid;
+reg [31:0] master_r_data_consumed_data;
+reg  master_r_data_consumed_taken;
+reg  master_r_resp_consumed_valid;
+reg  master_r_resp_consumed_taken;
+reg  master_r_last_consumed_valid;
+reg  master_r_last_consumed_taken;
+wire [14:0] warp_axi_read_for_body46_bit_concat2_bit_select_operand_0;
+wire [8:0] warp_axi_read_for_body46_bit_concat1_bit_select_operand_0;
+reg  mem_even_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a;
+reg  mem_even_for_loop_warp_cpp_335_3_state_1_stalln_reg;
+reg  mem_even_for_loop_warp_cpp_335_3_state_1_enable_cond_a;
+reg  mem_odd_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a;
+reg  mem_odd_for_loop_warp_cpp_335_3_state_1_stalln_reg;
+reg  mem_odd_for_loop_warp_cpp_335_3_state_1_enable_cond_a;
+wire  warp_axi_read_for_inc67_bit_concat_bit_select_operand_0;
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_warp_axi_read_BB_entry_1;
+LEGUP_F_warp_axi_read_BB_entry_1:
+	if ((fsm_stall == 1'd0) && (warp_axi_read_entry_0 == 1'd1))
+		next_state = LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4;
+	else if ((fsm_stall == 1'd0) && (warp_axi_read_entry_0 == 1'd0))
+		next_state = LEGUP_F_warp_axi_read_BB_for_body_preheader_2;
+LEGUP_F_warp_axi_read_BB_for_body46_preheader_9:
+		next_state = LEGUP_pipeline_wait_for_loop_warp_cpp_335_3_10;
+LEGUP_F_warp_axi_read_BB_for_body_6:
+	if ((fsm_stall == 1'd0) && (warp_axi_read_for_body_2 == 1'd1))
+		next_state = LEGUP_F_warp_axi_read_BB_if_then_7;
+	else if ((fsm_stall == 1'd0) && (warp_axi_read_for_body_2 == 1'd0))
+		next_state = LEGUP_F_warp_axi_read_BB_if_end_8;
+LEGUP_F_warp_axi_read_BB_for_body_preheader_2:
+		next_state = LEGUP_F_warp_axi_read_BB_for_body_6;
+LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4:
+		next_state = LEGUP_F_warp_axi_read_BB_for_cond_cleanup_5;
+LEGUP_F_warp_axi_read_BB_for_cond_cleanup_5:
+		next_state = LEGUP_0;
+LEGUP_F_warp_axi_read_BB_for_cond_cleanup_loopexit_3:
+		next_state = LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4;
+LEGUP_F_warp_axi_read_BB_for_inc67_12:
+	if ((fsm_stall == 1'd0) && (warp_axi_read_for_inc67_13 == 1'd1))
+		next_state = LEGUP_F_warp_axi_read_BB_for_body_6;
+	else if ((fsm_stall == 1'd0) && (warp_axi_read_for_inc67_13 == 1'd0))
+		next_state = LEGUP_F_warp_axi_read_BB_for_cond_cleanup_loopexit_3;
+LEGUP_F_warp_axi_read_BB_for_inc67_loopexit_11:
+		next_state = LEGUP_F_warp_axi_read_BB_for_inc67_12;
+LEGUP_F_warp_axi_read_BB_if_end_8:
+	if ((fsm_stall == 1'd0) && (warp_axi_read_if_end_5 == 1'd1))
+		next_state = LEGUP_F_warp_axi_read_BB_for_inc67_12;
+	else if ((fsm_stall == 1'd0) && (warp_axi_read_if_end_5 == 1'd0))
+		next_state = LEGUP_F_warp_axi_read_BB_for_body46_preheader_9;
+LEGUP_F_warp_axi_read_BB_if_then_7:
+		next_state = LEGUP_F_warp_axi_read_BB_if_end_8;
+LEGUP_pipeline_wait_for_loop_warp_cpp_335_3_10:
+	if ((fsm_stall == 1'd0) && (for_loop_warp_cpp_335_3_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_warp_axi_read_BB_for_inc67_loopexit_11;
+	else if ((fsm_stall == 1'd0) && (for_loop_warp_cpp_335_3_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_warp_axi_read_BB_for_inc67_loopexit_11;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		addr_val_reg <= addr_val;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		size_reg <= size;
+	end
+end
+always @(*) begin
+	fsm_stall = 1'd0;
+	if (((cur_state != LEGUP_0) & mem_even_waitrequest_a)) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state != LEGUP_0) & mem_odd_waitrequest_a)) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & ~(master_ar_ready)) & (master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & ~(master_ar_ready)) & (master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & ~(master_ar_ready)) & (master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & ~(master_ar_ready)) & (master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+		warp_axi_read_entry_0 = (size_reg == 22'd0);
+end
+always @(*) begin
+		warp_axi_read_body_preheader_bit_concat11 = {warp_axi_read_body_preheader_bit_concat11_bit_select_operand_0, size_reg[21:0]};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_body_preheader_2)) begin
+		warp_axi_read_body_preheader_bit_concat11_reg <= warp_axi_read_body_preheader_bit_concat11;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_for_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		warp_axi_read_for_body_indvar = 32'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_inc67_12) & (fsm_stall == 1'd0)) & (warp_axi_read_for_inc67_13 == 1'd1))) */ begin
+		warp_axi_read_for_body_indvar = warp_axi_read_for_inc67_indvar_next;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_for_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		warp_axi_read_for_body_indvar_reg <= warp_axi_read_for_body_indvar;
+	end
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_inc67_12) & (fsm_stall == 1'd0)) & (warp_axi_read_for_inc67_13 == 1'd1))) begin
+		warp_axi_read_for_body_indvar_reg <= warp_axi_read_for_body_indvar;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_for_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		warp_axi_read_for_body_burst_cnt_0 = 22'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_inc67_12) & (fsm_stall == 1'd0)) & (warp_axi_read_for_inc67_13 == 1'd1))) */ begin
+		warp_axi_read_for_body_burst_cnt_0 = warp_axi_read_for_inc67_12;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_for_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		warp_axi_read_for_body_burst_cnt_0_reg <= warp_axi_read_for_body_burst_cnt_0;
+	end
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_inc67_12) & (fsm_stall == 1'd0)) & (warp_axi_read_for_inc67_13 == 1'd1))) begin
+		warp_axi_read_for_body_burst_cnt_0_reg <= warp_axi_read_for_body_burst_cnt_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_for_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		warp_axi_read_for_body_loop_init_phi = 23'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_inc67_12) & (fsm_stall == 1'd0)) & (warp_axi_read_for_inc67_13 == 1'd1))) */ begin
+		warp_axi_read_for_body_loop_init_phi = {1'd0,warp_axi_read_for_inc67_bit_concat};
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_for_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		warp_axi_read_for_body_loop_init_phi_reg <= warp_axi_read_for_body_loop_init_phi;
+	end
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_inc67_12) & (fsm_stall == 1'd0)) & (warp_axi_read_for_inc67_13 == 1'd1))) begin
+		warp_axi_read_for_body_loop_init_phi_reg <= warp_axi_read_for_body_loop_init_phi;
+	end
+end
+always @(*) begin
+		warp_axi_read_for_body_bit_select9 = warp_axi_read_for_body_indvar_reg[22:0];
+end
+always @(*) begin
+		warp_axi_read_for_body_bit_concat10 = {warp_axi_read_for_body_bit_select9[22:0], warp_axi_read_for_body_bit_concat10_bit_select_operand_2[8:0]};
+end
+always @(*) begin
+		warp_axi_read_for_body_r_addr_0 = (warp_axi_read_for_body_bit_concat10 + addr_val_reg);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_body_6)) begin
+		warp_axi_read_for_body_r_addr_0_reg <= warp_axi_read_for_body_r_addr_0;
+	end
+end
+always @(*) begin
+		warp_axi_read_for_body_1 = (warp_axi_read_for_body_loop_init_phi_reg + 23'd128);
+end
+always @(*) begin
+		warp_axi_read_for_body_2 = (warp_axi_read_for_body_1 > {1'd0,warp_axi_read_body_preheader_bit_concat11_reg});
+end
+always @(*) begin
+		warp_axi_read_if_then_3 = ({1'd0,warp_axi_read_body_preheader_bit_concat11_reg} - warp_axi_read_for_body_loop_init_phi_reg);
+end
+always @(*) begin
+		warp_axi_read_if_then_bit_select8 = warp_axi_read_if_then_3[7:0];
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_body_6) & (fsm_stall == 1'd0)) & (warp_axi_read_for_body_2 == 1'd0))) begin
+		warp_axi_read_if_end_burst_len_0 = -8'd128;
+	end
+	else /* if (((cur_state == LEGUP_F_warp_axi_read_BB_if_then_7) & (fsm_stall == 1'd0))) */ begin
+		warp_axi_read_if_end_burst_len_0 = warp_axi_read_if_then_bit_select8;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_warp_axi_read_BB_for_body_6) & (fsm_stall == 1'd0)) & (warp_axi_read_for_body_2 == 1'd0))) begin
+		warp_axi_read_if_end_burst_len_0_reg <= warp_axi_read_if_end_burst_len_0;
+	end
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_if_then_7) & (fsm_stall == 1'd0))) begin
+		warp_axi_read_if_end_burst_len_0_reg <= warp_axi_read_if_end_burst_len_0;
+	end
+end
+always @(*) begin
+		warp_axi_read_if_end_4 = (warp_axi_read_if_end_burst_len_0_reg + $signed(-8'd1));
+end
+always @(*) begin
+		warp_axi_read_if_end_5 = (warp_axi_read_if_end_burst_len_0_reg == 8'd0);
+end
+always @(*) begin
+	warp_axi_read_for_body46_7 = master_r_data_consumed_data;
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_select6 = warp_axi_read_for_body46_7[7:0];
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_select5 = warp_axi_read_for_body46_7[23:16];
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_select3 = warp_axi_read_for_body46_7[15:8];
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_select = warp_axi_read_for_body46_7[31:24];
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_concat7 = {warp_axi_read_for_body46_bit_select5[7:0], warp_axi_read_for_body46_bit_select6[7:0]};
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_concat4 = {warp_axi_read_for_body46_bit_select[7:0], warp_axi_read_for_body46_bit_select3[7:0]};
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_concat2 = {warp_axi_read_for_body46_bit_concat2_bit_select_operand_0[14:0], for_loop_warp_cpp_335_3_inductionVar_stage0[7:0]};
+end
+always @(*) begin
+		warp_axi_read_for_body46_10 = ({15'd0,warp_axi_read_for_body46_bit_concat2} + warp_axi_read_for_body_loop_init_phi_reg);
+end
+always @(*) begin
+		warp_axi_read_for_body46_bit_concat1 = {warp_axi_read_for_body46_bit_concat1_bit_select_operand_0[8:0], warp_axi_read_for_body46_10[22:0]};
+end
+always @(*) begin
+		warp_axi_read_for_body46_mem_flat_gep20 = (1'd0 + (2 * {9'd0,warp_axi_read_for_body46_bit_concat1}));
+end
+always @(*) begin
+		warp_axi_read_for_body46_mem_flat_gep26 = (1'd0 + (2 * {9'd0,warp_axi_read_for_body46_bit_concat1}));
+end
+always @(*) begin
+		warp_axi_read_for_body46_11 = (for_loop_warp_cpp_335_3_inductionVar_stage0 + 8'd1);
+end
+always @(*) begin
+		warp_axi_read_for_body46_exitcond = (warp_axi_read_for_body46_11 == warp_axi_read_if_end_burst_len_0_reg);
+end
+always @(*) begin
+		warp_axi_read_for_inc67_12 = (warp_axi_read_for_body_burst_cnt_0_reg + 22'd128);
+end
+always @(*) begin
+		warp_axi_read_for_inc67_13 = (warp_axi_read_for_inc67_12 < size_reg);
+end
+always @(*) begin
+		warp_axi_read_for_inc67_indvar_next = (warp_axi_read_for_body_indvar_reg + 32'd1);
+end
+always @(*) begin
+		warp_axi_read_for_inc67_bit_concat = {warp_axi_read_for_inc67_bit_concat_bit_select_operand_0, warp_axi_read_for_inc67_12[21:0]};
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_335_3_state_stall_0)) begin
+		for_loop_warp_cpp_335_3_valid_bit_0 <= (for_loop_warp_cpp_335_3_II_counter & for_loop_warp_cpp_335_3_start);
+	end
+	if (reset) begin
+		for_loop_warp_cpp_335_3_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_state_stall_0 = 1'd0;
+	if (for_loop_warp_cpp_335_3_state_stall_1) begin
+		for_loop_warp_cpp_335_3_state_stall_0 = 1'd1;
+	end
+	if ((for_loop_warp_cpp_335_3_valid_bit_0 & ~(master_r_data_consumed_valid))) begin
+		for_loop_warp_cpp_335_3_state_stall_0 = 1'd1;
+	end
+	if ((for_loop_warp_cpp_335_3_valid_bit_0 & ~(master_r_resp_consumed_valid))) begin
+		for_loop_warp_cpp_335_3_state_stall_0 = 1'd1;
+	end
+	if ((for_loop_warp_cpp_335_3_valid_bit_0 & ~(master_r_last_consumed_valid))) begin
+		for_loop_warp_cpp_335_3_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_state_enable_0 = (for_loop_warp_cpp_335_3_valid_bit_0 & ~(for_loop_warp_cpp_335_3_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_335_3_state_stall_1)) begin
+		for_loop_warp_cpp_335_3_valid_bit_1 <= for_loop_warp_cpp_335_3_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_335_3_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_state_stall_1 = 1'd0;
+	if (for_loop_warp_cpp_335_3_state_stall_2) begin
+		for_loop_warp_cpp_335_3_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_335_3_valid_bit_1 & mem_even_read_en_a) & mem_even_waitrequest_a) & (mem_even_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a | mem_even_for_loop_warp_cpp_335_3_state_1_stalln_reg))) begin
+		for_loop_warp_cpp_335_3_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_335_3_valid_bit_1 & mem_odd_read_en_a) & mem_odd_waitrequest_a) & (mem_odd_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a | mem_odd_for_loop_warp_cpp_335_3_state_1_stalln_reg))) begin
+		for_loop_warp_cpp_335_3_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_state_enable_1 = (for_loop_warp_cpp_335_3_valid_bit_1 & ~(for_loop_warp_cpp_335_3_state_stall_1));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_335_3_state_stall_2)) begin
+		for_loop_warp_cpp_335_3_valid_bit_2 <= for_loop_warp_cpp_335_3_state_enable_1;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_335_3_valid_bit_2 <= 1'd0;
+	end
+end
+assign for_loop_warp_cpp_335_3_state_stall_2 = 1'd0;
+always @(*) begin
+	for_loop_warp_cpp_335_3_state_enable_2 = (for_loop_warp_cpp_335_3_valid_bit_2 & ~(for_loop_warp_cpp_335_3_state_stall_2));
+end
+always @(posedge clk) begin
+	for_loop_warp_cpp_335_3_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_start = (for_loop_warp_cpp_335_3_activate_pipeline | ((for_loop_warp_cpp_335_3_active & ~(for_loop_warp_cpp_335_3_epilogue)) & ~(for_loop_warp_cpp_335_3_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_warp_cpp_335_3_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_warp_cpp_335_3_begin_pipeline) & ~(for_loop_warp_cpp_335_3_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_335_3_state_enable_0) begin
+		warp_axi_read_for_body46_bit_concat7_reg_stage1 <= warp_axi_read_for_body46_bit_concat7;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_335_3_state_enable_0) begin
+		warp_axi_read_for_body46_bit_concat4_reg_stage1 <= warp_axi_read_for_body46_bit_concat4;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_335_3_state_enable_0) begin
+		warp_axi_read_for_body46_mem_flat_gep20_reg_stage1 <= warp_axi_read_for_body46_mem_flat_gep20;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_335_3_state_enable_0) begin
+		warp_axi_read_for_body46_mem_flat_gep26_reg_stage1 <= warp_axi_read_for_body46_mem_flat_gep26;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_335_3_inductionVar_stage0 <= 8'd0;
+	end
+	if (for_loop_warp_cpp_335_3_activate_pipeline) begin
+		for_loop_warp_cpp_335_3_inductionVar_stage0 <= 8'd0;
+	end
+	if ((for_loop_warp_cpp_335_3_II_counter & for_loop_warp_cpp_335_3_state_enable_0)) begin
+		for_loop_warp_cpp_335_3_inductionVar_stage0 <= (for_loop_warp_cpp_335_3_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_pipeline_exit_cond = (for_loop_warp_cpp_335_3_state_enable_0 & warp_axi_read_for_body46_exitcond);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_335_3_active <= 1'd0;
+	end
+	if (for_loop_warp_cpp_335_3_activate_pipeline) begin
+		for_loop_warp_cpp_335_3_active <= 1'd1;
+	end
+	if (for_loop_warp_cpp_335_3_pipeline_finishing) begin
+		for_loop_warp_cpp_335_3_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_warp_cpp_335_3_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_warp_axi_read_BB_for_body46_preheader_9) & (fsm_stall == 1'd0))) begin
+		for_loop_warp_cpp_335_3_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_335_3_epilogue <= 1'd0;
+	end
+	if ((for_loop_warp_cpp_335_3_pipeline_exit_cond & for_loop_warp_cpp_335_3_active)) begin
+		for_loop_warp_cpp_335_3_epilogue <= 1'd1;
+	end
+	if (for_loop_warp_cpp_335_3_pipeline_finishing) begin
+		for_loop_warp_cpp_335_3_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_pipeline_finish = (for_loop_warp_cpp_335_3_pipeline_finishing | for_loop_warp_cpp_335_3_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_pipeline_finishing = ((for_loop_warp_cpp_335_3_epilogue | for_loop_warp_cpp_335_3_pipeline_exit_cond) & for_loop_warp_cpp_335_3_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_only_last_stage_enabled = ((for_loop_warp_cpp_335_3_num_active_iterations == 1'd1) & for_loop_warp_cpp_335_3_state_enable_2);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_335_3_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_warp_cpp_335_3_inserting_new_iteration & ~(for_loop_warp_cpp_335_3_state_enable_2))) begin
+		for_loop_warp_cpp_335_3_num_active_iterations <= (for_loop_warp_cpp_335_3_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_warp_cpp_335_3_inserting_new_iteration) & for_loop_warp_cpp_335_3_state_enable_2)) begin
+		for_loop_warp_cpp_335_3_num_active_iterations <= (for_loop_warp_cpp_335_3_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_335_3_inserting_new_iteration = ((~(for_loop_warp_cpp_335_3_state_stall_0) & for_loop_warp_cpp_335_3_II_counter) & for_loop_warp_cpp_335_3_start);
+end
+always @(posedge clk) begin
+	for_loop_warp_cpp_335_3_pipeline_finish_reg <= for_loop_warp_cpp_335_3_pipeline_finish;
+	if (reset) begin
+		for_loop_warp_cpp_335_3_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_warp_cpp_335_3_activate_pipeline) begin
+		for_loop_warp_cpp_335_3_pipeline_finish_reg <= 1'd0;
+	end
+end
+assign warp_axi_read_body_preheader_bit_concat11_bit_select_operand_0 = 1'd0;
+always @(posedge clk) begin
+	mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_not_accessed_due_to_stall_a <= ((fsm_stall & mem_even_read_en_a) & mem_even_waitrequest_a);
+end
+always @(posedge clk) begin
+	mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_enable_cond_a = ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4) & (mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_not_accessed_due_to_stall_a | mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_stalln_reg));
+end
+always @(posedge clk) begin
+	mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_not_accessed_due_to_stall_a <= ((fsm_stall & mem_odd_read_en_a) & mem_odd_waitrequest_a);
+end
+always @(posedge clk) begin
+	mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_enable_cond_a = ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4) & (mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_not_accessed_due_to_stall_a | mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_stalln_reg));
+end
+assign warp_axi_read_for_body_bit_concat10_bit_select_operand_2 = 9'd0;
+always @(posedge clk) begin
+	master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & (master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg));
+end
+always @(posedge clk) begin
+	master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & (master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg));
+end
+always @(posedge clk) begin
+	master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & (master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg));
+end
+always @(posedge clk) begin
+	master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8) & (master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_not_accessed_due_to_stall_a | master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_stalln_reg));
+end
+always @(posedge clk) begin
+	if (master_r_data_consumed_taken) begin
+		master_r_data_consumed_valid <= 1'd0;
+	end
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_data_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_r_data_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_data_consumed_data <= master_r_data;
+	end
+end
+always @(*) begin
+	master_r_data_consumed_taken = 1'd0;
+	if (for_loop_warp_cpp_335_3_valid_bit_0) begin
+		master_r_data_consumed_taken = ~(for_loop_warp_cpp_335_3_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (master_r_resp_consumed_taken) begin
+		master_r_resp_consumed_valid <= 1'd0;
+	end
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_resp_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_r_resp_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	master_r_resp_consumed_taken = 1'd0;
+	if (for_loop_warp_cpp_335_3_valid_bit_0) begin
+		master_r_resp_consumed_taken = ~(for_loop_warp_cpp_335_3_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (master_r_last_consumed_taken) begin
+		master_r_last_consumed_valid <= 1'd0;
+	end
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_last_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_r_last_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	master_r_last_consumed_taken = 1'd0;
+	if (for_loop_warp_cpp_335_3_valid_bit_0) begin
+		master_r_last_consumed_taken = ~(for_loop_warp_cpp_335_3_state_stall_0);
+	end
+end
+assign warp_axi_read_for_body46_bit_concat2_bit_select_operand_0 = 15'd0;
+assign warp_axi_read_for_body46_bit_concat1_bit_select_operand_0 = 9'd0;
+always @(posedge clk) begin
+	mem_even_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_335_3_state_stall_1 & mem_even_read_en_a) & mem_even_waitrequest_a);
+end
+always @(posedge clk) begin
+	mem_even_for_loop_warp_cpp_335_3_state_1_stalln_reg <= ~(for_loop_warp_cpp_335_3_state_stall_1);
+end
+always @(*) begin
+	mem_even_for_loop_warp_cpp_335_3_state_1_enable_cond_a = (for_loop_warp_cpp_335_3_valid_bit_1 & (mem_even_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a | mem_even_for_loop_warp_cpp_335_3_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	mem_odd_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_335_3_state_stall_1 & mem_odd_read_en_a) & mem_odd_waitrequest_a);
+end
+always @(posedge clk) begin
+	mem_odd_for_loop_warp_cpp_335_3_state_1_stalln_reg <= ~(for_loop_warp_cpp_335_3_state_stall_1);
+end
+always @(*) begin
+	mem_odd_for_loop_warp_cpp_335_3_state_1_enable_cond_a = (for_loop_warp_cpp_335_3_valid_bit_1 & (mem_odd_for_loop_warp_cpp_335_3_state_1_not_accessed_due_to_stall_a | mem_odd_for_loop_warp_cpp_335_3_state_1_stalln_reg));
+end
+assign warp_axi_read_for_inc67_bit_concat_bit_select_operand_0 = 1'd0;
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_5)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+assign mem_even_clken = 1'd1;
+always @(*) begin
+	mem_even_write_en_a = 1'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4)) begin
+		mem_even_write_en_a = 1'd1;
+	end
+	if (for_loop_warp_cpp_335_3_valid_bit_1) begin
+		mem_even_write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	mem_even_write_data_a = 16'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4)) begin
+		mem_even_write_data_a = 16'd0;
+	end
+	if (for_loop_warp_cpp_335_3_valid_bit_1) begin
+		mem_even_write_data_a = warp_axi_read_for_body46_bit_concat7_reg_stage1;
+	end
+end
+always @(*) begin
+	mem_even_read_en_a = 1'd0;
+	if (mem_even_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_enable_cond_a) begin
+		mem_even_read_en_a = 1'd1;
+	end
+	if (mem_even_for_loop_warp_cpp_335_3_state_1_enable_cond_a) begin
+		mem_even_read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	mem_even_address_a = 14'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4)) begin
+		mem_even_address_a = ((1'd0 + (2 * 32'd12544)) >> 1'd1);
+	end
+	if (for_loop_warp_cpp_335_3_valid_bit_1) begin
+		mem_even_address_a = (warp_axi_read_for_body46_mem_flat_gep20_reg_stage1 >> 1'd1);
+	end
+end
+assign mem_even_write_en_b = 1'd0;
+assign mem_even_write_data_b = 16'd0;
+assign mem_even_read_en_b = 1'd0;
+assign mem_even_address_b = 14'd0;
+assign mem_odd_clken = 1'd1;
+always @(*) begin
+	mem_odd_write_en_a = 1'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4)) begin
+		mem_odd_write_en_a = 1'd1;
+	end
+	if (for_loop_warp_cpp_335_3_valid_bit_1) begin
+		mem_odd_write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	mem_odd_write_data_a = 16'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4)) begin
+		mem_odd_write_data_a = 16'd0;
+	end
+	if (for_loop_warp_cpp_335_3_valid_bit_1) begin
+		mem_odd_write_data_a = warp_axi_read_for_body46_bit_concat4_reg_stage1;
+	end
+end
+always @(*) begin
+	mem_odd_read_en_a = 1'd0;
+	if (mem_odd_LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4_enable_cond_a) begin
+		mem_odd_read_en_a = 1'd1;
+	end
+	if (mem_odd_for_loop_warp_cpp_335_3_state_1_enable_cond_a) begin
+		mem_odd_read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	mem_odd_address_a = 14'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_for_cond_cleanup_4)) begin
+		mem_odd_address_a = ((1'd0 + (2 * 32'd12544)) >> 1'd1);
+	end
+	if (for_loop_warp_cpp_335_3_valid_bit_1) begin
+		mem_odd_address_a = (warp_axi_read_for_body46_mem_flat_gep26_reg_stage1 >> 1'd1);
+	end
+end
+assign mem_odd_write_en_b = 1'd0;
+assign mem_odd_write_data_b = 16'd0;
+assign mem_odd_read_en_b = 1'd0;
+assign mem_odd_address_b = 14'd0;
+always @(*) begin
+	master_ar_addr = 0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8)) begin
+		master_ar_addr = warp_axi_read_for_body_r_addr_0_reg;
+	end
+end
+always @(*) begin
+	master_ar_valid = 1'd0;
+	if (master_ar_addr_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a) begin
+		master_ar_valid = 1'd1;
+	end
+	if (master_ar_burst_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a) begin
+		master_ar_valid = 1'd1;
+	end
+	if (master_ar_size_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a) begin
+		master_ar_valid = 1'd1;
+	end
+	if (master_ar_len_LEGUP_F_warp_axi_read_BB_if_end_8_enable_cond_a) begin
+		master_ar_valid = 1'd1;
+	end
+end
+always @(*) begin
+	master_ar_burst = 2'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8)) begin
+		master_ar_burst = 2'd1;
+	end
+end
+always @(*) begin
+	master_ar_size = 3'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8)) begin
+		master_ar_size = 3'd2;
+	end
+end
+always @(*) begin
+	master_ar_len = 8'd0;
+	if ((cur_state == LEGUP_F_warp_axi_read_BB_if_end_8)) begin
+		master_ar_len = warp_axi_read_if_end_4;
+	end
+end
+always @(*) begin
+	master_r_ready = (~(master_r_last_consumed_valid) | master_r_last_consumed_taken);
+	if (reset) begin
+		master_r_ready = 1'd0;
+	end
+	if (reset) begin
+		master_r_ready = 1'd0;
+	end
+	if (reset) begin
+		master_r_ready = 1'd0;
+	end
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_warpPerspective_hw
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	dst_height,
+	dst_width,
+	warp_matrix_m,
+	axi_master_warpPerspective_orig_entry_warp_matrix__clken,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__address_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__address_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b,
+	axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b,
+	mem_even_clken,
+	mem_even_write_en_a,
+	mem_even_write_data_a,
+	mem_even_read_en_a,
+	mem_even_address_a,
+	mem_even_read_data_a,
+	mem_even_waitrequest_a,
+	mem_even_write_en_b,
+	mem_even_write_data_b,
+	mem_even_read_en_b,
+	mem_even_address_b,
+	mem_even_read_data_b,
+	mem_even_waitrequest_b,
+	mem_odd_clken,
+	mem_odd_write_en_a,
+	mem_odd_write_data_a,
+	mem_odd_read_en_a,
+	mem_odd_address_a,
+	mem_odd_read_data_a,
+	mem_odd_waitrequest_a,
+	mem_odd_write_en_b,
+	mem_odd_write_data_b,
+	mem_odd_read_en_b,
+	mem_odd_address_b,
+	mem_odd_read_data_b,
+	mem_odd_waitrequest_b,
+	fifo,
+	fifo_ready,
+	fifo_valid,
+	burst_size,
+	burst_size_ready,
+	burst_size_valid,
+	grant_0_0,
+	grant_1_1,
+	grant_0_2,
+	grant_1_3
+);
+
+parameter [3:0] LEGUP_0 = 4'd0;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj21ELi14ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_1 = 4'd1;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2 = 4'd2;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3 = 4'd3;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4 = 4'd4;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5 = 4'd5;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6 = 4'd6;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7 = 4'd7;
+parameter [3:0] LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8 = 4'd8;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_for_end_9 = 4'd9;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_if_then106_10 = 4'd10;
+parameter [3:0] LEGUP_F_warpPerspective_hw_BB_if_end109_11 = 4'd11;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [11:0] dst_height;
+input [11:0] dst_width;
+input [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warp_matrix_m;
+output  axi_master_warpPerspective_orig_entry_warp_matrix__clken;
+output  axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a;
+output [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a;
+output reg  axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a;
+output reg [3:0] axi_master_warpPerspective_orig_entry_warp_matrix__address_a;
+input [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a;
+input  axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a;
+output  axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b;
+output [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b;
+output reg  axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b;
+output reg [3:0] axi_master_warpPerspective_orig_entry_warp_matrix__address_b;
+input [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b;
+input  axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b;
+output  mem_even_clken;
+output  mem_even_write_en_a;
+output [15:0] mem_even_write_data_a;
+output reg  mem_even_read_en_a;
+output reg [13:0] mem_even_address_a;
+input [15:0] mem_even_read_data_a;
+input  mem_even_waitrequest_a;
+output  mem_even_write_en_b;
+output [15:0] mem_even_write_data_b;
+output reg  mem_even_read_en_b;
+output reg [13:0] mem_even_address_b;
+input [15:0] mem_even_read_data_b;
+input  mem_even_waitrequest_b;
+output  mem_odd_clken;
+output  mem_odd_write_en_a;
+output [15:0] mem_odd_write_data_a;
+output reg  mem_odd_read_en_a;
+output reg [13:0] mem_odd_address_a;
+input [15:0] mem_odd_read_data_a;
+input  mem_odd_waitrequest_a;
+output  mem_odd_write_en_b;
+output [15:0] mem_odd_write_data_b;
+output reg  mem_odd_read_en_b;
+output reg [13:0] mem_odd_address_b;
+input [15:0] mem_odd_read_data_b;
+input  mem_odd_waitrequest_b;
+output reg [31:0] fifo;
+input  fifo_ready;
+output reg  fifo_valid;
+output reg [7:0] burst_size;
+input  burst_size_ready;
+output reg  burst_size_valid;
+input  grant_0_0;
+input  grant_1_1;
+input  grant_0_2;
+input  grant_1_3;
+reg [3:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [3:0] next_state;
+reg [11:0] dst_height_reg;
+reg [11:0] dst_width_reg;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warp_matrix_m_reg;
+reg  fsm_stall;
+reg  warpPerspective_hw_1_EXT2_EEE_exit_0;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep5;
+reg [16:0] warpPerspective_hw_body_preheader_1;
+reg [16:0] warpPerspective_hw_body_preheader_1_reg;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep15;
+reg [16:0] warpPerspective_hw_body_preheader_2;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep25;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep25_reg;
+reg [16:0] warpPerspective_hw_body_preheader_3;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep35;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep35_reg;
+reg [16:0] warpPerspective_hw_body_preheader_4;
+reg [16:0] warpPerspective_hw_body_preheader_4_reg;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep45;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep45_reg;
+reg [16:0] warpPerspective_hw_body_preheader_5;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep55;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep55_reg;
+reg [16:0] warpPerspective_hw_body_preheader_6;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep65;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep65_reg;
+reg [16:0] warpPerspective_hw_body_preheader_7;
+reg [16:0] warpPerspective_hw_body_preheader_7_reg;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep75;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_gep75_reg;
+reg [16:0] warpPerspective_hw_body_preheader_8;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_cast49;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_body_preheader_mem_flat_cast49_reg;
+reg [16:0] warpPerspective_hw_body_preheader_9;
+reg [16:0] warpPerspective_hw_body_preheader_10;
+reg [16:0] warpPerspective_hw_body_preheader_10_reg;
+reg [16:0] warpPerspective_hw_body_preheader_11;
+reg [16:0] warpPerspective_hw_body_preheader_11_reg;
+reg [16:0] warpPerspective_hw_body_preheader_12;
+reg [16:0] warpPerspective_hw_body_preheader_12_reg;
+reg [16:0] warpPerspective_hw_body_preheader_13;
+reg [16:0] warpPerspective_hw_body_preheader_13_reg;
+reg [16:0] warpPerspective_hw_body_preheader_14;
+reg [16:0] warpPerspective_hw_body_preheader_14_reg;
+reg [16:0] warpPerspective_hw_body_preheader_15;
+reg [16:0] warpPerspective_hw_body_preheader_15_reg;
+reg [11:0] warpPerspective_hw_body_preheader_bit_concat140;
+reg [11:0] warpPerspective_hw_body_preheader_bit_concat140_reg;
+reg [16:0] warpPerspective_hw_for_body_16;
+reg [16:0] warpPerspective_hw_for_body_16_reg;
+reg [16:0] warpPerspective_hw_for_body_17;
+reg [16:0] warpPerspective_hw_for_body_17_reg;
+reg [16:0] warpPerspective_hw_for_body_18;
+reg [16:0] warpPerspective_hw_for_body_18_reg;
+reg [16:0] warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_;
+reg [16:0] warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp__reg;
+reg [16:0] warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t;
+reg [16:0] warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t_reg;
+reg [16:0] warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t;
+reg [16:0] warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t_reg;
+reg [23:0] warpPerspective_hw_for_body_fifo_in_0_off8;
+reg [23:0] warpPerspective_hw_for_body_fifo_in_0_off8_reg;
+reg [7:0] warpPerspective_hw_for_body_write_count_0;
+reg [7:0] warpPerspective_hw_for_body_write_count_0_reg;
+reg [11:0] warpPerspective_hw_for_body_x_idx_0;
+reg [11:0] warpPerspective_hw_for_body_x_idx_0_reg;
+reg [11:0] warpPerspective_hw_for_body_y_idx_0;
+reg [11:0] warpPerspective_hw_for_body_y_idx_0_reg;
+reg [11:0] warpPerspective_hw_for_body_bit_select36;
+reg [11:0] warpPerspective_hw_for_body_bit_select32;
+reg [1:0] warpPerspective_hw_for_body_bit_select20;
+reg [16:0] warpPerspective_hw_for_body_20;
+reg [11:0] warpPerspective_hw_for_body_bit_select139;
+reg [16:0] warpPerspective_hw_for_body_21;
+reg [11:0] warpPerspective_hw_for_body_bit_select138;
+reg [11:0] warpPerspective_hw_for_body_bit_select134;
+reg [16:0] warpPerspective_hw_for_body_off;
+reg  warpPerspective_hw_for_body_22;
+reg [16:0] warpPerspective_hw_for_body_off439;
+reg  warpPerspective_hw_for_body_23;
+reg [16:0] warpPerspective_hw_for_body_off1;
+reg  warpPerspective_hw_for_body_24;
+reg [16:0] warpPerspective_hw_for_body_off440;
+reg  warpPerspective_hw_for_body_25;
+reg  warpPerspective_hw_for_body__i;
+reg  warpPerspective_hw_for_body_26;
+reg  warpPerspective_hw_for_body_16_i;
+reg  warpPerspective_hw_for_body_27;
+reg [12:0] warpPerspective_hw_for_body_sr_negate;
+reg [12:0] warpPerspective_hw_for_body_bit_select136;
+reg [17:0] warpPerspective_hw_for_body_bit_concat137;
+reg [19:0] warpPerspective_hw_for_body_bit_concat135;
+reg [20:0] warpPerspective_hw_for_body_sr_add;
+reg [21:0] warpPerspective_hw_for_body_add_i;
+reg  warpPerspective_hw_for_body_bit_select132;
+reg  warpPerspective_hw_for_body_bit_select128;
+reg [12:0] warpPerspective_hw_for_body_newEarly_1;
+reg [21:0] warpPerspective_hw_for_body_newCurOp_1;
+reg  warpPerspective_hw_for_body_bit_select126;
+reg [12:0] warpPerspective_hw_for_body_newEarly_2;
+reg [21:0] warpPerspective_hw_for_body_newCurOp_3;
+reg  warpPerspective_hw_for_body_bit_select129;
+reg [12:0] warpPerspective_hw_for_body_newEarly_4;
+reg [21:0] warpPerspective_hw_for_body_newCurOp_5;
+reg  warpPerspective_hw_for_body_bit_select127;
+reg [19:0] warpPerspective_hw_for_body_shr_i;
+reg [19:0] warpPerspective_hw_for_body_28;
+reg [19:0] warpPerspective_hw_for_body_shr50_i;
+reg [19:0] warpPerspective_hw_for_body_29;
+reg [19:0] warpPerspective_hw_for_body_shr56_i;
+reg [19:0] warpPerspective_hw_for_body_30;
+reg [19:0] warpPerspective_hw_for_body_shr62_i;
+reg [19:0] warpPerspective_hw_for_body_31;
+reg  warpPerspective_hw_for_body_bit_concat133;
+reg  warpPerspective_hw_for_body_32;
+reg [3:0] warpPerspective_hw_for_body_bit_concat131;
+reg [3:0] warpPerspective_hw_for_body_bit_concat130;
+reg [19:0] warpPerspective_hw_for_body_select13;
+reg [19:0] warpPerspective_hw_for_body_select11;
+reg [19:0] warpPerspective_hw_for_body_select9;
+reg [19:0] warpPerspective_hw_for_body_select7;
+reg [3:0] warpPerspective_hw_for_body_select5;
+reg  warpPerspective_hw_for_body_bit_select117;
+reg  warpPerspective_hw_for_body_bit_select105;
+reg  warpPerspective_hw_for_body_bit_select93;
+reg  warpPerspective_hw_for_body_bit_select76;
+reg [7:0] warpPerspective_hw_for_body_select;
+reg [1:0] warpPerspective_hw_for_body_bit_select66;
+reg  warpPerspective_hw_for_body_bit_select57;
+reg [1:0] warpPerspective_hw_for_body_bit_select48;
+reg [1:0] warpPerspective_hw_for_body_bit_select39;
+reg [3:0] warpPerspective_hw_for_body_bit_concat125;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_for_body_mem_flat_gep105;
+reg [3:0] warpPerspective_hw_for_body_bit_concat124;
+reg [4:0] warpPerspective_hw_for_body_neg;
+reg [3:0] warpPerspective_hw_for_body_bit_select122;
+reg [4:0] warpPerspective_hw_for_body_bit_concat123;
+reg [5:0] warpPerspective_hw_for_body_add_i_i232;
+reg  warpPerspective_hw_for_body_NotCondition2;
+reg [31:0] warpPerspective_hw_for_body_bit_concat121;
+reg [63:0] warpPerspective_hw_for_body_33;
+reg [15:0] warpPerspective_hw_for_body_bit_select120;
+reg [15:0] warpPerspective_hw_for_body_phitmp_i234;
+reg [15:0] warpPerspective_hw_for_body_select18;
+reg [15:0] warpPerspective_hw_for_body_34;
+reg [15:0] warpPerspective_hw_for_body_bit_concat119;
+reg [3:0] warpPerspective_hw_for_body_bit_concat118;
+reg [15:0] warpPerspective_hw_for_body_35;
+reg [15:0] warpPerspective_hw_for_body_bit_select116;
+reg [15:0] warpPerspective_hw_for_body_36;
+reg [7:0] warpPerspective_hw_for_body_bit_select89;
+reg [3:0] warpPerspective_hw_for_body_bit_concat115;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_for_body_mem_flat_gep115;
+reg [3:0] warpPerspective_hw_for_body_bit_concat114;
+reg [4:0] warpPerspective_hw_for_body_neg457;
+reg [3:0] warpPerspective_hw_for_body_bit_select112;
+reg [4:0] warpPerspective_hw_for_body_bit_concat113;
+reg [5:0] warpPerspective_hw_for_body_add_i_i215;
+reg  warpPerspective_hw_for_body_cmp_i_i_i216;
+reg [31:0] warpPerspective_hw_for_body_bit_concat111;
+reg [63:0] warpPerspective_hw_for_body_37;
+reg [31:0] warpPerspective_hw_for_body_bit_select110;
+reg [31:0] warpPerspective_hw_for_body_phitmp_i217;
+reg [7:0] warpPerspective_hw_for_body_bit_select108;
+reg [7:0] warpPerspective_hw_for_body_bit_concat109;
+reg [7:0] warpPerspective_hw_for_body_select23;
+reg [15:0] warpPerspective_hw_for_body_38;
+reg [15:0] warpPerspective_hw_for_body_bit_concat107;
+reg [3:0] warpPerspective_hw_for_body_bit_concat106;
+reg [15:0] warpPerspective_hw_for_body_39;
+reg [7:0] warpPerspective_hw_for_body_bit_select104;
+reg [7:0] warpPerspective_hw_for_body_40;
+reg [7:0] warpPerspective_hw_for_body_bit_select90;
+reg [3:0] warpPerspective_hw_for_body_bit_concat103;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_for_body_mem_flat_gep125;
+reg [3:0] warpPerspective_hw_for_body_bit_concat102;
+reg [4:0] warpPerspective_hw_for_body_neg458;
+reg [3:0] warpPerspective_hw_for_body_bit_select100;
+reg [4:0] warpPerspective_hw_for_body_bit_concat101;
+reg [5:0] warpPerspective_hw_for_body_add_i_i198;
+reg  warpPerspective_hw_for_body_cmp_i_i_i199;
+reg [31:0] warpPerspective_hw_for_body_bit_concat99;
+reg [63:0] warpPerspective_hw_for_body_41;
+reg [31:0] warpPerspective_hw_for_body_bit_select98;
+reg [31:0] warpPerspective_hw_for_body_phitmp_i200;
+reg [7:0] warpPerspective_hw_for_body_bit_select96;
+reg [7:0] warpPerspective_hw_for_body_bit_concat97;
+reg [7:0] warpPerspective_hw_for_body_select28;
+reg [15:0] warpPerspective_hw_for_body_42;
+reg [15:0] warpPerspective_hw_for_body_bit_concat95;
+reg [3:0] warpPerspective_hw_for_body_bit_concat94;
+reg [15:0] warpPerspective_hw_for_body_43;
+reg [7:0] warpPerspective_hw_for_body_bit_select92;
+reg [7:0] warpPerspective_hw_for_body_44;
+reg [7:0] warpPerspective_hw_for_body_bit_select87;
+reg [31:0] warpPerspective_hw_for_body_bit_concat91;
+reg [15:0] warpPerspective_hw_for_body_bit_concat88;
+reg [3:0] warpPerspective_hw_for_body_bit_concat86;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] warpPerspective_hw_for_body_mem_flat_gep135;
+reg [3:0] warpPerspective_hw_for_body_bit_concat85;
+reg [4:0] warpPerspective_hw_for_body_neg459;
+reg [3:0] warpPerspective_hw_for_body_bit_select83;
+reg [4:0] warpPerspective_hw_for_body_bit_concat84;
+reg [5:0] warpPerspective_hw_for_body_add_i_i;
+reg  warpPerspective_hw_for_body_cmp_i_i_i;
+reg [31:0] warpPerspective_hw_for_body_bit_concat82;
+reg [63:0] warpPerspective_hw_for_body_45;
+reg [31:0] warpPerspective_hw_for_body_bit_select81;
+reg [31:0] warpPerspective_hw_for_body_phitmp_i;
+reg [7:0] warpPerspective_hw_for_body_bit_select79;
+reg [7:0] warpPerspective_hw_for_body_bit_concat80;
+reg [7:0] warpPerspective_hw_for_body_select33;
+reg [15:0] warpPerspective_hw_for_body_46;
+reg [15:0] warpPerspective_hw_for_body_bit_concat78;
+reg [3:0] warpPerspective_hw_for_body_bit_concat77;
+reg [15:0] warpPerspective_hw_for_body_47;
+reg [7:0] warpPerspective_hw_for_body_bit_select75;
+reg [7:0] warpPerspective_hw_for_body_48;
+reg [15:0] warpPerspective_hw_for_body_newEarly_10;
+reg [31:0] warpPerspective_hw_for_body_newCurOp_11;
+reg [4:0] warpPerspective_hw_for_body_bit_concat74;
+reg [4:0] warpPerspective_hw_for_body_bit_concat73;
+reg [5:0] warpPerspective_hw_for_body_neg460;
+reg [4:0] warpPerspective_hw_for_body_bit_select71;
+reg [5:0] warpPerspective_hw_for_body_bit_concat72;
+reg [5:0] warpPerspective_hw_for_body_add_i442_i;
+reg  warpPerspective_hw_for_body_cmp_i_i_i260_i;
+reg [31:0] warpPerspective_hw_for_body_bit_concat70;
+reg [63:0] warpPerspective_hw_for_body_49;
+reg [1:0] warpPerspective_hw_for_body_bit_select69;
+reg [1:0] warpPerspective_hw_for_body_phitmp;
+reg [1:0] warpPerspective_hw_for_body_select38;
+reg [31:0] warpPerspective_hw_for_body_bit_concat68;
+reg [4:0] warpPerspective_hw_for_body_bit_concat67;
+reg [23:0] warpPerspective_hw_for_body_50;
+reg [7:0] warpPerspective_hw_for_body_bit_select65;
+reg [7:0] warpPerspective_hw_for_body_51;
+reg [4:0] warpPerspective_hw_for_body_bit_concat64;
+reg [4:0] warpPerspective_hw_for_body_bit_concat63;
+reg [5:0] warpPerspective_hw_for_body_neg461;
+reg [4:0] warpPerspective_hw_for_body_bit_select61;
+reg [5:0] warpPerspective_hw_for_body_bit_concat62;
+reg [6:0] warpPerspective_hw_for_body_add_i474_i;
+reg  warpPerspective_hw_for_body_cmp_i_i_i295_i;
+reg [31:0] warpPerspective_hw_for_body_bit_concat60;
+reg [63:0] warpPerspective_hw_for_body_52;
+reg [1:0] warpPerspective_hw_for_body_bit_select59;
+reg [1:0] warpPerspective_hw_for_body_phitmp3;
+reg [1:0] warpPerspective_hw_for_body_select43;
+reg [4:0] warpPerspective_hw_for_body_bit_concat58;
+reg [31:0] warpPerspective_hw_for_body_53;
+reg [7:0] warpPerspective_hw_for_body_bit_select56;
+reg [7:0] warpPerspective_hw_for_body_54;
+reg [4:0] warpPerspective_hw_for_body_bit_concat55;
+reg [4:0] warpPerspective_hw_for_body_bit_concat54;
+reg [5:0] warpPerspective_hw_for_body_neg462;
+reg [4:0] warpPerspective_hw_for_body_bit_select52;
+reg [5:0] warpPerspective_hw_for_body_bit_concat53;
+reg [5:0] warpPerspective_hw_for_body_add_i216_i;
+reg  warpPerspective_hw_for_body_cmp_i_i_i330_i;
+reg [31:0] warpPerspective_hw_for_body_bit_concat51;
+reg [63:0] warpPerspective_hw_for_body_55;
+reg [1:0] warpPerspective_hw_for_body_bit_select50;
+reg [1:0] warpPerspective_hw_for_body_phitmp4;
+reg [1:0] warpPerspective_hw_for_body_select48;
+reg [4:0] warpPerspective_hw_for_body_bit_concat49;
+reg [23:0] warpPerspective_hw_for_body_56;
+reg [7:0] warpPerspective_hw_for_body_bit_select47;
+reg [7:0] warpPerspective_hw_for_body_57;
+reg [4:0] warpPerspective_hw_for_body_bit_concat46;
+reg [4:0] warpPerspective_hw_for_body_bit_concat45;
+reg [5:0] warpPerspective_hw_for_body_neg463;
+reg [4:0] warpPerspective_hw_for_body_bit_select43;
+reg [5:0] warpPerspective_hw_for_body_bit_concat44;
+reg [6:0] warpPerspective_hw_for_body_add_i141_i;
+reg  warpPerspective_hw_for_body_cmp_i_i_i_i;
+reg [31:0] warpPerspective_hw_for_body_bit_concat42;
+reg [63:0] warpPerspective_hw_for_body_58;
+reg [1:0] warpPerspective_hw_for_body_bit_select41;
+reg [1:0] warpPerspective_hw_for_body_phitmp5;
+reg [1:0] warpPerspective_hw_for_body_select53;
+reg [4:0] warpPerspective_hw_for_body_bit_concat40;
+reg [31:0] warpPerspective_hw_for_body_59;
+reg [7:0] warpPerspective_hw_for_body_bit_select38;
+reg [7:0] warpPerspective_hw_for_body_60;
+reg [16:0] warpPerspective_hw_for_body_61;
+reg [16:0] warpPerspective_hw_for_body_bit_concat37;
+reg [18:0] warpPerspective_hw_for_body_62;
+reg [16:0] warpPerspective_hw_for_body_bit_select35;
+reg  warpPerspective_hw_for_body_bit_select34;
+reg  warpPerspective_hw_for_body_63;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i186;
+reg  warpPerspective_hw_for_body_exitMask_T54;
+reg  warpPerspective_hw_for_body_NotCondition55;
+reg  warpPerspective_hw_for_body_exitMask_F56;
+reg [16:0] warpPerspective_hw_for_body_select58;
+reg [16:0] warpPerspective_hw_for_body_select63;
+reg [16:0] warpPerspective_hw_for_body_64;
+reg [16:0] warpPerspective_hw_for_body_bit_concat33;
+reg [18:0] warpPerspective_hw_for_body_65;
+reg [16:0] warpPerspective_hw_for_body_bit_select31;
+reg  warpPerspective_hw_for_body_bit_select30;
+reg  warpPerspective_hw_for_body_66;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_0;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i173;
+reg  warpPerspective_hw_for_body_exitMask_T64;
+reg  warpPerspective_hw_for_body_NotCondition65;
+reg  warpPerspective_hw_for_body_exitMask_F66;
+reg [16:0] warpPerspective_hw_for_body_select68;
+reg [16:0] warpPerspective_hw_for_body_select73;
+reg [16:0] warpPerspective_hw_for_body_67;
+reg [17:0] warpPerspective_hw_for_body_68;
+reg [7:0] warpPerspective_hw_for_body_bit_concat29;
+reg [17:0] warpPerspective_hw_for_body_69;
+reg [25:0] warpPerspective_hw_for_body_70;
+reg [16:0] warpPerspective_hw_for_body_71;
+reg [17:0] warpPerspective_hw_for_body_72;
+reg [25:0] warpPerspective_hw_for_body_73;
+reg [17:0] warpPerspective_hw_for_body_74;
+reg [43:0] warpPerspective_hw_for_body_75;
+reg [7:0] warpPerspective_hw_for_body_bit_concat28;
+reg [16:0] warpPerspective_hw_for_body_76;
+reg [24:0] warpPerspective_hw_for_body_77;
+reg [24:0] warpPerspective_hw_for_body_78;
+reg [17:0] warpPerspective_hw_for_body_79;
+reg [42:0] warpPerspective_hw_for_body_80;
+reg [43:0] warpPerspective_hw_for_body_81;
+reg [42:0] warpPerspective_hw_for_body_82;
+reg [44:0] warpPerspective_hw_for_body_83;
+reg [7:0] warpPerspective_hw_for_body_bit_concat27;
+reg [25:0] warpPerspective_hw_for_body_84;
+reg [25:0] warpPerspective_hw_for_body_85;
+reg [16:0] warpPerspective_hw_for_body_86;
+reg [42:0] warpPerspective_hw_for_body_87;
+reg [44:0] warpPerspective_hw_for_body_88;
+reg [42:0] warpPerspective_hw_for_body_89;
+reg [45:0] warpPerspective_hw_for_body_90;
+reg [7:0] warpPerspective_hw_for_body_bit_concat26;
+reg [24:0] warpPerspective_hw_for_body_91;
+reg [24:0] warpPerspective_hw_for_body_92;
+reg [16:0] warpPerspective_hw_for_body_93;
+reg [41:0] warpPerspective_hw_for_body_94;
+reg [45:0] warpPerspective_hw_for_body_95;
+reg [41:0] warpPerspective_hw_for_body_96;
+reg [46:0] warpPerspective_hw_for_body_97;
+reg [46:0] warpPerspective_hw_for_body_98;
+reg [47:0] warpPerspective_hw_for_body_99;
+reg [19:0] warpPerspective_hw_for_body_bit_select25;
+reg  warpPerspective_hw_for_body_bit_select24;
+reg  warpPerspective_hw_for_body_100;
+reg [19:0] warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i;
+reg  warpPerspective_hw_for_body_exitMask_T74;
+reg  warpPerspective_hw_for_body_NotCondition75;
+reg  warpPerspective_hw_for_body_exitMask_F76;
+reg [19:0] warpPerspective_hw_for_body_select78;
+reg [7:0] warpPerspective_hw_for_body_bit_select22;
+reg [31:0] warpPerspective_hw_for_body_bit_concat23;
+reg [31:0] warpPerspective_hw_for_body_select83;
+reg [31:0] warpPerspective_hw_for_body_101;
+reg [31:0] warpPerspective_hw_for_body_bit_select19;
+reg [23:0] warpPerspective_hw_for_body_bit_select;
+reg [1:0] warpPerspective_hw_for_body_bit_concat21;
+reg  warpPerspective_hw_for_body_cmp;
+reg  warpPerspective_hw_for_body_bit_concat18;
+reg [7:0] warpPerspective_hw_for_body_select88;
+reg  warpPerspective_hw_for_body_102;
+reg [7:0] warpPerspective_hw_for_body_select93;
+reg [7:0] warpPerspective_hw_for_body_select93_reg;
+reg [11:0] warpPerspective_hw_for_body_bit_concat17;
+reg [12:0] warpPerspective_hw_for_body_103;
+reg  warpPerspective_hw_for_body_104;
+reg [16:0] warpPerspective_hw_for_body_105;
+reg  warpPerspective_hw_for_body_NotCondition90;
+reg [17:0] warpPerspective_hw_for_body_106;
+reg [17:0] warpPerspective_hw_for_body_107;
+reg [18:0] warpPerspective_hw_for_body_108;
+reg [16:0] warpPerspective_hw_for_body_bit_select16;
+reg  warpPerspective_hw_for_body_bit_select15;
+reg  warpPerspective_hw_for_body_exitMask_F96;
+reg [17:0] warpPerspective_hw_for_body_109;
+reg [16:0] warpPerspective_hw_for_body_bit_select14;
+reg  warpPerspective_hw_for_body_bit_select13;
+reg  warpPerspective_hw_for_body_exitMask_F99;
+reg  warpPerspective_hw_for_body_110;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_2;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i160;
+reg  warpPerspective_hw_for_body_exitMask_T100;
+reg  warpPerspective_hw_for_body_NotCondition101;
+reg  warpPerspective_hw_for_body_exitMask_F102;
+reg  warpPerspective_hw_for_body_111;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_3;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i_i104;
+reg  warpPerspective_hw_for_body_exitMask_T103;
+reg  warpPerspective_hw_for_body_NotCondition104;
+reg  warpPerspective_hw_for_body_exitMask_F105;
+reg [16:0] warpPerspective_hw_for_body_select107;
+reg [16:0] warpPerspective_hw_for_body_select109;
+reg [16:0] warpPerspective_hw_for_body_select114;
+reg [16:0] warpPerspective_hw_for_body_112;
+reg [17:0] warpPerspective_hw_for_body_113;
+reg [17:0] warpPerspective_hw_for_body_114;
+reg [18:0] warpPerspective_hw_for_body_115;
+reg [16:0] warpPerspective_hw_for_body_bit_select12;
+reg  warpPerspective_hw_for_body_bit_select11;
+reg  warpPerspective_hw_for_body_exitMask_F112;
+reg [16:0] warpPerspective_hw_for_body_select119;
+reg [17:0] warpPerspective_hw_for_body_116;
+reg [16:0] warpPerspective_hw_for_body_bit_select10;
+reg  warpPerspective_hw_for_body_bit_select9;
+reg  warpPerspective_hw_for_body_exitMask_F117;
+reg  warpPerspective_hw_for_body_117;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_4;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i147;
+reg  warpPerspective_hw_for_body_exitMask_T120;
+reg  warpPerspective_hw_for_body_NotCondition121;
+reg  warpPerspective_hw_for_body_exitMask_F122;
+reg  warpPerspective_hw_for_body_118;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_5;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i_i90;
+reg  warpPerspective_hw_for_body_exitMask_T123;
+reg  warpPerspective_hw_for_body_NotCondition124;
+reg  warpPerspective_hw_for_body_exitMask_F125;
+reg [16:0] warpPerspective_hw_for_body_select127;
+reg [16:0] warpPerspective_hw_for_body_select129;
+reg [16:0] warpPerspective_hw_for_body_select134;
+reg [16:0] warpPerspective_hw_for_body_119;
+reg [17:0] warpPerspective_hw_for_body_120;
+reg [16:0] warpPerspective_hw_for_body_121;
+reg [17:0] warpPerspective_hw_for_body_122;
+reg [18:0] warpPerspective_hw_for_body_123;
+reg [16:0] warpPerspective_hw_for_body_bit_select8;
+reg  warpPerspective_hw_for_body_124;
+reg  warpPerspective_hw_for_body_exitMask_T130;
+reg  warpPerspective_hw_for_body_NotCondition131;
+reg  warpPerspective_hw_for_body_exitMask_F132;
+reg [16:0] warpPerspective_hw_for_body_select139;
+reg [17:0] warpPerspective_hw_for_body_125;
+reg [16:0] warpPerspective_hw_for_body_bit_select7;
+reg  warpPerspective_hw_for_body_bit_select6;
+reg  warpPerspective_hw_for_body_exitMask_F137;
+reg  warpPerspective_hw_for_body_126;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_6;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i138;
+reg  warpPerspective_hw_for_body_exitMask_T140;
+reg  warpPerspective_hw_for_body_NotCondition141;
+reg  warpPerspective_hw_for_body_exitMask_F142;
+reg  warpPerspective_hw_for_body_127;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_7;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i_i76;
+reg  warpPerspective_hw_for_body_exitMask_T143;
+reg  warpPerspective_hw_for_body_NotCondition144;
+reg  warpPerspective_hw_for_body_exitMask_F145;
+reg [16:0] warpPerspective_hw_for_body_select147;
+reg  warpPerspective_hw_for_body_128;
+reg [16:0] warpPerspective_hw_for_body_select149;
+reg [16:0] warpPerspective_hw_for_body_select154;
+reg [16:0] warpPerspective_hw_for_body_129;
+reg [17:0] warpPerspective_hw_for_body_130;
+reg [16:0] warpPerspective_hw_for_body_bit_select5;
+reg  warpPerspective_hw_for_body_bit_select4;
+reg  warpPerspective_hw_for_body_exitMask_F152;
+reg  warpPerspective_hw_for_body_131;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_8;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i_i62;
+reg  warpPerspective_hw_for_body_exitMask_T155;
+reg  warpPerspective_hw_for_body_NotCondition156;
+reg  warpPerspective_hw_for_body_exitMask_F157;
+reg [16:0] warpPerspective_hw_for_body_select159;
+reg [16:0] warpPerspective_hw_for_body_select164;
+reg [16:0] warpPerspective_hw_for_body_132;
+reg [17:0] warpPerspective_hw_for_body_133;
+reg [16:0] warpPerspective_hw_for_body_bit_select3;
+reg  warpPerspective_hw_for_body_134;
+reg  warpPerspective_hw_for_body_exitMask_T160;
+reg  warpPerspective_hw_for_body_NotCondition161;
+reg  warpPerspective_hw_for_body_exitMask_F162;
+reg  warpPerspective_hw_for_body_135;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_9;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i_i48;
+reg  warpPerspective_hw_for_body_exitMask_T165;
+reg [16:0] warpPerspective_hw_for_body_select169;
+reg [16:0] warpPerspective_hw_for_body_select174;
+reg [16:0] warpPerspective_hw_for_body_136;
+reg [17:0] warpPerspective_hw_for_body_137;
+reg [16:0] warpPerspective_hw_for_body_bit_select2;
+reg  warpPerspective_hw_for_body_138;
+reg  warpPerspective_hw_for_body_exitMask_T170;
+reg  warpPerspective_hw_for_body_NotCondition171;
+reg  warpPerspective_hw_for_body_exitMask_F172;
+reg  warpPerspective_hw_for_body_139;
+reg [16:0] warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_10;
+reg  warpPerspective_hw_for_body_lnot_i22_i_i_i_i;
+reg  warpPerspective_hw_for_body_exitMask_T175;
+reg  warpPerspective_hw_for_body_NotCondition176;
+reg  warpPerspective_hw_for_body_exitMask_F177;
+reg [16:0] warpPerspective_hw_for_body_select179;
+reg  warpPerspective_hw_for_body_140;
+reg  warpPerspective_hw_for_body_ORCondM203;
+reg [16:0] warpPerspective_hw_for_body_select206;
+reg [16:0] warpPerspective_hw_for_body_select202;
+reg [16:0] warpPerspective_hw_for_body_select198;
+reg  warpPerspective_hw_for_body_ORCondM190;
+reg [16:0] warpPerspective_hw_for_body_select192;
+reg [16:0] warpPerspective_hw_for_body_select194;
+reg [16:0] warpPerspective_hw_for_body_select189;
+reg  warpPerspective_hw_for_body_ORCondM;
+reg [16:0] warpPerspective_hw_for_body_select185;
+reg [11:0] warpPerspective_hw_for_body_141;
+reg  warpPerspective_hw_for_body_142;
+reg  warpPerspective_hw_for_body_bit_concat1;
+reg [11:0] warpPerspective_hw_for_body_y_idx_0_11;
+reg  warpPerspective_hw_for_body_143;
+reg [11:0] warpPerspective_hw_for_body_1510;
+reg [23:0] warpPerspective_hw_for_body_bit_concat;
+reg  warpPerspective_hw_for_end_144;
+reg  for_loop_warp_cpp_218_2_valid_bit_0;
+reg  for_loop_warp_cpp_218_2_state_stall_0;
+reg  for_loop_warp_cpp_218_2_state_enable_0;
+reg  for_loop_warp_cpp_218_2_valid_bit_1;
+reg  for_loop_warp_cpp_218_2_state_stall_1;
+reg  for_loop_warp_cpp_218_2_state_enable_1;
+reg  for_loop_warp_cpp_218_2_valid_bit_2;
+reg  for_loop_warp_cpp_218_2_state_stall_2;
+reg  for_loop_warp_cpp_218_2_state_enable_2;
+reg  for_loop_warp_cpp_218_2_valid_bit_3;
+reg  for_loop_warp_cpp_218_2_state_stall_3;
+reg  for_loop_warp_cpp_218_2_state_enable_3;
+reg  for_loop_warp_cpp_218_2_valid_bit_4;
+reg  for_loop_warp_cpp_218_2_state_stall_4;
+reg  for_loop_warp_cpp_218_2_state_enable_4;
+reg  for_loop_warp_cpp_218_2_valid_bit_5;
+reg  for_loop_warp_cpp_218_2_state_stall_5;
+reg  for_loop_warp_cpp_218_2_state_enable_5;
+reg  for_loop_warp_cpp_218_2_valid_bit_6;
+reg  for_loop_warp_cpp_218_2_state_stall_6;
+reg  for_loop_warp_cpp_218_2_state_enable_6;
+reg  for_loop_warp_cpp_218_2_II_counter;
+reg  for_loop_warp_cpp_218_2_start;
+reg  for_loop_warp_cpp_218_2_activate_pipeline;
+reg [23:0] warpPerspective_hw_for_body_fifo_in_0_off8_reg_stage6;
+reg [3:0] warpPerspective_hw_for_body_bit_concat125_reg_stage1;
+reg [3:0] warpPerspective_hw_for_body_bit_concat124_reg_stage1;
+reg  warpPerspective_hw_for_body_NotCondition2_reg_stage2;
+reg [15:0] warpPerspective_hw_for_body_phitmp_i234_reg_stage2;
+reg [3:0] warpPerspective_hw_for_body_bit_concat118_reg_stage1;
+reg [15:0] warpPerspective_hw_for_body_bit_select116_reg_stage2;
+reg [3:0] warpPerspective_hw_for_body_bit_concat115_reg_stage1;
+reg [3:0] warpPerspective_hw_for_body_bit_concat114_reg_stage1;
+reg  warpPerspective_hw_for_body_cmp_i_i_i216_reg_stage2;
+reg [7:0] warpPerspective_hw_for_body_bit_concat109_reg_stage2;
+reg [3:0] warpPerspective_hw_for_body_bit_concat106_reg_stage1;
+reg [7:0] warpPerspective_hw_for_body_bit_select104_reg_stage2;
+reg [3:0] warpPerspective_hw_for_body_bit_concat103_reg_stage1;
+reg [3:0] warpPerspective_hw_for_body_bit_concat102_reg_stage1;
+reg  warpPerspective_hw_for_body_cmp_i_i_i199_reg_stage2;
+reg [7:0] warpPerspective_hw_for_body_bit_concat97_reg_stage2;
+reg [3:0] warpPerspective_hw_for_body_bit_concat94_reg_stage1;
+reg [7:0] warpPerspective_hw_for_body_bit_select92_reg_stage2;
+reg [3:0] warpPerspective_hw_for_body_bit_concat86_reg_stage1;
+reg [3:0] warpPerspective_hw_for_body_bit_concat85_reg_stage1;
+reg  warpPerspective_hw_for_body_cmp_i_i_i_reg_stage2;
+reg [7:0] warpPerspective_hw_for_body_bit_concat80_reg_stage2;
+reg [3:0] warpPerspective_hw_for_body_bit_concat77_reg_stage1;
+reg [7:0] warpPerspective_hw_for_body_bit_select75_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat74_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat73_reg_stage1;
+reg [1:0] warpPerspective_hw_for_body_select38_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat67_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat67_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat64_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat63_reg_stage1;
+reg [1:0] warpPerspective_hw_for_body_select43_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat58_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat58_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat55_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat54_reg_stage1;
+reg [1:0] warpPerspective_hw_for_body_select48_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat49_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat49_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat46_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat45_reg_stage1;
+reg [1:0] warpPerspective_hw_for_body_select53_reg_stage2;
+reg [4:0] warpPerspective_hw_for_body_bit_concat40_reg_stage1;
+reg [4:0] warpPerspective_hw_for_body_bit_concat40_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_67_reg_stage1;
+reg [17:0] warpPerspective_hw_for_body_69_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_71_reg_stage1;
+reg [17:0] warpPerspective_hw_for_body_74_reg_stage2;
+reg [17:0] warpPerspective_hw_for_body_74_reg_stage3;
+reg [16:0] warpPerspective_hw_for_body_76_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_76_reg_stage2;
+reg [17:0] warpPerspective_hw_for_body_79_reg_stage2;
+reg [17:0] warpPerspective_hw_for_body_79_reg_stage3;
+reg [16:0] warpPerspective_hw_for_body_86_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_86_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_86_reg_stage3;
+reg [16:0] warpPerspective_hw_for_body_93_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_93_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_93_reg_stage3;
+reg [47:0] warpPerspective_hw_for_body_99_reg_stage6;
+reg [19:0] warpPerspective_hw_for_body_bit_select25_reg_stage6;
+reg  warpPerspective_hw_for_body_bit_select24_reg_stage6;
+reg  warpPerspective_hw_for_body_cmp_reg_stage1;
+reg  warpPerspective_hw_for_body_cmp_reg_stage2;
+reg  warpPerspective_hw_for_body_cmp_reg_stage3;
+reg  warpPerspective_hw_for_body_cmp_reg_stage4;
+reg  warpPerspective_hw_for_body_cmp_reg_stage5;
+reg  warpPerspective_hw_for_body_cmp_reg_stage6;
+reg [7:0] warpPerspective_hw_for_body_select93_reg_stage1;
+reg  warpPerspective_hw_for_body_exitMask_T100_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select107_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select119_reg_stage1;
+reg  warpPerspective_hw_for_body_exitMask_T120_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select127_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select139_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select154_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select164_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select174_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select179_reg_stage1;
+reg  warpPerspective_hw_for_body_140_reg_stage1;
+reg  warpPerspective_hw_for_body_ORCondM203_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select206_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_select202_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_select198_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_select192_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select194_reg_stage2;
+reg [16:0] warpPerspective_hw_for_body_select189_reg_stage2;
+reg  warpPerspective_hw_for_body_ORCondM_reg_stage1;
+reg [16:0] warpPerspective_hw_for_body_select185_reg_stage2;
+reg [11:0] warpPerspective_hw_for_body_y_idx_0_11_reg_stage1;
+reg [11:0] warpPerspective_hw_for_body_1510_reg_stage1;
+reg [23:0] warpPerspective_hw_for_body_bit_concat_reg_stage7;
+reg [31:0] for_loop_warp_cpp_218_2_inductionVar_stage0;
+reg  for_loop_warp_cpp_218_2_pipeline_exit_cond;
+reg  for_loop_warp_cpp_218_2_active;
+reg  for_loop_warp_cpp_218_2_begin_pipeline;
+reg  for_loop_warp_cpp_218_2_epilogue;
+reg  for_loop_warp_cpp_218_2_pipeline_finish;
+reg  for_loop_warp_cpp_218_2_pipeline_finishing;
+reg  for_loop_warp_cpp_218_2_only_last_stage_enabled;
+reg [2:0] for_loop_warp_cpp_218_2_num_active_iterations;
+reg  for_loop_warp_cpp_218_2_inserting_new_iteration;
+reg  for_loop_warp_cpp_218_2_pipeline_finish_reg;
+reg  for_loop_warp_cpp_218_2_in_first_iteration_stage0;
+reg  for_loop_warp_cpp_218_2_in_first_iteration_stage1;
+reg  for_loop_warp_cpp_218_2_in_first_iteration_stage2;
+reg  for_loop_warp_cpp_218_2_in_first_iteration_stage3;
+reg  for_loop_warp_cpp_218_2_in_first_iteration_stage4;
+reg  for_loop_warp_cpp_218_2_in_first_iteration_stage5;
+reg [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_enable_cond_a;
+reg [16:0] axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_not_accessed_due_to_stall_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_enable_cond_b;
+wire [20:0] warpPerspective_hw_body_preheader_bit_concat140_bit_select_operand_0;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_not_accessed_due_to_stall_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_enable_cond_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_enable_cond_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_enable_cond_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_not_accessed_due_to_stall_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_enable_cond_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_enable_cond_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_not_accessed_due_to_stall_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_enable_cond_b;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_enable_cond_a;
+reg [36:0] warpPerspective_hw_for_body_20_width_extended;
+reg [36:0] warpPerspective_hw_for_body_21_width_extended;
+reg [26:0] warpPerspective_hw_for_body_sr_negate_width_extended;
+reg [26:0] warpPerspective_hw_for_body_bit_select136_width_extended;
+wire [4:0] warpPerspective_hw_for_body_bit_concat137_bit_select_operand_2;
+reg [23:0] warpPerspective_hw_for_body_bit_select134_width_extended;
+wire [7:0] warpPerspective_hw_for_body_bit_concat135_bit_select_operand_2;
+wire [30:0] warpPerspective_hw_for_body_bit_concat133_bit_select_operand_0;
+wire [27:0] warpPerspective_hw_for_body_bit_concat125_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat125_bit_select_operand_4;
+wire [27:0] warpPerspective_hw_for_body_bit_concat124_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat124_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select122_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat123_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat121_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i_i232_width_extended;
+reg  mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a;
+reg  mem_even_for_loop_warp_cpp_218_2_state_0_stalln_reg;
+reg  mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_a;
+wire [47:0] warpPerspective_hw_for_body_bit_concat119_bit_select_operand_0;
+wire [59:0] warpPerspective_hw_for_body_bit_concat118_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat118_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_35_width_extended;
+wire [27:0] warpPerspective_hw_for_body_bit_concat115_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat115_bit_select_operand_4;
+wire [27:0] warpPerspective_hw_for_body_bit_concat114_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat114_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg457_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select112_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat113_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat111_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i_i215_width_extended;
+wire [23:0] warpPerspective_hw_for_body_bit_concat109_bit_select_operand_0;
+reg  mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b;
+reg  mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_b;
+wire [47:0] warpPerspective_hw_for_body_bit_concat107_bit_select_operand_0;
+wire [59:0] warpPerspective_hw_for_body_bit_concat106_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat106_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_39_width_extended;
+wire [27:0] warpPerspective_hw_for_body_bit_concat103_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat103_bit_select_operand_4;
+wire [27:0] warpPerspective_hw_for_body_bit_concat102_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat102_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg458_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select100_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat101_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat99_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i_i198_width_extended;
+wire [23:0] warpPerspective_hw_for_body_bit_concat97_bit_select_operand_0;
+reg  mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a;
+reg  mem_odd_for_loop_warp_cpp_218_2_state_0_stalln_reg;
+reg  mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_a;
+wire [47:0] warpPerspective_hw_for_body_bit_concat95_bit_select_operand_0;
+wire [59:0] warpPerspective_hw_for_body_bit_concat94_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat94_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_43_width_extended;
+wire [15:0] warpPerspective_hw_for_body_bit_concat91_bit_select_operand_4;
+wire [15:0] warpPerspective_hw_for_body_bit_concat88_bit_select_operand_0;
+wire [7:0] warpPerspective_hw_for_body_bit_concat88_bit_select_operand_4;
+wire [27:0] warpPerspective_hw_for_body_bit_concat86_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat86_bit_select_operand_4;
+wire [27:0] warpPerspective_hw_for_body_bit_concat85_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat85_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg459_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select83_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat84_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat82_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i_i_width_extended;
+wire [23:0] warpPerspective_hw_for_body_bit_concat80_bit_select_operand_0;
+reg  mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b;
+reg  mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_b;
+wire [47:0] warpPerspective_hw_for_body_bit_concat78_bit_select_operand_0;
+wire [59:0] warpPerspective_hw_for_body_bit_concat77_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat77_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_47_width_extended;
+wire [26:0] warpPerspective_hw_for_body_bit_concat74_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat74_bit_select_operand_4;
+wire [26:0] warpPerspective_hw_for_body_bit_concat73_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat73_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg460_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select71_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat72_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat70_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i442_i_width_extended;
+wire [31:0] warpPerspective_hw_for_body_bit_concat68_bit_select_operand_0;
+wire [58:0] warpPerspective_hw_for_body_bit_concat67_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat67_bit_select_operand_4;
+wire [26:0] warpPerspective_hw_for_body_bit_concat64_bit_select_operand_0;
+wire [3:0] warpPerspective_hw_for_body_bit_concat64_bit_select_operand_4;
+wire [26:0] warpPerspective_hw_for_body_bit_concat63_bit_select_operand_0;
+wire [3:0] warpPerspective_hw_for_body_bit_concat63_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg461_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select61_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat62_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat60_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i474_i_width_extended;
+wire [58:0] warpPerspective_hw_for_body_bit_concat58_bit_select_operand_0;
+wire [3:0] warpPerspective_hw_for_body_bit_concat58_bit_select_operand_4;
+wire [26:0] warpPerspective_hw_for_body_bit_concat55_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat55_bit_select_operand_4;
+wire [26:0] warpPerspective_hw_for_body_bit_concat54_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat54_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg462_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select52_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat53_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat51_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i216_i_width_extended;
+wire [58:0] warpPerspective_hw_for_body_bit_concat49_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat49_bit_select_operand_4;
+wire [26:0] warpPerspective_hw_for_body_bit_concat46_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat46_bit_select_operand_4;
+wire [26:0] warpPerspective_hw_for_body_bit_concat45_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat45_bit_select_operand_4;
+reg [31:0] warpPerspective_hw_for_body_neg463_width_extended;
+reg [30:0] warpPerspective_hw_for_body_bit_select43_width_extended;
+wire  warpPerspective_hw_for_body_bit_concat44_bit_select_operand_2;
+wire [31:0] warpPerspective_hw_for_body_bit_concat42_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_add_i141_i_width_extended;
+wire [58:0] warpPerspective_hw_for_body_bit_concat40_bit_select_operand_0;
+wire [2:0] warpPerspective_hw_for_body_bit_concat40_bit_select_operand_4;
+wire [1:0] warpPerspective_hw_for_body_bit_concat37_bit_select_operand_0;
+wire [4:0] warpPerspective_hw_for_body_bit_concat37_bit_select_operand_4;
+wire [1:0] warpPerspective_hw_for_body_bit_concat33_bit_select_operand_0;
+wire [4:0] warpPerspective_hw_for_body_bit_concat33_bit_select_operand_4;
+wire [37:0] warpPerspective_hw_for_body_bit_concat29_bit_select_operand_0;
+reg  legup_mult_signed_18_9_1_0_clock;
+reg  legup_mult_signed_18_9_1_0_aclr;
+reg  legup_mult_signed_18_9_1_0_clken;
+reg [17:0] legup_mult_signed_18_9_1_0_dataa;
+reg [8:0] legup_mult_signed_18_9_1_0_datab;
+wire [26:0] legup_mult_signed_18_9_1_0_result;
+reg [26:0] legup_mult_warpPerspective_hw_for_body_70_out_actual;
+reg [25:0] legup_mult_warpPerspective_hw_for_body_70_out;
+reg  legup_mult_warpPerspective_hw_for_body_70_en;
+reg  legup_mult_warpPerspective_hw_for_body_70_en_pipeline_cond;
+reg  legup_mult_signed_18_26_2_1_clock;
+reg  legup_mult_signed_18_26_2_1_aclr;
+reg  legup_mult_signed_18_26_2_1_clken;
+reg [17:0] legup_mult_signed_18_26_2_1_dataa;
+reg [25:0] legup_mult_signed_18_26_2_1_datab;
+wire [43:0] legup_mult_signed_18_26_2_1_result;
+reg [43:0] legup_mult_warpPerspective_hw_for_body_75_out_actual;
+reg [43:0] legup_mult_warpPerspective_hw_for_body_75_out;
+reg  legup_mult_warpPerspective_hw_for_body_75_en;
+reg  legup_mult_warpPerspective_hw_for_body_75_en_pipeline_cond;
+wire [16:0] warpPerspective_hw_for_body_bit_concat28_bit_select_operand_0;
+reg  legup_mult_signed_17_9_1_2_clock;
+reg  legup_mult_signed_17_9_1_2_aclr;
+reg  legup_mult_signed_17_9_1_2_clken;
+reg [16:0] legup_mult_signed_17_9_1_2_dataa;
+reg [8:0] legup_mult_signed_17_9_1_2_datab;
+wire [25:0] legup_mult_signed_17_9_1_2_result;
+reg [25:0] legup_mult_warpPerspective_hw_for_body_77_out_actual;
+reg [24:0] legup_mult_warpPerspective_hw_for_body_77_out;
+reg  legup_mult_warpPerspective_hw_for_body_77_en;
+reg  legup_mult_warpPerspective_hw_for_body_77_en_pipeline_cond;
+reg  legup_mult_signed_18_25_2_3_clock;
+reg  legup_mult_signed_18_25_2_3_aclr;
+reg  legup_mult_signed_18_25_2_3_clken;
+reg [17:0] legup_mult_signed_18_25_2_3_dataa;
+reg [24:0] legup_mult_signed_18_25_2_3_datab;
+wire [42:0] legup_mult_signed_18_25_2_3_result;
+reg [42:0] legup_mult_warpPerspective_hw_for_body_80_out_actual;
+reg [42:0] legup_mult_warpPerspective_hw_for_body_80_out;
+reg  legup_mult_warpPerspective_hw_for_body_80_en;
+reg  legup_mult_warpPerspective_hw_for_body_80_en_pipeline_cond;
+wire [37:0] warpPerspective_hw_for_body_bit_concat27_bit_select_operand_0;
+reg  legup_mult_signed_18_9_1_4_clock;
+reg  legup_mult_signed_18_9_1_4_aclr;
+reg  legup_mult_signed_18_9_1_4_clken;
+reg [17:0] legup_mult_signed_18_9_1_4_dataa;
+reg [8:0] legup_mult_signed_18_9_1_4_datab;
+wire [26:0] legup_mult_signed_18_9_1_4_result;
+reg [26:0] legup_mult_warpPerspective_hw_for_body_84_out_actual;
+reg [25:0] legup_mult_warpPerspective_hw_for_body_84_out;
+reg  legup_mult_warpPerspective_hw_for_body_84_en;
+reg  legup_mult_warpPerspective_hw_for_body_84_en_pipeline_cond;
+reg  legup_mult_signed_17_26_2_5_clock;
+reg  legup_mult_signed_17_26_2_5_aclr;
+reg  legup_mult_signed_17_26_2_5_clken;
+reg [16:0] legup_mult_signed_17_26_2_5_dataa;
+reg [25:0] legup_mult_signed_17_26_2_5_datab;
+wire [42:0] legup_mult_signed_17_26_2_5_result;
+reg [42:0] legup_mult_warpPerspective_hw_for_body_87_out_actual;
+reg [42:0] legup_mult_warpPerspective_hw_for_body_87_out;
+reg  legup_mult_warpPerspective_hw_for_body_87_en;
+reg  legup_mult_warpPerspective_hw_for_body_87_en_pipeline_cond;
+wire [16:0] warpPerspective_hw_for_body_bit_concat26_bit_select_operand_0;
+reg  legup_mult_signed_17_9_1_6_clock;
+reg  legup_mult_signed_17_9_1_6_aclr;
+reg  legup_mult_signed_17_9_1_6_clken;
+reg [16:0] legup_mult_signed_17_9_1_6_dataa;
+reg [8:0] legup_mult_signed_17_9_1_6_datab;
+wire [25:0] legup_mult_signed_17_9_1_6_result;
+reg [25:0] legup_mult_warpPerspective_hw_for_body_91_out_actual;
+reg [24:0] legup_mult_warpPerspective_hw_for_body_91_out;
+reg  legup_mult_warpPerspective_hw_for_body_91_en;
+reg  legup_mult_warpPerspective_hw_for_body_91_en_pipeline_cond;
+reg  legup_mult_signed_17_25_2_7_clock;
+reg  legup_mult_signed_17_25_2_7_aclr;
+reg  legup_mult_signed_17_25_2_7_clken;
+reg [16:0] legup_mult_signed_17_25_2_7_dataa;
+reg [24:0] legup_mult_signed_17_25_2_7_datab;
+wire [41:0] legup_mult_signed_17_25_2_7_result;
+reg [41:0] legup_mult_warpPerspective_hw_for_body_94_out_actual;
+reg [41:0] legup_mult_warpPerspective_hw_for_body_94_out;
+reg  legup_mult_warpPerspective_hw_for_body_94_en;
+reg  legup_mult_warpPerspective_hw_for_body_94_en_pipeline_cond;
+reg [87:0] warpPerspective_hw_for_body_99_width_extended;
+wire [31:0] warpPerspective_hw_for_body_bit_concat23_bit_select_operand_0;
+wire [23:0] warpPerspective_hw_for_body_bit_concat23_bit_select_operand_4;
+reg [39:0] warpPerspective_hw_for_body_101_width_extended;
+wire [29:0] warpPerspective_hw_for_body_bit_concat21_bit_select_operand_0;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_enable_cond_a;
+wire [6:0] warpPerspective_hw_for_body_bit_concat18_bit_select_operand_0;
+reg  axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_enable_cond_a;
+wire [20:0] warpPerspective_hw_for_body_bit_concat17_bit_select_operand_0;
+wire [10:0] warpPerspective_hw_for_body_bit_concat1_bit_select_operand_0;
+wire [31:0] warpPerspective_hw_for_body_bit_concat_bit_select_operand_0;
+reg [31:0] warpPerspective_hw_for_body_bit_select_width_extended;
+reg  axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_not_accessed_due_to_stall_a;
+reg  axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_stalln_reg;
+reg  axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_enable_cond_a;
+reg  mem_even_inst_port_a_receiver_clk;
+reg  mem_even_inst_port_a_receiver_reset;
+reg  mem_even_inst_port_a_receiver_op_start;
+reg  mem_even_inst_port_a_receiver_user_enable;
+reg [15:0] mem_even_inst_port_a_receiver_data_in;
+wire [15:0] mem_even_inst_port_a_receiver_data_out;
+reg  mem_even_inst_port_b_receiver_clk;
+reg  mem_even_inst_port_b_receiver_reset;
+reg  mem_even_inst_port_b_receiver_op_start;
+reg  mem_even_inst_port_b_receiver_user_enable;
+reg [15:0] mem_even_inst_port_b_receiver_data_in;
+wire [15:0] mem_even_inst_port_b_receiver_data_out;
+reg  mem_odd_inst_port_a_receiver_clk;
+reg  mem_odd_inst_port_a_receiver_reset;
+reg  mem_odd_inst_port_a_receiver_op_start;
+reg  mem_odd_inst_port_a_receiver_user_enable;
+reg [15:0] mem_odd_inst_port_a_receiver_data_in;
+wire [15:0] mem_odd_inst_port_a_receiver_data_out;
+reg  mem_odd_inst_port_b_receiver_clk;
+reg  mem_odd_inst_port_b_receiver_reset;
+reg  mem_odd_inst_port_b_receiver_op_start;
+reg  mem_odd_inst_port_b_receiver_user_enable;
+reg [15:0] mem_odd_inst_port_b_receiver_data_in;
+wire [15:0] mem_odd_inst_port_b_receiver_data_out;
+
+/*   %70 = mul i46 %69, %bit_concat29, !dbg !29487, !MSB !29486, !LSB !29196, !ExtendFrom !29488, !legup.pipeline.start_time !29330, !legup.pipeline.avail_time !29327, !legup.pipeline.stage !29330*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_18_9_1_0 (
+	.clock (legup_mult_signed_18_9_1_0_clock),
+	.aclr (legup_mult_signed_18_9_1_0_aclr),
+	.clken (legup_mult_signed_18_9_1_0_clken),
+	.dataa (legup_mult_signed_18_9_1_0_dataa),
+	.datab (legup_mult_signed_18_9_1_0_datab),
+	.result (legup_mult_signed_18_9_1_0_result)
+);
+
+defparam
+	legup_mult_signed_18_9_1_0.widtha = 18,
+	legup_mult_signed_18_9_1_0.widthb = 9,
+	legup_mult_signed_18_9_1_0.widthp = 27,
+	legup_mult_signed_18_9_1_0.pipeline = 1,
+	legup_mult_signed_18_9_1_0.representation = "SIGNED";
+
+/*   %75 = mul i84 %74, %73, !dbg !29502, !MSB !29499, !LSB !29196, !ExtendFrom !29503, !legup.pipeline.start_time !29327, !legup.pipeline.avail_time !29260, !legup.pipeline.stage !29327*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_18_26_2_1 (
+	.clock (legup_mult_signed_18_26_2_1_clock),
+	.aclr (legup_mult_signed_18_26_2_1_aclr),
+	.clken (legup_mult_signed_18_26_2_1_clken),
+	.dataa (legup_mult_signed_18_26_2_1_dataa),
+	.datab (legup_mult_signed_18_26_2_1_datab),
+	.result (legup_mult_signed_18_26_2_1_result)
+);
+
+defparam
+	legup_mult_signed_18_26_2_1.widtha = 18,
+	legup_mult_signed_18_26_2_1.widthb = 26,
+	legup_mult_signed_18_26_2_1.widthp = 44,
+	legup_mult_signed_18_26_2_1.pipeline = 2,
+	legup_mult_signed_18_26_2_1.representation = "SIGNED";
+
+/*   %77 = mul i25 %76, %bit_concat28, !dbg !29508, !MSB !29507, !LSB !29196, !ExtendFrom !29507, !legup.pipeline.start_time !29330, !legup.pipeline.avail_time !29327, !legup.pipeline.stage !29330*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_17_9_1_2 (
+	.clock (legup_mult_signed_17_9_1_2_clock),
+	.aclr (legup_mult_signed_17_9_1_2_aclr),
+	.clken (legup_mult_signed_17_9_1_2_clken),
+	.dataa (legup_mult_signed_17_9_1_2_dataa),
+	.datab (legup_mult_signed_17_9_1_2_datab),
+	.result (legup_mult_signed_17_9_1_2_result)
+);
+
+defparam
+	legup_mult_signed_17_9_1_2.widtha = 17,
+	legup_mult_signed_17_9_1_2.widthb = 9,
+	legup_mult_signed_17_9_1_2.widthp = 26,
+	legup_mult_signed_17_9_1_2.pipeline = 1,
+	legup_mult_signed_17_9_1_2.representation = "SIGNED";
+
+/*   %80 = mul i63 %79, %78, !dbg !29514, !MSB !29511, !LSB !29196, !ExtendFrom !29515, !legup.pipeline.start_time !29327, !legup.pipeline.avail_time !29260, !legup.pipeline.stage !29327*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_18_25_2_3 (
+	.clock (legup_mult_signed_18_25_2_3_clock),
+	.aclr (legup_mult_signed_18_25_2_3_aclr),
+	.clken (legup_mult_signed_18_25_2_3_clken),
+	.dataa (legup_mult_signed_18_25_2_3_dataa),
+	.datab (legup_mult_signed_18_25_2_3_datab),
+	.result (legup_mult_signed_18_25_2_3_result)
+);
+
+defparam
+	legup_mult_signed_18_25_2_3.widtha = 18,
+	legup_mult_signed_18_25_2_3.widthb = 25,
+	legup_mult_signed_18_25_2_3.widthp = 43,
+	legup_mult_signed_18_25_2_3.pipeline = 2,
+	legup_mult_signed_18_25_2_3.representation = "SIGNED";
+
+/*   %84 = mul i46 %69, %bit_concat27, !dbg !29530, !MSB !29486, !LSB !29196, !ExtendFrom !29488, !legup.pipeline.start_time !29330, !legup.pipeline.avail_time !29327, !legup.pipeline.stage !29330*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_18_9_1_4 (
+	.clock (legup_mult_signed_18_9_1_4_clock),
+	.aclr (legup_mult_signed_18_9_1_4_aclr),
+	.clken (legup_mult_signed_18_9_1_4_clken),
+	.dataa (legup_mult_signed_18_9_1_4_dataa),
+	.datab (legup_mult_signed_18_9_1_4_datab),
+	.result (legup_mult_signed_18_9_1_4_result)
+);
+
+defparam
+	legup_mult_signed_18_9_1_4.widtha = 18,
+	legup_mult_signed_18_9_1_4.widthb = 9,
+	legup_mult_signed_18_9_1_4.widthp = 27,
+	legup_mult_signed_18_9_1_4.pipeline = 1,
+	legup_mult_signed_18_9_1_4.representation = "SIGNED";
+
+/*   %87 = mul i63 %86, %85, !dbg !29536, !MSB !29511, !LSB !29196, !ExtendFrom !29515, !legup.pipeline.start_time !29327, !legup.pipeline.avail_time !29260, !legup.pipeline.stage !29327*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_17_26_2_5 (
+	.clock (legup_mult_signed_17_26_2_5_clock),
+	.aclr (legup_mult_signed_17_26_2_5_aclr),
+	.clken (legup_mult_signed_17_26_2_5_clken),
+	.dataa (legup_mult_signed_17_26_2_5_dataa),
+	.datab (legup_mult_signed_17_26_2_5_datab),
+	.result (legup_mult_signed_17_26_2_5_result)
+);
+
+defparam
+	legup_mult_signed_17_26_2_5.widtha = 17,
+	legup_mult_signed_17_26_2_5.widthb = 26,
+	legup_mult_signed_17_26_2_5.widthp = 43,
+	legup_mult_signed_17_26_2_5.pipeline = 2,
+	legup_mult_signed_17_26_2_5.representation = "SIGNED";
+
+/*   %91 = mul i25 %76, %bit_concat26, !dbg !29550, !MSB !29507, !LSB !29196, !ExtendFrom !29507, !legup.pipeline.start_time !29330, !legup.pipeline.avail_time !29327, !legup.pipeline.stage !29330*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_17_9_1_6 (
+	.clock (legup_mult_signed_17_9_1_6_clock),
+	.aclr (legup_mult_signed_17_9_1_6_aclr),
+	.clken (legup_mult_signed_17_9_1_6_clken),
+	.dataa (legup_mult_signed_17_9_1_6_dataa),
+	.datab (legup_mult_signed_17_9_1_6_datab),
+	.result (legup_mult_signed_17_9_1_6_result)
+);
+
+defparam
+	legup_mult_signed_17_9_1_6.widtha = 17,
+	legup_mult_signed_17_9_1_6.widthb = 9,
+	legup_mult_signed_17_9_1_6.widthp = 26,
+	legup_mult_signed_17_9_1_6.pipeline = 1,
+	legup_mult_signed_17_9_1_6.representation = "SIGNED";
+
+/*   %94 = mul i42 %93, %92, !dbg !29557, !MSB !29554, !LSB !29196, !ExtendFrom !29554, !legup.pipeline.start_time !29327, !legup.pipeline.avail_time !29260, !legup.pipeline.stage !29327*/
+axi_master_warpPerspective_legup_mult legup_mult_signed_17_25_2_7 (
+	.clock (legup_mult_signed_17_25_2_7_clock),
+	.aclr (legup_mult_signed_17_25_2_7_aclr),
+	.clken (legup_mult_signed_17_25_2_7_clken),
+	.dataa (legup_mult_signed_17_25_2_7_dataa),
+	.datab (legup_mult_signed_17_25_2_7_datab),
+	.result (legup_mult_signed_17_25_2_7_result)
+);
+
+defparam
+	legup_mult_signed_17_25_2_7.widtha = 17,
+	legup_mult_signed_17_25_2_7.widthb = 25,
+	legup_mult_signed_17_25_2_7.widthp = 42,
+	legup_mult_signed_17_25_2_7.pipeline = 2,
+	legup_mult_signed_17_25_2_7.representation = "SIGNED";
+
+
+axi_master_warpPerspective_data_receiver_fifo mem_even_inst_port_a_receiver (
+	.clk (mem_even_inst_port_a_receiver_clk),
+	.reset (mem_even_inst_port_a_receiver_reset),
+	.op_start (mem_even_inst_port_a_receiver_op_start),
+	.user_enable (mem_even_inst_port_a_receiver_user_enable),
+	.data_in (mem_even_inst_port_a_receiver_data_in),
+	.data_out (mem_even_inst_port_a_receiver_data_out)
+);
+
+defparam
+	mem_even_inst_port_a_receiver.latency = 1,
+	mem_even_inst_port_a_receiver.data_width = 16;
+
+
+axi_master_warpPerspective_data_receiver_fifo mem_even_inst_port_b_receiver (
+	.clk (mem_even_inst_port_b_receiver_clk),
+	.reset (mem_even_inst_port_b_receiver_reset),
+	.op_start (mem_even_inst_port_b_receiver_op_start),
+	.user_enable (mem_even_inst_port_b_receiver_user_enable),
+	.data_in (mem_even_inst_port_b_receiver_data_in),
+	.data_out (mem_even_inst_port_b_receiver_data_out)
+);
+
+defparam
+	mem_even_inst_port_b_receiver.latency = 1,
+	mem_even_inst_port_b_receiver.data_width = 16;
+
+
+axi_master_warpPerspective_data_receiver_fifo mem_odd_inst_port_a_receiver (
+	.clk (mem_odd_inst_port_a_receiver_clk),
+	.reset (mem_odd_inst_port_a_receiver_reset),
+	.op_start (mem_odd_inst_port_a_receiver_op_start),
+	.user_enable (mem_odd_inst_port_a_receiver_user_enable),
+	.data_in (mem_odd_inst_port_a_receiver_data_in),
+	.data_out (mem_odd_inst_port_a_receiver_data_out)
+);
+
+defparam
+	mem_odd_inst_port_a_receiver.latency = 1,
+	mem_odd_inst_port_a_receiver.data_width = 16;
+
+
+axi_master_warpPerspective_data_receiver_fifo mem_odd_inst_port_b_receiver (
+	.clk (mem_odd_inst_port_b_receiver_clk),
+	.reset (mem_odd_inst_port_b_receiver_reset),
+	.op_start (mem_odd_inst_port_b_receiver_op_start),
+	.user_enable (mem_odd_inst_port_b_receiver_user_enable),
+	.data_in (mem_odd_inst_port_b_receiver_data_in),
+	.data_out (mem_odd_inst_port_b_receiver_data_out)
+);
+
+defparam
+	mem_odd_inst_port_b_receiver.latency = 1,
+	mem_odd_inst_port_b_receiver.data_width = 16;
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_warpPerspective_hw_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj21ELi14ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_1;
+LEGUP_F_warpPerspective_hw_BB_ZN3hls8ap_fixptILj17ELi12ELNS_19AP_FIXPT_QUANT_MODEE2ELNS_18AP_FIXPT_OVER_MODEE1EEC2ILj21ELi14ELS1_0ELS2_0EEERKNS0_IXT_EXT0_EXT1_EXT2_EEE_exit_1:
+	if ((fsm_stall == 1'd0) && (warpPerspective_hw_1_EXT2_EEE_exit_0 == 1'd1))
+		next_state = LEGUP_F_warpPerspective_hw_BB_if_end109_11;
+	else if ((fsm_stall == 1'd0) && (warpPerspective_hw_1_EXT2_EEE_exit_0 == 1'd0))
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2;
+LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2:
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3;
+LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3:
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4;
+LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4:
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5;
+LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5:
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6;
+LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6:
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7;
+LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7:
+		next_state = LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8;
+LEGUP_F_warpPerspective_hw_BB_for_end_9:
+	if ((fsm_stall == 1'd0) && (warpPerspective_hw_for_end_144 == 1'd1))
+		next_state = LEGUP_F_warpPerspective_hw_BB_if_end109_11;
+	else if ((fsm_stall == 1'd0) && (warpPerspective_hw_for_end_144 == 1'd0))
+		next_state = LEGUP_F_warpPerspective_hw_BB_if_then106_10;
+LEGUP_F_warpPerspective_hw_BB_if_end109_11:
+		next_state = LEGUP_0;
+LEGUP_F_warpPerspective_hw_BB_if_then106_10:
+		next_state = LEGUP_F_warpPerspective_hw_BB_if_end109_11;
+LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8:
+	if ((fsm_stall == 1'd0) && (for_loop_warp_cpp_218_2_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_end_9;
+	else if ((fsm_stall == 1'd0) && (for_loop_warp_cpp_218_2_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_warpPerspective_hw_BB_for_end_9;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		dst_height_reg <= dst_height;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		dst_width_reg <= dst_width;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		warp_matrix_m_reg <= warp_matrix_m;
+	end
+end
+always @(*) begin
+	fsm_stall = 1'd0;
+	if (((cur_state != LEGUP_0) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a)) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state != LEGUP_0) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b)) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_warpPerspective_hw_BB_if_then106_10) & ~(burst_size_ready)) & (axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_1_EXT2_EEE_exit_0 = (dst_height_reg == 12'd0);
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep5 = (warp_matrix_m_reg + (4 * 32'd8));
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_1 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_a;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3)) begin
+		warpPerspective_hw_body_preheader_1_reg <= warpPerspective_hw_body_preheader_1;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep15 = (warp_matrix_m_reg + (4 * 32'd7));
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_2 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_b;
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep25 = (warp_matrix_m_reg + (4 * 32'd6));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep25_reg <= warpPerspective_hw_body_preheader_mem_flat_gep25;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_3 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_b;
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep35 = (warp_matrix_m_reg + (4 * 32'd5));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep35_reg <= warpPerspective_hw_body_preheader_mem_flat_gep35;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_4 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_a;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4)) begin
+		warpPerspective_hw_body_preheader_4_reg <= warpPerspective_hw_body_preheader_4;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep45 = (warp_matrix_m_reg + (4 * 32'd4));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep45_reg <= warpPerspective_hw_body_preheader_mem_flat_gep45;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_5 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_a;
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep55 = (warp_matrix_m_reg + (4 * 32'd3));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep55_reg <= warpPerspective_hw_body_preheader_mem_flat_gep55;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_6 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_b;
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep65 = (warp_matrix_m_reg + (4 * 32'd2));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep65_reg <= warpPerspective_hw_body_preheader_mem_flat_gep65;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_7 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_a;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6)) begin
+		warpPerspective_hw_body_preheader_7_reg <= warpPerspective_hw_body_preheader_7;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep75 = (warp_matrix_m_reg + (4 * 32'd1));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_mem_flat_gep75_reg <= warpPerspective_hw_body_preheader_mem_flat_gep75;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_8 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_b;
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_mem_flat_cast49 = warp_matrix_m_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_mem_flat_cast49_reg <= warpPerspective_hw_body_preheader_mem_flat_cast49;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_9 = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_a;
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_10 = $signed(warpPerspective_hw_body_preheader_8);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6)) begin
+		warpPerspective_hw_body_preheader_10_reg <= warpPerspective_hw_body_preheader_10;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_11 = $signed(warpPerspective_hw_body_preheader_5);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5)) begin
+		warpPerspective_hw_body_preheader_11_reg <= warpPerspective_hw_body_preheader_11;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_12 = $signed(warpPerspective_hw_body_preheader_2);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3)) begin
+		warpPerspective_hw_body_preheader_12_reg <= warpPerspective_hw_body_preheader_12;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_13 = $signed(warpPerspective_hw_body_preheader_9);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7)) begin
+		warpPerspective_hw_body_preheader_13_reg <= warpPerspective_hw_body_preheader_13;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_14 = $signed(warpPerspective_hw_body_preheader_6);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5)) begin
+		warpPerspective_hw_body_preheader_14_reg <= warpPerspective_hw_body_preheader_14;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_15 = $signed(warpPerspective_hw_body_preheader_3);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4)) begin
+		warpPerspective_hw_body_preheader_15_reg <= warpPerspective_hw_body_preheader_15;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_body_preheader_bit_concat140 = {warpPerspective_hw_body_preheader_bit_concat140_bit_select_operand_0[20:0], dst_width_reg[11:0]};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		warpPerspective_hw_body_preheader_bit_concat140_reg <= warpPerspective_hw_body_preheader_bit_concat140;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_16 = warpPerspective_hw_for_body_16_reg;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & for_loop_warp_cpp_218_2_valid_bit_1)) begin
+		warpPerspective_hw_for_body_16 = warpPerspective_hw_for_body_select185;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & ~(for_loop_warp_cpp_218_2_valid_bit_1))) begin
+		warpPerspective_hw_for_body_16 = warpPerspective_hw_for_body_select185_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_16 = warpPerspective_hw_body_preheader_7_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_16_reg <= warpPerspective_hw_for_body_16;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_16_reg <= warpPerspective_hw_for_body_16;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_17 = warpPerspective_hw_for_body_17_reg;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & for_loop_warp_cpp_218_2_valid_bit_1)) begin
+		warpPerspective_hw_for_body_17 = warpPerspective_hw_for_body_select189;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & ~(for_loop_warp_cpp_218_2_valid_bit_1))) begin
+		warpPerspective_hw_for_body_17 = warpPerspective_hw_for_body_select189_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_17 = warpPerspective_hw_body_preheader_4_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_17_reg <= warpPerspective_hw_for_body_17;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_17_reg <= warpPerspective_hw_for_body_17;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_18 = warpPerspective_hw_for_body_18_reg;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & for_loop_warp_cpp_218_2_valid_bit_1)) begin
+		warpPerspective_hw_for_body_18 = warpPerspective_hw_for_body_select194;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & ~(for_loop_warp_cpp_218_2_valid_bit_1))) begin
+		warpPerspective_hw_for_body_18 = warpPerspective_hw_for_body_select194_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_18 = warpPerspective_hw_body_preheader_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_18_reg <= warpPerspective_hw_for_body_18;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_18_reg <= warpPerspective_hw_for_body_18;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_ = warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp__reg;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & for_loop_warp_cpp_218_2_valid_bit_1)) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_ = warpPerspective_hw_for_body_select198;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & ~(for_loop_warp_cpp_218_2_valid_bit_1))) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_ = warpPerspective_hw_for_body_select198_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_ = 17'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp__reg <= warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp__reg <= warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t = warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t_reg;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & for_loop_warp_cpp_218_2_valid_bit_1)) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t = warpPerspective_hw_for_body_select202;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & ~(for_loop_warp_cpp_218_2_valid_bit_1))) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t = warpPerspective_hw_for_body_select202_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t = 17'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t_reg <= warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t_reg <= warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t = warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t_reg;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & for_loop_warp_cpp_218_2_valid_bit_1)) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t = warpPerspective_hw_for_body_select206;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0)) & ~(for_loop_warp_cpp_218_2_valid_bit_1))) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t = warpPerspective_hw_for_body_select206_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t = 17'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t_reg <= warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t_reg <= warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_5 & for_loop_warp_cpp_218_2_in_first_iteration_stage5)) begin
+		warpPerspective_hw_for_body_fifo_in_0_off8 = warpPerspective_hw_for_body_fifo_in_0_off8_reg;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_5 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage5)) & for_loop_warp_cpp_218_2_valid_bit_6)) begin
+		warpPerspective_hw_for_body_fifo_in_0_off8 = warpPerspective_hw_for_body_bit_concat;
+	end
+	else if (((for_loop_warp_cpp_218_2_valid_bit_5 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage5)) & ~(for_loop_warp_cpp_218_2_valid_bit_6))) begin
+		warpPerspective_hw_for_body_fifo_in_0_off8 = warpPerspective_hw_for_body_bit_concat_reg_stage7;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_fifo_in_0_off8 = 64'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_5) begin
+		warpPerspective_hw_for_body_fifo_in_0_off8_reg <= warpPerspective_hw_for_body_fifo_in_0_off8;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_fifo_in_0_off8_reg <= warpPerspective_hw_for_body_fifo_in_0_off8;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_write_count_0 = warpPerspective_hw_for_body_write_count_0_reg;
+	end
+	else if ((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0))) begin
+		warpPerspective_hw_for_body_write_count_0 = warpPerspective_hw_for_body_select93_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_write_count_0 = 8'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_write_count_0_reg <= warpPerspective_hw_for_body_write_count_0;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_write_count_0_reg <= warpPerspective_hw_for_body_write_count_0;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_x_idx_0 = warpPerspective_hw_for_body_x_idx_0_reg;
+	end
+	else if ((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0))) begin
+		warpPerspective_hw_for_body_x_idx_0 = warpPerspective_hw_for_body_1510_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_x_idx_0 = 12'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_x_idx_0_reg <= warpPerspective_hw_for_body_x_idx_0;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_x_idx_0_reg <= warpPerspective_hw_for_body_x_idx_0;
+	end
+end
+always @(*) begin
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & for_loop_warp_cpp_218_2_in_first_iteration_stage0)) begin
+		warpPerspective_hw_for_body_y_idx_0 = warpPerspective_hw_for_body_y_idx_0_reg;
+	end
+	else if ((for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_in_first_iteration_stage0))) begin
+		warpPerspective_hw_for_body_y_idx_0 = warpPerspective_hw_for_body_y_idx_0_11_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) */ begin
+		warpPerspective_hw_for_body_y_idx_0 = 12'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_y_idx_0_reg <= warpPerspective_hw_for_body_y_idx_0;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		warpPerspective_hw_for_body_y_idx_0_reg <= warpPerspective_hw_for_body_y_idx_0;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select36 = warpPerspective_hw_for_body_16[16:5];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select32 = warpPerspective_hw_for_body_17[16:5];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select20 = for_loop_warp_cpp_218_2_inductionVar_stage0[1:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_20 = $signed(warpPerspective_hw_for_body_16);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select139 = warpPerspective_hw_for_body_20_width_extended[36:5];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_21 = $signed(warpPerspective_hw_for_body_17);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select138 = warpPerspective_hw_for_body_21_width_extended[36:5];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select134 = warpPerspective_hw_for_body_21_width_extended[28:5];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_off = (warpPerspective_hw_for_body_16 + $signed(-17'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_22 = (warpPerspective_hw_for_body_off < 17'd7167);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_off439 = (warpPerspective_hw_for_body_16 + 17'd31);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_23 = (warpPerspective_hw_for_body_off439 < 17'd7167);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_off1 = (warpPerspective_hw_for_body_17 + $signed(-17'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_24 = (warpPerspective_hw_for_body_off1 < 17'd7167);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_off440 = (warpPerspective_hw_for_body_17 + 17'd31);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_25 = (warpPerspective_hw_for_body_off440 < 17'd7167);
+end
+always @(*) begin
+		warpPerspective_hw_for_body__i = (warpPerspective_hw_for_body_22 & warpPerspective_hw_for_body_24);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_26 = (warpPerspective_hw_for_body_22 & warpPerspective_hw_for_body_25);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_16_i = (warpPerspective_hw_for_body_23 & warpPerspective_hw_for_body_24);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_27 = (warpPerspective_hw_for_body_23 & warpPerspective_hw_for_body_25);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_sr_negate = (32'd0 - $signed({{1{warpPerspective_hw_for_body_bit_select138[11]}},warpPerspective_hw_for_body_bit_select138}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select136 = warpPerspective_hw_for_body_sr_negate_width_extended[26:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat137 = {warpPerspective_hw_for_body_bit_select136_width_extended[26:0], warpPerspective_hw_for_body_bit_concat137_bit_select_operand_2[4:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat135 = {warpPerspective_hw_for_body_bit_select134_width_extended[23:0], warpPerspective_hw_for_body_bit_concat135_bit_select_operand_2[7:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_sr_add = ($signed({{3{warpPerspective_hw_for_body_bit_concat137[17]}},warpPerspective_hw_for_body_bit_concat137}) + $signed({{1{warpPerspective_hw_for_body_bit_concat135[19]}},warpPerspective_hw_for_body_bit_concat135}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i = ($signed({{1{warpPerspective_hw_for_body_sr_add[20]}},warpPerspective_hw_for_body_sr_add}) + $signed({{10{warpPerspective_hw_for_body_bit_select139[11]}},warpPerspective_hw_for_body_bit_select139}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select132 = warpPerspective_hw_for_body_add_i[0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select128 = warpPerspective_hw_for_body_add_i[1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newEarly_1 = ($signed({{1{warpPerspective_hw_for_body_bit_select139[11]}},warpPerspective_hw_for_body_bit_select139}) + 32'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newCurOp_1 = ($signed({{1{warpPerspective_hw_for_body_sr_add[20]}},warpPerspective_hw_for_body_sr_add}) + $signed({{9{warpPerspective_hw_for_body_newEarly_1[12]}},warpPerspective_hw_for_body_newEarly_1}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select126 = warpPerspective_hw_for_body_newCurOp_1[1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newEarly_2 = ($signed({{1{warpPerspective_hw_for_body_bit_select139[11]}},warpPerspective_hw_for_body_bit_select139}) + 32'd224);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newCurOp_3 = ($signed({{1{warpPerspective_hw_for_body_sr_add[20]}},warpPerspective_hw_for_body_sr_add}) + $signed({{9{warpPerspective_hw_for_body_newEarly_2[12]}},warpPerspective_hw_for_body_newEarly_2}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select129 = warpPerspective_hw_for_body_newCurOp_3[1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newEarly_4 = ($signed({{1{warpPerspective_hw_for_body_bit_select139[11]}},warpPerspective_hw_for_body_bit_select139}) + 32'd225);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newCurOp_5 = ($signed({{1{warpPerspective_hw_for_body_sr_add[20]}},warpPerspective_hw_for_body_sr_add}) + $signed({{9{warpPerspective_hw_for_body_newEarly_4[12]}},warpPerspective_hw_for_body_newEarly_4}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select127 = warpPerspective_hw_for_body_newCurOp_5[1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_shr_i = ($signed($signed({{10{warpPerspective_hw_for_body_add_i[21]}},warpPerspective_hw_for_body_add_i})) >>> 32'd2);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_28 = (warpPerspective_hw_for_body__i ? warpPerspective_hw_for_body_shr_i : 32'd12544);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_shr50_i = ($signed($signed({{10{warpPerspective_hw_for_body_newCurOp_3[21]}},warpPerspective_hw_for_body_newCurOp_3})) >>> 32'd2);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_29 = (warpPerspective_hw_for_body_26 ? warpPerspective_hw_for_body_shr50_i : 32'd12544);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_shr56_i = ($signed($signed({{10{warpPerspective_hw_for_body_newCurOp_1[21]}},warpPerspective_hw_for_body_newCurOp_1})) >>> 32'd2);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_30 = (warpPerspective_hw_for_body_16_i ? warpPerspective_hw_for_body_shr56_i : 32'd12544);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_shr62_i = ($signed($signed({{10{warpPerspective_hw_for_body_newCurOp_5[21]}},warpPerspective_hw_for_body_newCurOp_5})) >>> 32'd2);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_31 = (warpPerspective_hw_for_body_27 ? warpPerspective_hw_for_body_shr62_i : 32'd12544);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat133 = {warpPerspective_hw_for_body_bit_concat133_bit_select_operand_0[30:0], warpPerspective_hw_for_body_bit_select132};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_32 = (warpPerspective_hw_for_body_bit_concat133 == 32'd0);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat131 = {{{warpPerspective_hw_for_body_bit_select128, warpPerspective_hw_for_body_bit_select129}, warpPerspective_hw_for_body_bit_select126}, warpPerspective_hw_for_body_bit_select127};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat130 = {{{warpPerspective_hw_for_body_bit_select126, warpPerspective_hw_for_body_bit_select127}, warpPerspective_hw_for_body_bit_select128}, warpPerspective_hw_for_body_bit_select129};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select13 = (warpPerspective_hw_for_body_32 ? warpPerspective_hw_for_body_28 : warpPerspective_hw_for_body_30);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select11 = (warpPerspective_hw_for_body_32 ? warpPerspective_hw_for_body_29 : warpPerspective_hw_for_body_31);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select9 = (warpPerspective_hw_for_body_32 ? warpPerspective_hw_for_body_30 : warpPerspective_hw_for_body_28);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select7 = (warpPerspective_hw_for_body_32 ? warpPerspective_hw_for_body_31 : warpPerspective_hw_for_body_29);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select5 = (warpPerspective_hw_for_body_32 ? warpPerspective_hw_for_body_bit_concat131 : warpPerspective_hw_for_body_bit_concat130);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select117 = warpPerspective_hw_for_body_select5[3];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select105 = warpPerspective_hw_for_body_select5[2];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select93 = warpPerspective_hw_for_body_select5[1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select76 = warpPerspective_hw_for_body_select5[0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select = (warpPerspective_hw_for_body_32 ? -8'd28 : 8'd78);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select66 = warpPerspective_hw_for_body_select[7:6];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select57 = warpPerspective_hw_for_body_select[5];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select48 = warpPerspective_hw_for_body_select[3:2];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select39 = warpPerspective_hw_for_body_select[1:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat125 = {{warpPerspective_hw_for_body_bit_concat125_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select117}, warpPerspective_hw_for_body_bit_concat125_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_mem_flat_gep105 = (1'd0 + (2 * $signed({{12{warpPerspective_hw_for_body_select13[19]}},warpPerspective_hw_for_body_select13})));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat124 = {{warpPerspective_hw_for_body_bit_concat124_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select117}, warpPerspective_hw_for_body_bit_concat124_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat125_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select122 = warpPerspective_hw_for_body_neg_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat123 = {warpPerspective_hw_for_body_bit_select122_width_extended[30:0], warpPerspective_hw_for_body_bit_concat123_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i_i232 = ($signed({{1{warpPerspective_hw_for_body_bit_concat123[4]}},warpPerspective_hw_for_body_bit_concat123}) + {2'd0,warpPerspective_hw_for_body_bit_concat124_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition2 = ({{26{warpPerspective_hw_for_body_add_i_i232[5]}},warpPerspective_hw_for_body_add_i_i232} < 32'd16);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat121 = {warpPerspective_hw_for_body_bit_concat121_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i_i232_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_33 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat121} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select120 = warpPerspective_hw_for_body_33[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp_i234 = (warpPerspective_hw_for_body_bit_select120 + 32'd255);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select18 = (warpPerspective_hw_for_body_NotCondition2_reg_stage2 ? warpPerspective_hw_for_body_phitmp_i234_reg_stage2 : 32'd255);
+end
+always @(*) begin
+	warpPerspective_hw_for_body_34 = mem_even_inst_port_a_receiver_data_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat119 = {warpPerspective_hw_for_body_bit_concat119_bit_select_operand_0[47:0], warpPerspective_hw_for_body_34[15:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat118 = {{warpPerspective_hw_for_body_bit_concat118_bit_select_operand_0[59:0], warpPerspective_hw_for_body_bit_select117}, warpPerspective_hw_for_body_bit_concat118_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_35 = ({48'd0,warpPerspective_hw_for_body_bit_concat119} >> ({12'd0,warpPerspective_hw_for_body_bit_concat118_reg_stage1} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select116 = warpPerspective_hw_for_body_35_width_extended[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_36 = (warpPerspective_hw_for_body_bit_select116_reg_stage2 & warpPerspective_hw_for_body_select18);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select89 = warpPerspective_hw_for_body_36[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat115 = {{warpPerspective_hw_for_body_bit_concat115_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select105}, warpPerspective_hw_for_body_bit_concat115_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_mem_flat_gep115 = (1'd0 + (2 * $signed({{12{warpPerspective_hw_for_body_select11[19]}},warpPerspective_hw_for_body_select11})));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat114 = {{warpPerspective_hw_for_body_bit_concat114_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select105}, warpPerspective_hw_for_body_bit_concat114_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg457 = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat115_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select112 = warpPerspective_hw_for_body_neg457_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat113 = {warpPerspective_hw_for_body_bit_select112_width_extended[30:0], warpPerspective_hw_for_body_bit_concat113_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i_i215 = ($signed({{1{warpPerspective_hw_for_body_bit_concat113[4]}},warpPerspective_hw_for_body_bit_concat113}) + {2'd0,warpPerspective_hw_for_body_bit_concat114_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp_i_i_i216 = ({{26{warpPerspective_hw_for_body_add_i_i215[5]}},warpPerspective_hw_for_body_add_i_i215} > 32'd15);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat111 = {warpPerspective_hw_for_body_bit_concat111_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i_i215_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_37 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat111} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select110 = warpPerspective_hw_for_body_37[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp_i217 = (warpPerspective_hw_for_body_bit_select110 + 32'd255);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select108 = warpPerspective_hw_for_body_phitmp_i217[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat109 = {warpPerspective_hw_for_body_bit_concat109_bit_select_operand_0[23:0], warpPerspective_hw_for_body_bit_select108[7:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select23 = (warpPerspective_hw_for_body_cmp_i_i_i216_reg_stage2 ? 32'd255 : warpPerspective_hw_for_body_bit_concat109_reg_stage2);
+end
+always @(*) begin
+	warpPerspective_hw_for_body_38 = mem_even_inst_port_b_receiver_data_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat107 = {warpPerspective_hw_for_body_bit_concat107_bit_select_operand_0[47:0], warpPerspective_hw_for_body_38[15:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat106 = {{warpPerspective_hw_for_body_bit_concat106_bit_select_operand_0[59:0], warpPerspective_hw_for_body_bit_select105}, warpPerspective_hw_for_body_bit_concat106_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_39 = ({48'd0,warpPerspective_hw_for_body_bit_concat107} >> ({12'd0,warpPerspective_hw_for_body_bit_concat106_reg_stage1} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select104 = warpPerspective_hw_for_body_39_width_extended[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_40 = (warpPerspective_hw_for_body_bit_select104_reg_stage2 & warpPerspective_hw_for_body_select23);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select90 = warpPerspective_hw_for_body_40[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat103 = {{warpPerspective_hw_for_body_bit_concat103_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select93}, warpPerspective_hw_for_body_bit_concat103_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_mem_flat_gep125 = (1'd0 + (2 * $signed({{12{warpPerspective_hw_for_body_select9[19]}},warpPerspective_hw_for_body_select9})));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat102 = {{warpPerspective_hw_for_body_bit_concat102_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select93}, warpPerspective_hw_for_body_bit_concat102_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg458 = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat103_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select100 = warpPerspective_hw_for_body_neg458_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat101 = {warpPerspective_hw_for_body_bit_select100_width_extended[30:0], warpPerspective_hw_for_body_bit_concat101_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i_i198 = ($signed({{1{warpPerspective_hw_for_body_bit_concat101[4]}},warpPerspective_hw_for_body_bit_concat101}) + {2'd0,warpPerspective_hw_for_body_bit_concat102_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp_i_i_i199 = ({{26{warpPerspective_hw_for_body_add_i_i198[5]}},warpPerspective_hw_for_body_add_i_i198} > 32'd15);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat99 = {warpPerspective_hw_for_body_bit_concat99_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i_i198_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_41 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat99} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select98 = warpPerspective_hw_for_body_41[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp_i200 = (warpPerspective_hw_for_body_bit_select98 + 32'd255);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select96 = warpPerspective_hw_for_body_phitmp_i200[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat97 = {warpPerspective_hw_for_body_bit_concat97_bit_select_operand_0[23:0], warpPerspective_hw_for_body_bit_select96[7:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select28 = (warpPerspective_hw_for_body_cmp_i_i_i199_reg_stage2 ? 32'd255 : warpPerspective_hw_for_body_bit_concat97_reg_stage2);
+end
+always @(*) begin
+	warpPerspective_hw_for_body_42 = mem_odd_inst_port_a_receiver_data_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat95 = {warpPerspective_hw_for_body_bit_concat95_bit_select_operand_0[47:0], warpPerspective_hw_for_body_42[15:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat94 = {{warpPerspective_hw_for_body_bit_concat94_bit_select_operand_0[59:0], warpPerspective_hw_for_body_bit_select93}, warpPerspective_hw_for_body_bit_concat94_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_43 = ({48'd0,warpPerspective_hw_for_body_bit_concat95} >> ({12'd0,warpPerspective_hw_for_body_bit_concat94_reg_stage1} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select92 = warpPerspective_hw_for_body_43_width_extended[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_44 = (warpPerspective_hw_for_body_bit_select92_reg_stage2 & warpPerspective_hw_for_body_select28);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select87 = warpPerspective_hw_for_body_44[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat91 = {{warpPerspective_hw_for_body_bit_select89[7:0], warpPerspective_hw_for_body_bit_select90[7:0]}, warpPerspective_hw_for_body_bit_concat91_bit_select_operand_4[15:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat88 = {{warpPerspective_hw_for_body_bit_concat88_bit_select_operand_0[15:0], warpPerspective_hw_for_body_bit_select87[7:0]}, warpPerspective_hw_for_body_bit_concat88_bit_select_operand_4[7:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat86 = {{warpPerspective_hw_for_body_bit_concat86_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select76}, warpPerspective_hw_for_body_bit_concat86_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_mem_flat_gep135 = (1'd0 + (2 * $signed({{12{warpPerspective_hw_for_body_select7[19]}},warpPerspective_hw_for_body_select7})));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat85 = {{warpPerspective_hw_for_body_bit_concat85_bit_select_operand_0[27:0], warpPerspective_hw_for_body_bit_select76}, warpPerspective_hw_for_body_bit_concat85_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg459 = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat86_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select83 = warpPerspective_hw_for_body_neg459_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat84 = {warpPerspective_hw_for_body_bit_select83_width_extended[30:0], warpPerspective_hw_for_body_bit_concat84_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i_i = ($signed({{1{warpPerspective_hw_for_body_bit_concat84[4]}},warpPerspective_hw_for_body_bit_concat84}) + {2'd0,warpPerspective_hw_for_body_bit_concat85_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp_i_i_i = ({{26{warpPerspective_hw_for_body_add_i_i[5]}},warpPerspective_hw_for_body_add_i_i} > 32'd15);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat82 = {warpPerspective_hw_for_body_bit_concat82_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i_i_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_45 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat82} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select81 = warpPerspective_hw_for_body_45[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp_i = (warpPerspective_hw_for_body_bit_select81 + 32'd255);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select79 = warpPerspective_hw_for_body_phitmp_i[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat80 = {warpPerspective_hw_for_body_bit_concat80_bit_select_operand_0[23:0], warpPerspective_hw_for_body_bit_select79[7:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select33 = (warpPerspective_hw_for_body_cmp_i_i_i_reg_stage2 ? 32'd255 : warpPerspective_hw_for_body_bit_concat80_reg_stage2);
+end
+always @(*) begin
+	warpPerspective_hw_for_body_46 = mem_odd_inst_port_b_receiver_data_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat78 = {warpPerspective_hw_for_body_bit_concat78_bit_select_operand_0[47:0], warpPerspective_hw_for_body_46[15:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat77 = {{warpPerspective_hw_for_body_bit_concat77_bit_select_operand_0[59:0], warpPerspective_hw_for_body_bit_select76}, warpPerspective_hw_for_body_bit_concat77_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_47 = ({48'd0,warpPerspective_hw_for_body_bit_concat78} >> ({12'd0,warpPerspective_hw_for_body_bit_concat77_reg_stage1} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select75 = warpPerspective_hw_for_body_47_width_extended[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_48 = (warpPerspective_hw_for_body_select33 & warpPerspective_hw_for_body_bit_select75_reg_stage2);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newEarly_10 = (warpPerspective_hw_for_body_bit_concat88 | {8'd0,warpPerspective_hw_for_body_48});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_newCurOp_11 = (warpPerspective_hw_for_body_bit_concat91 | {16'd0,warpPerspective_hw_for_body_newEarly_10});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat74 = {{warpPerspective_hw_for_body_bit_concat74_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select66[1:0]}, warpPerspective_hw_for_body_bit_concat74_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat73 = {{warpPerspective_hw_for_body_bit_concat73_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select66[1:0]}, warpPerspective_hw_for_body_bit_concat73_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg460 = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat74_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select71 = warpPerspective_hw_for_body_neg460_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat72 = {warpPerspective_hw_for_body_bit_select71_width_extended[30:0], warpPerspective_hw_for_body_bit_concat72_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i442_i = ($signed(warpPerspective_hw_for_body_bit_concat72) + {1'd0,warpPerspective_hw_for_body_bit_concat73_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp_i_i_i260_i = ({{26{warpPerspective_hw_for_body_add_i442_i[5]}},warpPerspective_hw_for_body_add_i442_i} > 32'd31);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat70 = {warpPerspective_hw_for_body_bit_concat70_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i442_i_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_49 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat70} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select69 = warpPerspective_hw_for_body_49[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp = (warpPerspective_hw_for_body_bit_select69 + $signed(-8'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select38 = (warpPerspective_hw_for_body_cmp_i_i_i260_i ? -8'd1 : warpPerspective_hw_for_body_phitmp);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat68 = {warpPerspective_hw_for_body_bit_concat68_bit_select_operand_0[31:0], warpPerspective_hw_for_body_newCurOp_11[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat67 = {{warpPerspective_hw_for_body_bit_concat67_bit_select_operand_0[58:0], warpPerspective_hw_for_body_bit_select66[1:0]}, warpPerspective_hw_for_body_bit_concat67_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_50 = ({32'd0,warpPerspective_hw_for_body_bit_concat68} >> ({19'd0,warpPerspective_hw_for_body_bit_concat67_reg_stage2} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select65 = warpPerspective_hw_for_body_50[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_51 = ($signed({{6{warpPerspective_hw_for_body_select38_reg_stage2[1]}},warpPerspective_hw_for_body_select38_reg_stage2}) & warpPerspective_hw_for_body_bit_select65);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat64 = {{warpPerspective_hw_for_body_bit_concat64_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select57}, warpPerspective_hw_for_body_bit_concat64_bit_select_operand_4[3:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat63 = {{warpPerspective_hw_for_body_bit_concat63_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select57}, warpPerspective_hw_for_body_bit_concat63_bit_select_operand_4[3:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg461 = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat64_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select61 = warpPerspective_hw_for_body_neg461_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat62 = {warpPerspective_hw_for_body_bit_select61_width_extended[30:0], warpPerspective_hw_for_body_bit_concat62_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i474_i = ($signed({{1{warpPerspective_hw_for_body_bit_concat62[5]}},warpPerspective_hw_for_body_bit_concat62}) + {2'd0,warpPerspective_hw_for_body_bit_concat63_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp_i_i_i295_i = ({{25{warpPerspective_hw_for_body_add_i474_i[6]}},warpPerspective_hw_for_body_add_i474_i} > 32'd31);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat60 = {warpPerspective_hw_for_body_bit_concat60_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i474_i_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_52 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat60} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select59 = warpPerspective_hw_for_body_52[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp3 = (warpPerspective_hw_for_body_bit_select59 + $signed(-8'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select43 = (warpPerspective_hw_for_body_cmp_i_i_i295_i ? -8'd1 : warpPerspective_hw_for_body_phitmp3);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat58 = {{warpPerspective_hw_for_body_bit_concat58_bit_select_operand_0[58:0], warpPerspective_hw_for_body_bit_select57}, warpPerspective_hw_for_body_bit_concat58_bit_select_operand_4[3:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_53 = ({32'd0,warpPerspective_hw_for_body_bit_concat68} >> ({27'd0,warpPerspective_hw_for_body_bit_concat58_reg_stage2} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select56 = warpPerspective_hw_for_body_53[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_54 = ($signed({{6{warpPerspective_hw_for_body_select43_reg_stage2[1]}},warpPerspective_hw_for_body_select43_reg_stage2}) & warpPerspective_hw_for_body_bit_select56);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat55 = {{warpPerspective_hw_for_body_bit_concat55_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select48[1:0]}, warpPerspective_hw_for_body_bit_concat55_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat54 = {{warpPerspective_hw_for_body_bit_concat54_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select48[1:0]}, warpPerspective_hw_for_body_bit_concat54_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg462 = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat55_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select52 = warpPerspective_hw_for_body_neg462_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat53 = {warpPerspective_hw_for_body_bit_select52_width_extended[30:0], warpPerspective_hw_for_body_bit_concat53_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i216_i = ($signed(warpPerspective_hw_for_body_bit_concat53) + {1'd0,warpPerspective_hw_for_body_bit_concat54_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp_i_i_i330_i = ({{26{warpPerspective_hw_for_body_add_i216_i[5]}},warpPerspective_hw_for_body_add_i216_i} > 32'd31);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat51 = {warpPerspective_hw_for_body_bit_concat51_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i216_i_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_55 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat51} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select50 = warpPerspective_hw_for_body_55[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp4 = (warpPerspective_hw_for_body_bit_select50 + $signed(-8'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select48 = (warpPerspective_hw_for_body_cmp_i_i_i330_i ? -8'd1 : warpPerspective_hw_for_body_phitmp4);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat49 = {{warpPerspective_hw_for_body_bit_concat49_bit_select_operand_0[58:0], warpPerspective_hw_for_body_bit_select48[1:0]}, warpPerspective_hw_for_body_bit_concat49_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_56 = ({32'd0,warpPerspective_hw_for_body_bit_concat68} >> ({19'd0,warpPerspective_hw_for_body_bit_concat49_reg_stage2} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select47 = warpPerspective_hw_for_body_56[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_57 = ($signed({{6{warpPerspective_hw_for_body_select48_reg_stage2[1]}},warpPerspective_hw_for_body_select48_reg_stage2}) & warpPerspective_hw_for_body_bit_select47);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat46 = {{warpPerspective_hw_for_body_bit_concat46_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select39[1:0]}, warpPerspective_hw_for_body_bit_concat46_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat45 = {{warpPerspective_hw_for_body_bit_concat45_bit_select_operand_0[26:0], warpPerspective_hw_for_body_bit_select39[1:0]}, warpPerspective_hw_for_body_bit_concat45_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_neg463 = (32'd0 - {1'd0,warpPerspective_hw_for_body_bit_concat46_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select43 = warpPerspective_hw_for_body_neg463_width_extended[31:1];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat44 = {warpPerspective_hw_for_body_bit_select43_width_extended[30:0], warpPerspective_hw_for_body_bit_concat44_bit_select_operand_2};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_add_i141_i = ($signed({{1{warpPerspective_hw_for_body_bit_concat44[5]}},warpPerspective_hw_for_body_bit_concat44}) + {2'd0,warpPerspective_hw_for_body_bit_concat45_reg_stage1});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp_i_i_i_i = ({{25{warpPerspective_hw_for_body_add_i141_i[6]}},warpPerspective_hw_for_body_add_i141_i} > 32'd31);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat42 = {warpPerspective_hw_for_body_bit_concat42_bit_select_operand_0[31:0], warpPerspective_hw_for_body_add_i141_i_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_58 = (64'd1 <<< ({32'd0,warpPerspective_hw_for_body_bit_concat42} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select41 = warpPerspective_hw_for_body_58[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_phitmp5 = (warpPerspective_hw_for_body_bit_select41 + $signed(-8'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select53 = (warpPerspective_hw_for_body_cmp_i_i_i_i ? -8'd1 : warpPerspective_hw_for_body_phitmp5);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat40 = {{warpPerspective_hw_for_body_bit_concat40_bit_select_operand_0[58:0], warpPerspective_hw_for_body_bit_select39[1:0]}, warpPerspective_hw_for_body_bit_concat40_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_59 = ({32'd0,warpPerspective_hw_for_body_bit_concat68} >> ({27'd0,warpPerspective_hw_for_body_bit_concat40_reg_stage2} % 64'd64));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select38 = warpPerspective_hw_for_body_59[7:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_60 = ($signed({{6{warpPerspective_hw_for_body_select53_reg_stage2[1]}},warpPerspective_hw_for_body_select53_reg_stage2}) & warpPerspective_hw_for_body_bit_select38);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_61 = $signed(warpPerspective_hw_for_body_16);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat37 = {{warpPerspective_hw_for_body_bit_concat37_bit_select_operand_0[1:0], warpPerspective_hw_for_body_bit_select36[11:0]}, warpPerspective_hw_for_body_bit_concat37_bit_select_operand_4[4:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_62 = ($signed({{2{warpPerspective_hw_for_body_61[16]}},warpPerspective_hw_for_body_61}) - {2'd0,warpPerspective_hw_for_body_bit_concat37});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select35 = warpPerspective_hw_for_body_62[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select34 = warpPerspective_hw_for_body_62[18];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_63 = (warpPerspective_hw_for_body_62 < 19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s = (warpPerspective_hw_for_body_63 ? warpPerspective_hw_for_body_bit_select35 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i186 = (warpPerspective_hw_for_body_62 < -19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T54 = (warpPerspective_hw_for_body_lnot_i22_i_i_i186 & warpPerspective_hw_for_body_bit_select34);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition55 = (warpPerspective_hw_for_body_lnot_i22_i_i_i186 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F56 = (warpPerspective_hw_for_body_bit_select34 & warpPerspective_hw_for_body_NotCondition55);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select58 = (warpPerspective_hw_for_body_exitMask_F56 ? warpPerspective_hw_for_body_bit_select35 : warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select63 = (warpPerspective_hw_for_body_exitMask_T54 ? -17'd65536 : warpPerspective_hw_for_body_select58);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_64 = $signed(warpPerspective_hw_for_body_17);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat33 = {{warpPerspective_hw_for_body_bit_concat33_bit_select_operand_0[1:0], warpPerspective_hw_for_body_bit_select32[11:0]}, warpPerspective_hw_for_body_bit_concat33_bit_select_operand_4[4:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_65 = ($signed({{2{warpPerspective_hw_for_body_64[16]}},warpPerspective_hw_for_body_64}) - {2'd0,warpPerspective_hw_for_body_bit_concat33});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select31 = warpPerspective_hw_for_body_65[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select30 = warpPerspective_hw_for_body_65[18];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_66 = (warpPerspective_hw_for_body_65 < 19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_0 = (warpPerspective_hw_for_body_66 ? warpPerspective_hw_for_body_bit_select31 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i173 = (warpPerspective_hw_for_body_65 < -19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T64 = (warpPerspective_hw_for_body_lnot_i22_i_i_i173 & warpPerspective_hw_for_body_bit_select30);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition65 = (warpPerspective_hw_for_body_lnot_i22_i_i_i173 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F66 = (warpPerspective_hw_for_body_bit_select30 & warpPerspective_hw_for_body_NotCondition65);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select68 = (warpPerspective_hw_for_body_exitMask_F66 ? warpPerspective_hw_for_body_bit_select31 : warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_0);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select73 = (warpPerspective_hw_for_body_exitMask_T64 ? -17'd65536 : warpPerspective_hw_for_body_select68);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_67 = $signed(warpPerspective_hw_for_body_select63);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_68 = (38'd32 - $signed({{1{warpPerspective_hw_for_body_67_reg_stage1[16]}},warpPerspective_hw_for_body_67_reg_stage1}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat29 = {warpPerspective_hw_for_body_bit_concat29_bit_select_operand_0[37:0], warpPerspective_hw_for_body_51[7:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_69 = $signed({{20{warpPerspective_hw_for_body_68[17]}},warpPerspective_hw_for_body_68});
+end
+always @(*) begin
+	warpPerspective_hw_for_body_70 = legup_mult_warpPerspective_hw_for_body_70_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_71 = $signed(warpPerspective_hw_for_body_select73);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_72 = (38'd32 - $signed({{1{warpPerspective_hw_for_body_71_reg_stage1[16]}},warpPerspective_hw_for_body_71_reg_stage1}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_73 = $signed({{20{warpPerspective_hw_for_body_70[25]}},warpPerspective_hw_for_body_70});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_74 = $signed({{20{warpPerspective_hw_for_body_72[17]}},warpPerspective_hw_for_body_72});
+end
+always @(*) begin
+	warpPerspective_hw_for_body_75 = legup_mult_warpPerspective_hw_for_body_75_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat28 = {warpPerspective_hw_for_body_bit_concat28_bit_select_operand_0[16:0], warpPerspective_hw_for_body_57[7:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_76 = $signed(warpPerspective_hw_for_body_select63);
+end
+always @(*) begin
+	warpPerspective_hw_for_body_77 = legup_mult_warpPerspective_hw_for_body_77_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_78 = $signed(warpPerspective_hw_for_body_77);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_79 = $signed({{20{warpPerspective_hw_for_body_72[17]}},warpPerspective_hw_for_body_72});
+end
+always @(*) begin
+	warpPerspective_hw_for_body_80 = legup_mult_warpPerspective_hw_for_body_80_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_81 = $signed({{40{warpPerspective_hw_for_body_75[43]}},warpPerspective_hw_for_body_75});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_82 = $signed({{20{warpPerspective_hw_for_body_80[42]}},warpPerspective_hw_for_body_80});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_83 = ($signed({{1{warpPerspective_hw_for_body_81[43]}},warpPerspective_hw_for_body_81}) + $signed({{2{warpPerspective_hw_for_body_82[42]}},warpPerspective_hw_for_body_82}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat27 = {warpPerspective_hw_for_body_bit_concat27_bit_select_operand_0[37:0], warpPerspective_hw_for_body_54[7:0]};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_84 = legup_mult_warpPerspective_hw_for_body_84_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_85 = $signed({{20{warpPerspective_hw_for_body_84[25]}},warpPerspective_hw_for_body_84});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_86 = $signed(warpPerspective_hw_for_body_select73);
+end
+always @(*) begin
+	warpPerspective_hw_for_body_87 = legup_mult_warpPerspective_hw_for_body_87_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_88 = $signed({{40{warpPerspective_hw_for_body_83[44]}},warpPerspective_hw_for_body_83});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_89 = $signed({{20{warpPerspective_hw_for_body_87[42]}},warpPerspective_hw_for_body_87});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_90 = ($signed({{1{warpPerspective_hw_for_body_88[44]}},warpPerspective_hw_for_body_88}) + $signed({{3{warpPerspective_hw_for_body_89[42]}},warpPerspective_hw_for_body_89}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat26 = {warpPerspective_hw_for_body_bit_concat26_bit_select_operand_0[16:0], warpPerspective_hw_for_body_60[7:0]};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_91 = legup_mult_warpPerspective_hw_for_body_91_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_92 = $signed(warpPerspective_hw_for_body_91);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_93 = $signed(warpPerspective_hw_for_body_select73);
+end
+always @(*) begin
+	warpPerspective_hw_for_body_94 = legup_mult_warpPerspective_hw_for_body_94_out;
+end
+always @(*) begin
+		warpPerspective_hw_for_body_95 = $signed({{40{warpPerspective_hw_for_body_90[45]}},warpPerspective_hw_for_body_90});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_96 = $signed(warpPerspective_hw_for_body_94);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_97 = ($signed({{1{warpPerspective_hw_for_body_95[45]}},warpPerspective_hw_for_body_95}) + $signed({{5{warpPerspective_hw_for_body_96[41]}},warpPerspective_hw_for_body_96}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_98 = $signed({{40{warpPerspective_hw_for_body_97[46]}},warpPerspective_hw_for_body_97});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_99 = ($signed({{1{warpPerspective_hw_for_body_98[46]}},warpPerspective_hw_for_body_98}) + 88'd512);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select25 = warpPerspective_hw_for_body_99[19:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select24 = warpPerspective_hw_for_body_99_width_extended[87];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_100 = ({{40{warpPerspective_hw_for_body_99_reg_stage6[47]}},warpPerspective_hw_for_body_99_reg_stage6} < 88'd524288);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa = (warpPerspective_hw_for_body_100 ? warpPerspective_hw_for_body_bit_select25_reg_stage6 : 20'd261120);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i = ({{40{warpPerspective_hw_for_body_99_reg_stage6[47]}},warpPerspective_hw_for_body_99_reg_stage6} < -88'd524288);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T74 = (warpPerspective_hw_for_body_lnot_i22_i_i_i & warpPerspective_hw_for_body_bit_select24_reg_stage6);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition75 = (warpPerspective_hw_for_body_lnot_i22_i_i_i ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F76 = (warpPerspective_hw_for_body_bit_select24_reg_stage6 & warpPerspective_hw_for_body_NotCondition75);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select78 = (warpPerspective_hw_for_body_exitMask_F76 ? warpPerspective_hw_for_body_bit_select25_reg_stage6 : warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select22 = warpPerspective_hw_for_body_select78[17:10];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat23 = {{warpPerspective_hw_for_body_bit_concat23_bit_select_operand_0[31:0], warpPerspective_hw_for_body_bit_select22[7:0]}, warpPerspective_hw_for_body_bit_concat23_bit_select_operand_4[23:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select83 = (warpPerspective_hw_for_body_exitMask_T74 ? 64'd0 : warpPerspective_hw_for_body_bit_concat23);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_101 = (warpPerspective_hw_for_body_select83 | {8'd0,warpPerspective_hw_for_body_fifo_in_0_off8_reg_stage6});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select19 = warpPerspective_hw_for_body_101[31:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select = warpPerspective_hw_for_body_101_width_extended[39:8];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat21 = {warpPerspective_hw_for_body_bit_concat21_bit_select_operand_0[29:0], warpPerspective_hw_for_body_bit_select20[1:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_cmp = ({30'd0,warpPerspective_hw_for_body_bit_concat21} == 32'd3);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat18 = {warpPerspective_hw_for_body_bit_concat18_bit_select_operand_0[6:0], warpPerspective_hw_for_body_cmp};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select88 = (warpPerspective_hw_for_body_write_count_0 + warpPerspective_hw_for_body_bit_concat18);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_102 = (warpPerspective_hw_for_body_select88 == -8'd128);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select93 = (warpPerspective_hw_for_body_102 ? 8'd0 : warpPerspective_hw_for_body_select88);
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select93_reg <= warpPerspective_hw_for_body_select93;
+	end
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat17 = {warpPerspective_hw_for_body_bit_concat17_bit_select_operand_0[20:0], warpPerspective_hw_for_body_x_idx_0[11:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_103 = ({1'd0,warpPerspective_hw_for_body_bit_concat17} + 33'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_104 = ({20'd0,warpPerspective_hw_for_body_103} == {21'd0,warpPerspective_hw_body_preheader_bit_concat140_reg});
+end
+always @(*) begin
+		warpPerspective_hw_for_body_105 = $signed(warpPerspective_hw_for_body_ref_tmp_i_i_0_ref_tmp_);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition90 = (warpPerspective_hw_for_body_104 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_106 = ($signed({{1{warpPerspective_hw_body_preheader_10_reg[16]}},warpPerspective_hw_body_preheader_10_reg}) - $signed({{1{warpPerspective_hw_for_body_105[16]}},warpPerspective_hw_for_body_105}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_107 = $signed(warpPerspective_hw_for_body_106);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_108 = ($signed({{1{warpPerspective_hw_for_body_107[17]}},warpPerspective_hw_for_body_107}) + $signed({{2{warpPerspective_hw_for_body_61[16]}},warpPerspective_hw_for_body_61}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select16 = warpPerspective_hw_for_body_108[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select15 = warpPerspective_hw_for_body_108[18];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F96 = (warpPerspective_hw_for_body_104 & warpPerspective_hw_for_body_bit_select15);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_109 = ($signed({{1{warpPerspective_hw_for_body_105[16]}},warpPerspective_hw_for_body_105}) + $signed({{1{warpPerspective_hw_body_preheader_13_reg[16]}},warpPerspective_hw_body_preheader_13_reg}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select14 = warpPerspective_hw_for_body_109[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select13 = warpPerspective_hw_for_body_109[17];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F99 = (warpPerspective_hw_for_body_bit_select13 & warpPerspective_hw_for_body_NotCondition90);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_110 = (warpPerspective_hw_for_body_108 < 19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_2 = (warpPerspective_hw_for_body_110 ? warpPerspective_hw_for_body_bit_select16 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i160 = (warpPerspective_hw_for_body_108 < -19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T100 = (warpPerspective_hw_for_body_exitMask_F96 & warpPerspective_hw_for_body_lnot_i22_i_i_i160);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition101 = (warpPerspective_hw_for_body_lnot_i22_i_i_i160 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F102 = (warpPerspective_hw_for_body_exitMask_F96 & warpPerspective_hw_for_body_NotCondition101);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_111 = (warpPerspective_hw_for_body_109 < 18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_3 = (warpPerspective_hw_for_body_111 ? warpPerspective_hw_for_body_bit_select14 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i_i104 = (warpPerspective_hw_for_body_109 < -18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T103 = (warpPerspective_hw_for_body_exitMask_F99 & warpPerspective_hw_for_body_lnot_i22_i_i_i_i104);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition104 = (warpPerspective_hw_for_body_lnot_i22_i_i_i_i104 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F105 = (warpPerspective_hw_for_body_exitMask_F99 & warpPerspective_hw_for_body_NotCondition104);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select107 = (warpPerspective_hw_for_body_exitMask_F102 ? warpPerspective_hw_for_body_bit_select16 : warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_2);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select109 = (warpPerspective_hw_for_body_exitMask_F105 ? warpPerspective_hw_for_body_bit_select14 : warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_3);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select114 = (warpPerspective_hw_for_body_exitMask_T100_reg_stage1 ? -17'd65536 : warpPerspective_hw_for_body_select107_reg_stage1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_112 = $signed(warpPerspective_hw_for_body_ref_tmp_i_i325_0_ref_t);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_113 = ($signed({{1{warpPerspective_hw_body_preheader_11_reg[16]}},warpPerspective_hw_body_preheader_11_reg}) - $signed({{1{warpPerspective_hw_for_body_112[16]}},warpPerspective_hw_for_body_112}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_114 = $signed(warpPerspective_hw_for_body_113);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_115 = ($signed({{1{warpPerspective_hw_for_body_114[17]}},warpPerspective_hw_for_body_114}) + $signed({{2{warpPerspective_hw_for_body_64[16]}},warpPerspective_hw_for_body_64}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select12 = warpPerspective_hw_for_body_115[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select11 = warpPerspective_hw_for_body_115[18];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F112 = (warpPerspective_hw_for_body_104 & warpPerspective_hw_for_body_bit_select11);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select119 = (warpPerspective_hw_for_body_exitMask_T103 ? -17'd65536 : warpPerspective_hw_for_body_select109);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_116 = ($signed({{1{warpPerspective_hw_for_body_112[16]}},warpPerspective_hw_for_body_112}) + $signed({{1{warpPerspective_hw_body_preheader_14_reg[16]}},warpPerspective_hw_body_preheader_14_reg}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select10 = warpPerspective_hw_for_body_116[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select9 = warpPerspective_hw_for_body_116[17];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F117 = (warpPerspective_hw_for_body_bit_select9 & warpPerspective_hw_for_body_NotCondition90);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_117 = (warpPerspective_hw_for_body_115 < 19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_4 = (warpPerspective_hw_for_body_117 ? warpPerspective_hw_for_body_bit_select12 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i147 = (warpPerspective_hw_for_body_115 < -19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T120 = (warpPerspective_hw_for_body_exitMask_F112 & warpPerspective_hw_for_body_lnot_i22_i_i_i147);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition121 = (warpPerspective_hw_for_body_lnot_i22_i_i_i147 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F122 = (warpPerspective_hw_for_body_exitMask_F112 & warpPerspective_hw_for_body_NotCondition121);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_118 = (warpPerspective_hw_for_body_116 < 18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_5 = (warpPerspective_hw_for_body_118 ? warpPerspective_hw_for_body_bit_select10 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i_i90 = (warpPerspective_hw_for_body_116 < -18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T123 = (warpPerspective_hw_for_body_exitMask_F117 & warpPerspective_hw_for_body_lnot_i22_i_i_i_i90);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition124 = (warpPerspective_hw_for_body_lnot_i22_i_i_i_i90 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F125 = (warpPerspective_hw_for_body_exitMask_F117 & warpPerspective_hw_for_body_NotCondition124);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select127 = (warpPerspective_hw_for_body_exitMask_F122 ? warpPerspective_hw_for_body_bit_select12 : warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_4);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select129 = (warpPerspective_hw_for_body_exitMask_F125 ? warpPerspective_hw_for_body_bit_select10 : warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_5);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select134 = (warpPerspective_hw_for_body_exitMask_T120_reg_stage1 ? -17'd65536 : warpPerspective_hw_for_body_select127_reg_stage1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_119 = $signed(warpPerspective_hw_for_body_ref_tmp_i_i316_0_ref_t);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_120 = ($signed({{1{warpPerspective_hw_body_preheader_12_reg[16]}},warpPerspective_hw_body_preheader_12_reg}) - $signed({{1{warpPerspective_hw_for_body_119[16]}},warpPerspective_hw_for_body_119}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_121 = $signed(warpPerspective_hw_for_body_18);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_122 = $signed(warpPerspective_hw_for_body_120);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_123 = ($signed({{1{warpPerspective_hw_for_body_122[17]}},warpPerspective_hw_for_body_122}) + $signed({{2{warpPerspective_hw_for_body_121[16]}},warpPerspective_hw_for_body_121}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select8 = warpPerspective_hw_for_body_123[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_124 = ($signed(warpPerspective_hw_for_body_123) > $signed(-19'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T130 = (warpPerspective_hw_for_body_104 & warpPerspective_hw_for_body_124);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition131 = (warpPerspective_hw_for_body_124 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F132 = (warpPerspective_hw_for_body_104 & warpPerspective_hw_for_body_NotCondition131);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select139 = (warpPerspective_hw_for_body_exitMask_T123 ? -17'd65536 : warpPerspective_hw_for_body_select129);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_125 = ($signed({{1{warpPerspective_hw_for_body_119[16]}},warpPerspective_hw_for_body_119}) + $signed({{1{warpPerspective_hw_body_preheader_15_reg[16]}},warpPerspective_hw_body_preheader_15_reg}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select7 = warpPerspective_hw_for_body_125[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select6 = warpPerspective_hw_for_body_125[17];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F137 = (warpPerspective_hw_for_body_bit_select6 & warpPerspective_hw_for_body_NotCondition90);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_126 = (warpPerspective_hw_for_body_123 < 19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_6 = (warpPerspective_hw_for_body_126 ? warpPerspective_hw_for_body_bit_select8 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i138 = (warpPerspective_hw_for_body_123 < -19'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T140 = (warpPerspective_hw_for_body_exitMask_F132 & warpPerspective_hw_for_body_lnot_i22_i_i_i138);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition141 = (warpPerspective_hw_for_body_lnot_i22_i_i_i138 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F142 = (warpPerspective_hw_for_body_exitMask_F132 & warpPerspective_hw_for_body_NotCondition141);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_127 = (warpPerspective_hw_for_body_125 < 18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_7 = (warpPerspective_hw_for_body_127 ? warpPerspective_hw_for_body_bit_select7 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i_i76 = (warpPerspective_hw_for_body_125 < -18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T143 = (warpPerspective_hw_for_body_exitMask_F137 & warpPerspective_hw_for_body_lnot_i22_i_i_i_i76);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition144 = (warpPerspective_hw_for_body_lnot_i22_i_i_i_i76 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F145 = (warpPerspective_hw_for_body_exitMask_F137 & warpPerspective_hw_for_body_NotCondition144);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select147 = (warpPerspective_hw_for_body_exitMask_F142 ? warpPerspective_hw_for_body_bit_select8 : warpPerspective_hw_for_body_condlvalue7_i_i_sroa_s_6);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_128 = (warpPerspective_hw_for_body_exitMask_T130 | warpPerspective_hw_for_body_exitMask_F142);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select149 = (warpPerspective_hw_for_body_exitMask_F145 ? warpPerspective_hw_for_body_bit_select7 : warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_7);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select154 = (warpPerspective_hw_for_body_exitMask_T143 ? -17'd65536 : warpPerspective_hw_for_body_select149);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_129 = $signed(warpPerspective_hw_for_body_16);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_130 = ($signed({{1{warpPerspective_hw_for_body_129[16]}},warpPerspective_hw_for_body_129}) + $signed({{1{warpPerspective_hw_body_preheader_13_reg[16]}},warpPerspective_hw_body_preheader_13_reg}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select5 = warpPerspective_hw_for_body_130[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select4 = warpPerspective_hw_for_body_130[17];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F152 = (warpPerspective_hw_for_body_bit_select4 & warpPerspective_hw_for_body_NotCondition90);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_131 = (warpPerspective_hw_for_body_130 < 18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_8 = (warpPerspective_hw_for_body_131 ? warpPerspective_hw_for_body_bit_select5 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i_i62 = (warpPerspective_hw_for_body_130 < -18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T155 = (warpPerspective_hw_for_body_exitMask_F152 & warpPerspective_hw_for_body_lnot_i22_i_i_i_i62);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition156 = (warpPerspective_hw_for_body_lnot_i22_i_i_i_i62 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F157 = (warpPerspective_hw_for_body_exitMask_F152 & warpPerspective_hw_for_body_NotCondition156);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select159 = (warpPerspective_hw_for_body_exitMask_F157 ? warpPerspective_hw_for_body_bit_select5 : warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_8);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select164 = (warpPerspective_hw_for_body_exitMask_T155 ? -17'd65536 : warpPerspective_hw_for_body_select159);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_132 = $signed(warpPerspective_hw_for_body_17);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_133 = ($signed({{1{warpPerspective_hw_for_body_132[16]}},warpPerspective_hw_for_body_132}) + $signed({{1{warpPerspective_hw_body_preheader_14_reg[16]}},warpPerspective_hw_body_preheader_14_reg}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select3 = warpPerspective_hw_for_body_133[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_134 = ($signed(warpPerspective_hw_for_body_133) > $signed(-18'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T160 = (warpPerspective_hw_for_body_134 & warpPerspective_hw_for_body_NotCondition90);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition161 = (warpPerspective_hw_for_body_134 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F162 = (warpPerspective_hw_for_body_NotCondition90 & warpPerspective_hw_for_body_NotCondition161);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_135 = (warpPerspective_hw_for_body_133 < 18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_9 = (warpPerspective_hw_for_body_135 ? warpPerspective_hw_for_body_bit_select3 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i_i48 = (warpPerspective_hw_for_body_133 < -18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T165 = (warpPerspective_hw_for_body_exitMask_F162 & warpPerspective_hw_for_body_lnot_i22_i_i_i_i48);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select169 = (warpPerspective_hw_for_body_exitMask_T160 ? warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_9 : warpPerspective_hw_for_body_bit_select3);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select174 = (warpPerspective_hw_for_body_exitMask_T165 ? -17'd65536 : warpPerspective_hw_for_body_select169);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_136 = $signed(warpPerspective_hw_for_body_18);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_137 = ($signed({{1{warpPerspective_hw_for_body_136[16]}},warpPerspective_hw_for_body_136}) + $signed({{1{warpPerspective_hw_body_preheader_15_reg[16]}},warpPerspective_hw_body_preheader_15_reg}));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_select2 = warpPerspective_hw_for_body_137[16:0];
+end
+always @(*) begin
+		warpPerspective_hw_for_body_138 = ($signed(warpPerspective_hw_for_body_137) > $signed(-18'd1));
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T170 = (warpPerspective_hw_for_body_138 & warpPerspective_hw_for_body_NotCondition90);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition171 = (warpPerspective_hw_for_body_138 ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F172 = (warpPerspective_hw_for_body_NotCondition90 & warpPerspective_hw_for_body_NotCondition171);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_139 = (warpPerspective_hw_for_body_137 < 18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_10 = (warpPerspective_hw_for_body_139 ? warpPerspective_hw_for_body_bit_select2 : 17'd65535);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_lnot_i22_i_i_i_i = (warpPerspective_hw_for_body_137 < -18'd65536);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_T175 = (warpPerspective_hw_for_body_exitMask_F172 & warpPerspective_hw_for_body_lnot_i22_i_i_i_i);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_NotCondition176 = (warpPerspective_hw_for_body_lnot_i22_i_i_i_i ^ 1'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_exitMask_F177 = (warpPerspective_hw_for_body_exitMask_F172 & warpPerspective_hw_for_body_NotCondition176);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select179 = (warpPerspective_hw_for_body_exitMask_F177 ? warpPerspective_hw_for_body_bit_select2 : warpPerspective_hw_for_body_condlvalue7_i_i_i_sroa_10);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_140 = (warpPerspective_hw_for_body_exitMask_T170 | warpPerspective_hw_for_body_exitMask_F177);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_ORCondM203 = (warpPerspective_hw_for_body_exitMask_T140 | warpPerspective_hw_for_body_128);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select206 = (warpPerspective_hw_for_body_ORCondM203_reg_stage1 ? 17'd0 : warpPerspective_hw_for_body_select154_reg_stage1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select202 = (warpPerspective_hw_for_body_ORCondM203_reg_stage1 ? 17'd0 : warpPerspective_hw_for_body_select139_reg_stage1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select198 = (warpPerspective_hw_for_body_ORCondM203_reg_stage1 ? 17'd0 : warpPerspective_hw_for_body_select119_reg_stage1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_ORCondM190 = (warpPerspective_hw_for_body_exitMask_T140 | warpPerspective_hw_for_body_exitMask_T175);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select192 = (warpPerspective_hw_for_body_ORCondM190 ? -17'd65536 : warpPerspective_hw_for_body_select147);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select194 = (warpPerspective_hw_for_body_140_reg_stage1 ? warpPerspective_hw_for_body_select179_reg_stage1 : warpPerspective_hw_for_body_select192_reg_stage1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select189 = (warpPerspective_hw_for_body_ORCondM203_reg_stage1 ? warpPerspective_hw_for_body_select134 : warpPerspective_hw_for_body_select174_reg_stage1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_ORCondM = (warpPerspective_hw_for_body_exitMask_T175 | warpPerspective_hw_for_body_140);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_select185 = (warpPerspective_hw_for_body_ORCondM_reg_stage1 ? warpPerspective_hw_for_body_select164_reg_stage1 : warpPerspective_hw_for_body_select114);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_141 = (warpPerspective_hw_for_body_x_idx_0 + 12'd1);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_142 = (warpPerspective_hw_for_body_141 == dst_width_reg);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat1 = {warpPerspective_hw_for_body_bit_concat1_bit_select_operand_0[10:0], warpPerspective_hw_for_body_142};
+end
+always @(*) begin
+		warpPerspective_hw_for_body_y_idx_0_11 = (warpPerspective_hw_for_body_bit_concat1 + warpPerspective_hw_for_body_y_idx_0);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_143 = (warpPerspective_hw_for_body_y_idx_0_11 < dst_height_reg);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_1510 = (warpPerspective_hw_for_body_142 ? 12'd0 : warpPerspective_hw_for_body_141);
+end
+always @(*) begin
+		warpPerspective_hw_for_body_bit_concat = {warpPerspective_hw_for_body_bit_concat_bit_select_operand_0[31:0], warpPerspective_hw_for_body_bit_select_width_extended[31:0]};
+end
+always @(*) begin
+		warpPerspective_hw_for_end_144 = (warpPerspective_hw_for_body_select93_reg == 8'd0);
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_218_2_state_stall_0)) begin
+		for_loop_warp_cpp_218_2_valid_bit_0 <= (for_loop_warp_cpp_218_2_II_counter & for_loop_warp_cpp_218_2_start);
+	end
+	if (reset) begin
+		for_loop_warp_cpp_218_2_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_stall_0 = 1'd0;
+	if (for_loop_warp_cpp_218_2_state_stall_1) begin
+		for_loop_warp_cpp_218_2_state_stall_0 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_218_2_valid_bit_0 & mem_even_read_en_a) & mem_even_waitrequest_a) & (mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a | mem_even_for_loop_warp_cpp_218_2_state_0_stalln_reg))) begin
+		for_loop_warp_cpp_218_2_state_stall_0 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_218_2_valid_bit_0 & mem_even_read_en_b) & mem_even_waitrequest_b) & (mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b | mem_even_for_loop_warp_cpp_218_2_state_0_stalln_reg))) begin
+		for_loop_warp_cpp_218_2_state_stall_0 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_218_2_valid_bit_0 & mem_odd_read_en_a) & mem_odd_waitrequest_a) & (mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a | mem_odd_for_loop_warp_cpp_218_2_state_0_stalln_reg))) begin
+		for_loop_warp_cpp_218_2_state_stall_0 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_218_2_valid_bit_0 & mem_odd_read_en_b) & mem_odd_waitrequest_b) & (mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b | mem_odd_for_loop_warp_cpp_218_2_state_0_stalln_reg))) begin
+		for_loop_warp_cpp_218_2_state_stall_0 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_218_2_valid_bit_0 & burst_size_valid) & ~(burst_size_ready)) & (axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_stalln_reg))) begin
+		for_loop_warp_cpp_218_2_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_enable_0 = (for_loop_warp_cpp_218_2_valid_bit_0 & ~(for_loop_warp_cpp_218_2_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_218_2_state_stall_1)) begin
+		for_loop_warp_cpp_218_2_valid_bit_1 <= for_loop_warp_cpp_218_2_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_218_2_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_stall_1 = 1'd0;
+	if (for_loop_warp_cpp_218_2_state_stall_2) begin
+		for_loop_warp_cpp_218_2_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_enable_1 = (for_loop_warp_cpp_218_2_valid_bit_1 & ~(for_loop_warp_cpp_218_2_state_stall_1));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_218_2_state_stall_2)) begin
+		for_loop_warp_cpp_218_2_valid_bit_2 <= for_loop_warp_cpp_218_2_state_enable_1;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_218_2_valid_bit_2 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_stall_2 = 1'd0;
+	if (for_loop_warp_cpp_218_2_state_stall_3) begin
+		for_loop_warp_cpp_218_2_state_stall_2 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_enable_2 = (for_loop_warp_cpp_218_2_valid_bit_2 & ~(for_loop_warp_cpp_218_2_state_stall_2));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_218_2_state_stall_3)) begin
+		for_loop_warp_cpp_218_2_valid_bit_3 <= for_loop_warp_cpp_218_2_state_enable_2;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_218_2_valid_bit_3 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_stall_3 = 1'd0;
+	if (for_loop_warp_cpp_218_2_state_stall_4) begin
+		for_loop_warp_cpp_218_2_state_stall_3 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_enable_3 = (for_loop_warp_cpp_218_2_valid_bit_3 & ~(for_loop_warp_cpp_218_2_state_stall_3));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_218_2_state_stall_4)) begin
+		for_loop_warp_cpp_218_2_valid_bit_4 <= for_loop_warp_cpp_218_2_state_enable_3;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_218_2_valid_bit_4 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_stall_4 = 1'd0;
+	if (for_loop_warp_cpp_218_2_state_stall_5) begin
+		for_loop_warp_cpp_218_2_state_stall_4 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_enable_4 = (for_loop_warp_cpp_218_2_valid_bit_4 & ~(for_loop_warp_cpp_218_2_state_stall_4));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_218_2_state_stall_5)) begin
+		for_loop_warp_cpp_218_2_valid_bit_5 <= for_loop_warp_cpp_218_2_state_enable_4;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_218_2_valid_bit_5 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_stall_5 = 1'd0;
+	if (for_loop_warp_cpp_218_2_state_stall_6) begin
+		for_loop_warp_cpp_218_2_state_stall_5 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_enable_5 = (for_loop_warp_cpp_218_2_valid_bit_5 & ~(for_loop_warp_cpp_218_2_state_stall_5));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_218_2_state_stall_6)) begin
+		for_loop_warp_cpp_218_2_valid_bit_6 <= for_loop_warp_cpp_218_2_state_enable_5;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_218_2_valid_bit_6 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_stall_6 = 1'd0;
+	if ((((for_loop_warp_cpp_218_2_valid_bit_6 & fifo_valid) & ~(fifo_ready)) & (axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_stalln_reg))) begin
+		for_loop_warp_cpp_218_2_state_stall_6 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_state_enable_6 = (for_loop_warp_cpp_218_2_valid_bit_6 & ~(for_loop_warp_cpp_218_2_state_stall_6));
+end
+always @(posedge clk) begin
+	for_loop_warp_cpp_218_2_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_start = (for_loop_warp_cpp_218_2_activate_pipeline | ((for_loop_warp_cpp_218_2_active & ~(for_loop_warp_cpp_218_2_epilogue)) & ~(for_loop_warp_cpp_218_2_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_warp_cpp_218_2_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_warp_cpp_218_2_begin_pipeline) & ~(for_loop_warp_cpp_218_2_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_5) begin
+		warpPerspective_hw_for_body_fifo_in_0_off8_reg_stage6 <= warpPerspective_hw_for_body_fifo_in_0_off8;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat125_reg_stage1 <= warpPerspective_hw_for_body_bit_concat125;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat124_reg_stage1 <= warpPerspective_hw_for_body_bit_concat124;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_NotCondition2_reg_stage2 <= warpPerspective_hw_for_body_NotCondition2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_phitmp_i234_reg_stage2 <= warpPerspective_hw_for_body_phitmp_i234;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat118_reg_stage1 <= warpPerspective_hw_for_body_bit_concat118;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_select116_reg_stage2 <= warpPerspective_hw_for_body_bit_select116;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat115_reg_stage1 <= warpPerspective_hw_for_body_bit_concat115;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat114_reg_stage1 <= warpPerspective_hw_for_body_bit_concat114;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_cmp_i_i_i216_reg_stage2 <= warpPerspective_hw_for_body_cmp_i_i_i216;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_concat109_reg_stage2 <= warpPerspective_hw_for_body_bit_concat109;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat106_reg_stage1 <= warpPerspective_hw_for_body_bit_concat106;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_select104_reg_stage2 <= warpPerspective_hw_for_body_bit_select104;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat103_reg_stage1 <= warpPerspective_hw_for_body_bit_concat103;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat102_reg_stage1 <= warpPerspective_hw_for_body_bit_concat102;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_cmp_i_i_i199_reg_stage2 <= warpPerspective_hw_for_body_cmp_i_i_i199;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_concat97_reg_stage2 <= warpPerspective_hw_for_body_bit_concat97;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat94_reg_stage1 <= warpPerspective_hw_for_body_bit_concat94;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_select92_reg_stage2 <= warpPerspective_hw_for_body_bit_select92;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat86_reg_stage1 <= warpPerspective_hw_for_body_bit_concat86;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat85_reg_stage1 <= warpPerspective_hw_for_body_bit_concat85;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_cmp_i_i_i_reg_stage2 <= warpPerspective_hw_for_body_cmp_i_i_i;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_concat80_reg_stage2 <= warpPerspective_hw_for_body_bit_concat80;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat77_reg_stage1 <= warpPerspective_hw_for_body_bit_concat77;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_select75_reg_stage2 <= warpPerspective_hw_for_body_bit_select75;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat74_reg_stage1 <= warpPerspective_hw_for_body_bit_concat74;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat73_reg_stage1 <= warpPerspective_hw_for_body_bit_concat73;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select38_reg_stage2 <= warpPerspective_hw_for_body_select38;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat67_reg_stage1 <= warpPerspective_hw_for_body_bit_concat67;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_concat67_reg_stage2 <= warpPerspective_hw_for_body_bit_concat67_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat64_reg_stage1 <= warpPerspective_hw_for_body_bit_concat64;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat63_reg_stage1 <= warpPerspective_hw_for_body_bit_concat63;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select43_reg_stage2 <= warpPerspective_hw_for_body_select43;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat58_reg_stage1 <= warpPerspective_hw_for_body_bit_concat58;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_concat58_reg_stage2 <= warpPerspective_hw_for_body_bit_concat58_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat55_reg_stage1 <= warpPerspective_hw_for_body_bit_concat55;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat54_reg_stage1 <= warpPerspective_hw_for_body_bit_concat54;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select48_reg_stage2 <= warpPerspective_hw_for_body_select48;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat49_reg_stage1 <= warpPerspective_hw_for_body_bit_concat49;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_concat49_reg_stage2 <= warpPerspective_hw_for_body_bit_concat49_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat46_reg_stage1 <= warpPerspective_hw_for_body_bit_concat46;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat45_reg_stage1 <= warpPerspective_hw_for_body_bit_concat45;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select53_reg_stage2 <= warpPerspective_hw_for_body_select53;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_bit_concat40_reg_stage1 <= warpPerspective_hw_for_body_bit_concat40;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_bit_concat40_reg_stage2 <= warpPerspective_hw_for_body_bit_concat40_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_67_reg_stage1 <= warpPerspective_hw_for_body_67;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_69_reg_stage2 <= warpPerspective_hw_for_body_69;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_71_reg_stage1 <= warpPerspective_hw_for_body_71;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_74_reg_stage2 <= warpPerspective_hw_for_body_74;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_2) begin
+		warpPerspective_hw_for_body_74_reg_stage3 <= warpPerspective_hw_for_body_74_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_76_reg_stage1 <= warpPerspective_hw_for_body_76;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_76_reg_stage2 <= warpPerspective_hw_for_body_76_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_79_reg_stage2 <= warpPerspective_hw_for_body_79;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_2) begin
+		warpPerspective_hw_for_body_79_reg_stage3 <= warpPerspective_hw_for_body_79_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_86_reg_stage1 <= warpPerspective_hw_for_body_86;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_86_reg_stage2 <= warpPerspective_hw_for_body_86_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_2) begin
+		warpPerspective_hw_for_body_86_reg_stage3 <= warpPerspective_hw_for_body_86_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_93_reg_stage1 <= warpPerspective_hw_for_body_93;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_93_reg_stage2 <= warpPerspective_hw_for_body_93_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_2) begin
+		warpPerspective_hw_for_body_93_reg_stage3 <= warpPerspective_hw_for_body_93_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_5) begin
+		warpPerspective_hw_for_body_99_reg_stage6 <= warpPerspective_hw_for_body_99;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_5) begin
+		warpPerspective_hw_for_body_bit_select25_reg_stage6 <= warpPerspective_hw_for_body_bit_select25;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_5) begin
+		warpPerspective_hw_for_body_bit_select24_reg_stage6 <= warpPerspective_hw_for_body_bit_select24;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_cmp_reg_stage1 <= warpPerspective_hw_for_body_cmp;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_cmp_reg_stage2 <= warpPerspective_hw_for_body_cmp_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_2) begin
+		warpPerspective_hw_for_body_cmp_reg_stage3 <= warpPerspective_hw_for_body_cmp_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_3) begin
+		warpPerspective_hw_for_body_cmp_reg_stage4 <= warpPerspective_hw_for_body_cmp_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_4) begin
+		warpPerspective_hw_for_body_cmp_reg_stage5 <= warpPerspective_hw_for_body_cmp_reg_stage4;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_5) begin
+		warpPerspective_hw_for_body_cmp_reg_stage6 <= warpPerspective_hw_for_body_cmp_reg_stage5;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select93_reg_stage1 <= warpPerspective_hw_for_body_select93;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_exitMask_T100_reg_stage1 <= warpPerspective_hw_for_body_exitMask_T100;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select107_reg_stage1 <= warpPerspective_hw_for_body_select107;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select119_reg_stage1 <= warpPerspective_hw_for_body_select119;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_exitMask_T120_reg_stage1 <= warpPerspective_hw_for_body_exitMask_T120;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select127_reg_stage1 <= warpPerspective_hw_for_body_select127;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select139_reg_stage1 <= warpPerspective_hw_for_body_select139;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select154_reg_stage1 <= warpPerspective_hw_for_body_select154;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select164_reg_stage1 <= warpPerspective_hw_for_body_select164;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select174_reg_stage1 <= warpPerspective_hw_for_body_select174;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select179_reg_stage1 <= warpPerspective_hw_for_body_select179;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_140_reg_stage1 <= warpPerspective_hw_for_body_140;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_ORCondM203_reg_stage1 <= warpPerspective_hw_for_body_ORCondM203;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select206_reg_stage2 <= warpPerspective_hw_for_body_select206;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select202_reg_stage2 <= warpPerspective_hw_for_body_select202;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select198_reg_stage2 <= warpPerspective_hw_for_body_select198;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_select192_reg_stage1 <= warpPerspective_hw_for_body_select192;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select194_reg_stage2 <= warpPerspective_hw_for_body_select194;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select189_reg_stage2 <= warpPerspective_hw_for_body_select189;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_ORCondM_reg_stage1 <= warpPerspective_hw_for_body_ORCondM;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		warpPerspective_hw_for_body_select185_reg_stage2 <= warpPerspective_hw_for_body_select185;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_y_idx_0_11_reg_stage1 <= warpPerspective_hw_for_body_y_idx_0_11;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		warpPerspective_hw_for_body_1510_reg_stage1 <= warpPerspective_hw_for_body_1510;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_6) begin
+		warpPerspective_hw_for_body_bit_concat_reg_stage7 <= warpPerspective_hw_for_body_bit_concat;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_218_2_inductionVar_stage0 <= 0;
+	end
+	if (for_loop_warp_cpp_218_2_activate_pipeline) begin
+		for_loop_warp_cpp_218_2_inductionVar_stage0 <= 0;
+	end
+	if ((for_loop_warp_cpp_218_2_II_counter & for_loop_warp_cpp_218_2_state_enable_0)) begin
+		for_loop_warp_cpp_218_2_inductionVar_stage0 <= (for_loop_warp_cpp_218_2_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_pipeline_exit_cond = (for_loop_warp_cpp_218_2_state_enable_0 & ~(warpPerspective_hw_for_body_143));
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_218_2_active <= 1'd0;
+	end
+	if (for_loop_warp_cpp_218_2_activate_pipeline) begin
+		for_loop_warp_cpp_218_2_active <= 1'd1;
+	end
+	if (for_loop_warp_cpp_218_2_pipeline_finishing) begin
+		for_loop_warp_cpp_218_2_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_warp_cpp_218_2_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_7) & (fsm_stall == 1'd0))) begin
+		for_loop_warp_cpp_218_2_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_218_2_epilogue <= 1'd0;
+	end
+	if ((for_loop_warp_cpp_218_2_pipeline_exit_cond & for_loop_warp_cpp_218_2_active)) begin
+		for_loop_warp_cpp_218_2_epilogue <= 1'd1;
+	end
+	if (for_loop_warp_cpp_218_2_pipeline_finishing) begin
+		for_loop_warp_cpp_218_2_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_pipeline_finish = (for_loop_warp_cpp_218_2_pipeline_finishing | for_loop_warp_cpp_218_2_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_pipeline_finishing = ((for_loop_warp_cpp_218_2_epilogue | for_loop_warp_cpp_218_2_pipeline_exit_cond) & for_loop_warp_cpp_218_2_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_only_last_stage_enabled = ((for_loop_warp_cpp_218_2_num_active_iterations == 1'd1) & for_loop_warp_cpp_218_2_state_enable_6);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_218_2_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_warp_cpp_218_2_inserting_new_iteration & ~(for_loop_warp_cpp_218_2_state_enable_6))) begin
+		for_loop_warp_cpp_218_2_num_active_iterations <= (for_loop_warp_cpp_218_2_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_warp_cpp_218_2_inserting_new_iteration) & for_loop_warp_cpp_218_2_state_enable_6)) begin
+		for_loop_warp_cpp_218_2_num_active_iterations <= (for_loop_warp_cpp_218_2_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_218_2_inserting_new_iteration = ((~(for_loop_warp_cpp_218_2_state_stall_0) & for_loop_warp_cpp_218_2_II_counter) & for_loop_warp_cpp_218_2_start);
+end
+always @(posedge clk) begin
+	for_loop_warp_cpp_218_2_pipeline_finish_reg <= for_loop_warp_cpp_218_2_pipeline_finish;
+	if (reset) begin
+		for_loop_warp_cpp_218_2_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_warp_cpp_218_2_activate_pipeline) begin
+		for_loop_warp_cpp_218_2_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_activate_pipeline) begin
+		for_loop_warp_cpp_218_2_in_first_iteration_stage0 <= 1'd1;
+	end
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		for_loop_warp_cpp_218_2_in_first_iteration_stage0 <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_0) begin
+		for_loop_warp_cpp_218_2_in_first_iteration_stage1 <= for_loop_warp_cpp_218_2_in_first_iteration_stage0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_1) begin
+		for_loop_warp_cpp_218_2_in_first_iteration_stage2 <= for_loop_warp_cpp_218_2_in_first_iteration_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_2) begin
+		for_loop_warp_cpp_218_2_in_first_iteration_stage3 <= for_loop_warp_cpp_218_2_in_first_iteration_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_3) begin
+		for_loop_warp_cpp_218_2_in_first_iteration_stage4 <= for_loop_warp_cpp_218_2_in_first_iteration_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_218_2_state_enable_4) begin
+		for_loop_warp_cpp_218_2_in_first_iteration_stage5 <= for_loop_warp_cpp_218_2_in_first_iteration_stage4;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_a = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_a;
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_not_accessed_due_to_stall_a <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a);
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_enable_cond_a = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_stalln_reg));
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_data_wire_b = axi_master_warpPerspective_orig_entry_warp_matrix__read_data_b;
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_not_accessed_due_to_stall_b <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_enable_cond_b = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_not_accessed_due_to_stall_b | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_stalln_reg));
+end
+assign warpPerspective_hw_body_preheader_bit_concat140_bit_select_operand_0 = 21'd0;
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_not_accessed_due_to_stall_b <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b);
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_enable_cond_b = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_not_accessed_due_to_stall_b | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_not_accessed_due_to_stall_a <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_enable_cond_a = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_not_accessed_due_to_stall_a <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a);
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_enable_cond_a = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_not_accessed_due_to_stall_b <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_enable_cond_b = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_not_accessed_due_to_stall_b | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_not_accessed_due_to_stall_a <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a);
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_enable_cond_a = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_not_accessed_due_to_stall_b <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_b);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_enable_cond_b = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_not_accessed_due_to_stall_b | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_not_accessed_due_to_stall_a <= ((fsm_stall & axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a) & axi_master_warpPerspective_orig_entry_warp_matrix__waitrequest_a);
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_enable_cond_a = ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6) & (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_stalln_reg));
+end
+always @(*) begin
+	warpPerspective_hw_for_body_20_width_extended = {{20{warpPerspective_hw_for_body_20[16]}},warpPerspective_hw_for_body_20};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_21_width_extended = {{20{warpPerspective_hw_for_body_21[16]}},warpPerspective_hw_for_body_21};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_sr_negate_width_extended = {{14{warpPerspective_hw_for_body_sr_negate[12]}},warpPerspective_hw_for_body_sr_negate};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select136_width_extended = {{14{warpPerspective_hw_for_body_bit_select136[12]}},warpPerspective_hw_for_body_bit_select136};
+end
+assign warpPerspective_hw_for_body_bit_concat137_bit_select_operand_2 = 5'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select134_width_extended = {{12{warpPerspective_hw_for_body_bit_select134[11]}},warpPerspective_hw_for_body_bit_select134};
+end
+assign warpPerspective_hw_for_body_bit_concat135_bit_select_operand_2 = 8'd0;
+assign warpPerspective_hw_for_body_bit_concat133_bit_select_operand_0 = 31'd0;
+assign warpPerspective_hw_for_body_bit_concat125_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat125_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat124_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat124_bit_select_operand_4 = -3'd1;
+always @(*) begin
+	warpPerspective_hw_for_body_neg_width_extended = {{27{warpPerspective_hw_for_body_neg[4]}},warpPerspective_hw_for_body_neg};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select122_width_extended = {{27{warpPerspective_hw_for_body_bit_select122[3]}},warpPerspective_hw_for_body_bit_select122};
+end
+assign warpPerspective_hw_for_body_bit_concat123_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat121_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i_i232_width_extended = {{26{warpPerspective_hw_for_body_add_i_i232[5]}},warpPerspective_hw_for_body_add_i_i232};
+end
+always @(posedge clk) begin
+	mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_218_2_state_stall_0 & mem_even_read_en_a) & mem_even_waitrequest_a);
+end
+always @(posedge clk) begin
+	mem_even_for_loop_warp_cpp_218_2_state_0_stalln_reg <= ~(for_loop_warp_cpp_218_2_state_stall_0);
+end
+always @(*) begin
+	mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_a = (for_loop_warp_cpp_218_2_valid_bit_0 & (mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a | mem_even_for_loop_warp_cpp_218_2_state_0_stalln_reg));
+end
+assign warpPerspective_hw_for_body_bit_concat119_bit_select_operand_0 = 48'd0;
+assign warpPerspective_hw_for_body_bit_concat118_bit_select_operand_0 = 60'd0;
+assign warpPerspective_hw_for_body_bit_concat118_bit_select_operand_4 = 3'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_35_width_extended = {16'd0,warpPerspective_hw_for_body_35};
+end
+assign warpPerspective_hw_for_body_bit_concat115_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat115_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat114_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat114_bit_select_operand_4 = -3'd1;
+always @(*) begin
+	warpPerspective_hw_for_body_neg457_width_extended = {{27{warpPerspective_hw_for_body_neg457[4]}},warpPerspective_hw_for_body_neg457};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select112_width_extended = {{27{warpPerspective_hw_for_body_bit_select112[3]}},warpPerspective_hw_for_body_bit_select112};
+end
+assign warpPerspective_hw_for_body_bit_concat113_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat111_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i_i215_width_extended = {{26{warpPerspective_hw_for_body_add_i_i215[5]}},warpPerspective_hw_for_body_add_i_i215};
+end
+assign warpPerspective_hw_for_body_bit_concat109_bit_select_operand_0 = 24'd0;
+always @(posedge clk) begin
+	mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b <= ((for_loop_warp_cpp_218_2_state_stall_0 & mem_even_read_en_b) & mem_even_waitrequest_b);
+end
+always @(*) begin
+	mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_b = (for_loop_warp_cpp_218_2_valid_bit_0 & (mem_even_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b | mem_even_for_loop_warp_cpp_218_2_state_0_stalln_reg));
+end
+assign warpPerspective_hw_for_body_bit_concat107_bit_select_operand_0 = 48'd0;
+assign warpPerspective_hw_for_body_bit_concat106_bit_select_operand_0 = 60'd0;
+assign warpPerspective_hw_for_body_bit_concat106_bit_select_operand_4 = 3'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_39_width_extended = {16'd0,warpPerspective_hw_for_body_39};
+end
+assign warpPerspective_hw_for_body_bit_concat103_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat103_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat102_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat102_bit_select_operand_4 = -3'd1;
+always @(*) begin
+	warpPerspective_hw_for_body_neg458_width_extended = {{27{warpPerspective_hw_for_body_neg458[4]}},warpPerspective_hw_for_body_neg458};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select100_width_extended = {{27{warpPerspective_hw_for_body_bit_select100[3]}},warpPerspective_hw_for_body_bit_select100};
+end
+assign warpPerspective_hw_for_body_bit_concat101_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat99_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i_i198_width_extended = {{26{warpPerspective_hw_for_body_add_i_i198[5]}},warpPerspective_hw_for_body_add_i_i198};
+end
+assign warpPerspective_hw_for_body_bit_concat97_bit_select_operand_0 = 24'd0;
+always @(posedge clk) begin
+	mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_218_2_state_stall_0 & mem_odd_read_en_a) & mem_odd_waitrequest_a);
+end
+always @(posedge clk) begin
+	mem_odd_for_loop_warp_cpp_218_2_state_0_stalln_reg <= ~(for_loop_warp_cpp_218_2_state_stall_0);
+end
+always @(*) begin
+	mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_a = (for_loop_warp_cpp_218_2_valid_bit_0 & (mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a | mem_odd_for_loop_warp_cpp_218_2_state_0_stalln_reg));
+end
+assign warpPerspective_hw_for_body_bit_concat95_bit_select_operand_0 = 48'd0;
+assign warpPerspective_hw_for_body_bit_concat94_bit_select_operand_0 = 60'd0;
+assign warpPerspective_hw_for_body_bit_concat94_bit_select_operand_4 = 3'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_43_width_extended = {16'd0,warpPerspective_hw_for_body_43};
+end
+assign warpPerspective_hw_for_body_bit_concat91_bit_select_operand_4 = 16'd0;
+assign warpPerspective_hw_for_body_bit_concat88_bit_select_operand_0 = 16'd0;
+assign warpPerspective_hw_for_body_bit_concat88_bit_select_operand_4 = 8'd0;
+assign warpPerspective_hw_for_body_bit_concat86_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat86_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat85_bit_select_operand_0 = 28'd0;
+assign warpPerspective_hw_for_body_bit_concat85_bit_select_operand_4 = -3'd1;
+always @(*) begin
+	warpPerspective_hw_for_body_neg459_width_extended = {{27{warpPerspective_hw_for_body_neg459[4]}},warpPerspective_hw_for_body_neg459};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select83_width_extended = {{27{warpPerspective_hw_for_body_bit_select83[3]}},warpPerspective_hw_for_body_bit_select83};
+end
+assign warpPerspective_hw_for_body_bit_concat84_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat82_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i_i_width_extended = {{26{warpPerspective_hw_for_body_add_i_i[5]}},warpPerspective_hw_for_body_add_i_i};
+end
+assign warpPerspective_hw_for_body_bit_concat80_bit_select_operand_0 = 24'd0;
+always @(posedge clk) begin
+	mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b <= ((for_loop_warp_cpp_218_2_state_stall_0 & mem_odd_read_en_b) & mem_odd_waitrequest_b);
+end
+always @(*) begin
+	mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_b = (for_loop_warp_cpp_218_2_valid_bit_0 & (mem_odd_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_b | mem_odd_for_loop_warp_cpp_218_2_state_0_stalln_reg));
+end
+assign warpPerspective_hw_for_body_bit_concat78_bit_select_operand_0 = 48'd0;
+assign warpPerspective_hw_for_body_bit_concat77_bit_select_operand_0 = 60'd0;
+assign warpPerspective_hw_for_body_bit_concat77_bit_select_operand_4 = 3'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_47_width_extended = {16'd0,warpPerspective_hw_for_body_47};
+end
+assign warpPerspective_hw_for_body_bit_concat74_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat74_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat73_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat73_bit_select_operand_4 = -3'd1;
+always @(*) begin
+	warpPerspective_hw_for_body_neg460_width_extended = {{26{warpPerspective_hw_for_body_neg460[5]}},warpPerspective_hw_for_body_neg460};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select71_width_extended = {{26{warpPerspective_hw_for_body_bit_select71[4]}},warpPerspective_hw_for_body_bit_select71};
+end
+assign warpPerspective_hw_for_body_bit_concat72_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat70_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i442_i_width_extended = {{26{warpPerspective_hw_for_body_add_i442_i[5]}},warpPerspective_hw_for_body_add_i442_i};
+end
+assign warpPerspective_hw_for_body_bit_concat68_bit_select_operand_0 = 32'd0;
+assign warpPerspective_hw_for_body_bit_concat67_bit_select_operand_0 = 59'd0;
+assign warpPerspective_hw_for_body_bit_concat67_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat64_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat64_bit_select_operand_4 = 4'd0;
+assign warpPerspective_hw_for_body_bit_concat63_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat63_bit_select_operand_4 = 4'd7;
+always @(*) begin
+	warpPerspective_hw_for_body_neg461_width_extended = {{26{warpPerspective_hw_for_body_neg461[5]}},warpPerspective_hw_for_body_neg461};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select61_width_extended = {{26{warpPerspective_hw_for_body_bit_select61[4]}},warpPerspective_hw_for_body_bit_select61};
+end
+assign warpPerspective_hw_for_body_bit_concat62_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat60_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i474_i_width_extended = {{25{warpPerspective_hw_for_body_add_i474_i[6]}},warpPerspective_hw_for_body_add_i474_i};
+end
+assign warpPerspective_hw_for_body_bit_concat58_bit_select_operand_0 = 59'd0;
+assign warpPerspective_hw_for_body_bit_concat58_bit_select_operand_4 = 4'd0;
+assign warpPerspective_hw_for_body_bit_concat55_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat55_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat54_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat54_bit_select_operand_4 = -3'd1;
+always @(*) begin
+	warpPerspective_hw_for_body_neg462_width_extended = {{26{warpPerspective_hw_for_body_neg462[5]}},warpPerspective_hw_for_body_neg462};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select52_width_extended = {{26{warpPerspective_hw_for_body_bit_select52[4]}},warpPerspective_hw_for_body_bit_select52};
+end
+assign warpPerspective_hw_for_body_bit_concat53_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat51_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i216_i_width_extended = {{26{warpPerspective_hw_for_body_add_i216_i[5]}},warpPerspective_hw_for_body_add_i216_i};
+end
+assign warpPerspective_hw_for_body_bit_concat49_bit_select_operand_0 = 59'd0;
+assign warpPerspective_hw_for_body_bit_concat49_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat46_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat46_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat45_bit_select_operand_0 = 27'd0;
+assign warpPerspective_hw_for_body_bit_concat45_bit_select_operand_4 = -3'd1;
+always @(*) begin
+	warpPerspective_hw_for_body_neg463_width_extended = {{26{warpPerspective_hw_for_body_neg463[5]}},warpPerspective_hw_for_body_neg463};
+end
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select43_width_extended = {{26{warpPerspective_hw_for_body_bit_select43[4]}},warpPerspective_hw_for_body_bit_select43};
+end
+assign warpPerspective_hw_for_body_bit_concat44_bit_select_operand_2 = 1'd1;
+assign warpPerspective_hw_for_body_bit_concat42_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_add_i141_i_width_extended = {{25{warpPerspective_hw_for_body_add_i141_i[6]}},warpPerspective_hw_for_body_add_i141_i};
+end
+assign warpPerspective_hw_for_body_bit_concat40_bit_select_operand_0 = 59'd0;
+assign warpPerspective_hw_for_body_bit_concat40_bit_select_operand_4 = 3'd0;
+assign warpPerspective_hw_for_body_bit_concat37_bit_select_operand_0 = 2'd0;
+assign warpPerspective_hw_for_body_bit_concat37_bit_select_operand_4 = 5'd0;
+assign warpPerspective_hw_for_body_bit_concat33_bit_select_operand_0 = 2'd0;
+assign warpPerspective_hw_for_body_bit_concat33_bit_select_operand_4 = 5'd0;
+assign warpPerspective_hw_for_body_bit_concat29_bit_select_operand_0 = 38'd0;
+always @(*) begin
+	legup_mult_signed_18_9_1_0_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_0_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_0_clken = legup_mult_warpPerspective_hw_for_body_70_en;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_0_dataa = warpPerspective_hw_for_body_69_reg_stage2;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_0_datab = {1'd0,warpPerspective_hw_for_body_bit_concat29};
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_70_out_actual = legup_mult_signed_18_9_1_0_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_70_out = legup_mult_warpPerspective_hw_for_body_70_out_actual[25:0];
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_70_en = legup_mult_warpPerspective_hw_for_body_70_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_70_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_3));
+end
+always @(*) begin
+	legup_mult_signed_18_26_2_1_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_18_26_2_1_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_18_26_2_1_clken = legup_mult_warpPerspective_hw_for_body_75_en;
+end
+always @(*) begin
+	legup_mult_signed_18_26_2_1_dataa = warpPerspective_hw_for_body_74_reg_stage3;
+end
+always @(*) begin
+	legup_mult_signed_18_26_2_1_datab = warpPerspective_hw_for_body_73;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_75_out_actual = legup_mult_signed_18_26_2_1_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_75_out = $signed(legup_mult_warpPerspective_hw_for_body_75_out_actual);
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_75_en = legup_mult_warpPerspective_hw_for_body_75_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_75_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_5));
+end
+assign warpPerspective_hw_for_body_bit_concat28_bit_select_operand_0 = 17'd0;
+always @(*) begin
+	legup_mult_signed_17_9_1_2_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_2_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_2_clken = legup_mult_warpPerspective_hw_for_body_77_en;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_2_dataa = warpPerspective_hw_for_body_76_reg_stage2;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_2_datab = {1'd0,warpPerspective_hw_for_body_bit_concat28};
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_77_out_actual = legup_mult_signed_17_9_1_2_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_77_out = legup_mult_warpPerspective_hw_for_body_77_out_actual[24:0];
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_77_en = legup_mult_warpPerspective_hw_for_body_77_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_77_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_3));
+end
+always @(*) begin
+	legup_mult_signed_18_25_2_3_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_18_25_2_3_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_18_25_2_3_clken = legup_mult_warpPerspective_hw_for_body_80_en;
+end
+always @(*) begin
+	legup_mult_signed_18_25_2_3_dataa = warpPerspective_hw_for_body_79_reg_stage3;
+end
+always @(*) begin
+	legup_mult_signed_18_25_2_3_datab = warpPerspective_hw_for_body_78;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_80_out_actual = legup_mult_signed_18_25_2_3_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_80_out = $signed(legup_mult_warpPerspective_hw_for_body_80_out_actual);
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_80_en = legup_mult_warpPerspective_hw_for_body_80_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_80_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_5));
+end
+assign warpPerspective_hw_for_body_bit_concat27_bit_select_operand_0 = 38'd0;
+always @(*) begin
+	legup_mult_signed_18_9_1_4_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_4_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_4_clken = legup_mult_warpPerspective_hw_for_body_84_en;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_4_dataa = warpPerspective_hw_for_body_69_reg_stage2;
+end
+always @(*) begin
+	legup_mult_signed_18_9_1_4_datab = {1'd0,warpPerspective_hw_for_body_bit_concat27};
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_84_out_actual = legup_mult_signed_18_9_1_4_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_84_out = legup_mult_warpPerspective_hw_for_body_84_out_actual[25:0];
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_84_en = legup_mult_warpPerspective_hw_for_body_84_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_84_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_3));
+end
+always @(*) begin
+	legup_mult_signed_17_26_2_5_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_17_26_2_5_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_17_26_2_5_clken = legup_mult_warpPerspective_hw_for_body_87_en;
+end
+always @(*) begin
+	legup_mult_signed_17_26_2_5_dataa = warpPerspective_hw_for_body_86_reg_stage3;
+end
+always @(*) begin
+	legup_mult_signed_17_26_2_5_datab = warpPerspective_hw_for_body_85;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_87_out_actual = legup_mult_signed_17_26_2_5_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_87_out = $signed(legup_mult_warpPerspective_hw_for_body_87_out_actual);
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_87_en = legup_mult_warpPerspective_hw_for_body_87_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_87_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_5));
+end
+assign warpPerspective_hw_for_body_bit_concat26_bit_select_operand_0 = 17'd0;
+always @(*) begin
+	legup_mult_signed_17_9_1_6_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_6_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_6_clken = legup_mult_warpPerspective_hw_for_body_91_en;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_6_dataa = warpPerspective_hw_for_body_76_reg_stage2;
+end
+always @(*) begin
+	legup_mult_signed_17_9_1_6_datab = {1'd0,warpPerspective_hw_for_body_bit_concat26};
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_91_out_actual = legup_mult_signed_17_9_1_6_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_91_out = legup_mult_warpPerspective_hw_for_body_91_out_actual[24:0];
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_91_en = legup_mult_warpPerspective_hw_for_body_91_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_91_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_3));
+end
+always @(*) begin
+	legup_mult_signed_17_25_2_7_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_17_25_2_7_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_17_25_2_7_clken = legup_mult_warpPerspective_hw_for_body_94_en;
+end
+always @(*) begin
+	legup_mult_signed_17_25_2_7_dataa = warpPerspective_hw_for_body_93_reg_stage3;
+end
+always @(*) begin
+	legup_mult_signed_17_25_2_7_datab = warpPerspective_hw_for_body_92;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_94_out_actual = legup_mult_signed_17_25_2_7_result;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_94_out = $signed(legup_mult_warpPerspective_hw_for_body_94_out_actual);
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_94_en = legup_mult_warpPerspective_hw_for_body_94_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_warpPerspective_hw_for_body_94_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_warp_cpp_218_2_8) & ~(for_loop_warp_cpp_218_2_state_stall_5));
+end
+always @(*) begin
+	warpPerspective_hw_for_body_99_width_extended = {{40{warpPerspective_hw_for_body_99[47]}},warpPerspective_hw_for_body_99};
+end
+assign warpPerspective_hw_for_body_bit_concat23_bit_select_operand_0 = 32'd0;
+assign warpPerspective_hw_for_body_bit_concat23_bit_select_operand_4 = 24'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_101_width_extended = {8'd0,warpPerspective_hw_for_body_101};
+end
+assign warpPerspective_hw_for_body_bit_concat21_bit_select_operand_0 = 30'd0;
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_218_2_state_stall_6 & fifo_valid) & ~(fifo_ready));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_stalln_reg <= ~(for_loop_warp_cpp_218_2_state_stall_6);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_enable_cond_a = (for_loop_warp_cpp_218_2_valid_bit_6 & (axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_stalln_reg));
+end
+assign warpPerspective_hw_for_body_bit_concat18_bit_select_operand_0 = 7'd0;
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_218_2_state_stall_0 & burst_size_valid) & ~(burst_size_ready));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_stalln_reg <= ~(for_loop_warp_cpp_218_2_state_stall_0);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_enable_cond_a = (for_loop_warp_cpp_218_2_valid_bit_0 & (axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_stalln_reg));
+end
+assign warpPerspective_hw_for_body_bit_concat17_bit_select_operand_0 = 21'd0;
+assign warpPerspective_hw_for_body_bit_concat1_bit_select_operand_0 = 11'd0;
+assign warpPerspective_hw_for_body_bit_concat_bit_select_operand_0 = 32'd0;
+always @(*) begin
+	warpPerspective_hw_for_body_bit_select_width_extended = {8'd0,warpPerspective_hw_for_body_bit_select};
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_not_accessed_due_to_stall_a <= ((fsm_stall & burst_size_valid) & ~(burst_size_ready));
+end
+always @(posedge clk) begin
+	axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_enable_cond_a = ((cur_state == LEGUP_F_warpPerspective_hw_BB_if_then106_10) & (axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_not_accessed_due_to_stall_a | axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_stalln_reg));
+end
+always @(*) begin
+	mem_even_inst_port_a_receiver_clk = clk;
+end
+always @(*) begin
+	mem_even_inst_port_a_receiver_reset = reset;
+end
+always @(*) begin
+	mem_even_inst_port_a_receiver_op_start = (grant_0_0 & mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_a);
+end
+always @(*) begin
+	mem_even_inst_port_a_receiver_user_enable = for_loop_warp_cpp_218_2_state_enable_1;
+end
+always @(*) begin
+	mem_even_inst_port_a_receiver_data_in = mem_even_read_data_a;
+end
+always @(*) begin
+	mem_even_inst_port_b_receiver_clk = clk;
+end
+always @(*) begin
+	mem_even_inst_port_b_receiver_reset = reset;
+end
+always @(*) begin
+	mem_even_inst_port_b_receiver_op_start = (grant_1_1 & mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_b);
+end
+always @(*) begin
+	mem_even_inst_port_b_receiver_user_enable = for_loop_warp_cpp_218_2_state_enable_1;
+end
+always @(*) begin
+	mem_even_inst_port_b_receiver_data_in = mem_even_read_data_b;
+end
+always @(*) begin
+	mem_odd_inst_port_a_receiver_clk = clk;
+end
+always @(*) begin
+	mem_odd_inst_port_a_receiver_reset = reset;
+end
+always @(*) begin
+	mem_odd_inst_port_a_receiver_op_start = (grant_0_2 & mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_a);
+end
+always @(*) begin
+	mem_odd_inst_port_a_receiver_user_enable = for_loop_warp_cpp_218_2_state_enable_1;
+end
+always @(*) begin
+	mem_odd_inst_port_a_receiver_data_in = mem_odd_read_data_a;
+end
+always @(*) begin
+	mem_odd_inst_port_b_receiver_clk = clk;
+end
+always @(*) begin
+	mem_odd_inst_port_b_receiver_reset = reset;
+end
+always @(*) begin
+	mem_odd_inst_port_b_receiver_op_start = (grant_1_3 & mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_b);
+end
+always @(*) begin
+	mem_odd_inst_port_b_receiver_user_enable = for_loop_warp_cpp_218_2_state_enable_1;
+end
+always @(*) begin
+	mem_odd_inst_port_b_receiver_data_in = mem_odd_read_data_b;
+end
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_if_end109_11)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+assign axi_master_warpPerspective_orig_entry_warp_matrix__clken = 1'd1;
+assign axi_master_warpPerspective_orig_entry_warp_matrix__write_en_a = 1'd0;
+assign axi_master_warpPerspective_orig_entry_warp_matrix__write_data_a = 17'd0;
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 1'd0;
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_enable_cond_a) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_enable_cond_a) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_enable_cond_a) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_enable_cond_a) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6_enable_cond_a) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__address_a = 4'd0;
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_a = (warpPerspective_hw_body_preheader_mem_flat_gep5 >> 2'd2);
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_a = (warpPerspective_hw_body_preheader_mem_flat_gep35_reg >> 2'd2);
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_a = (warpPerspective_hw_body_preheader_mem_flat_gep45_reg >> 2'd2);
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_a = (warpPerspective_hw_body_preheader_mem_flat_gep65_reg >> 2'd2);
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_6)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_a = (warpPerspective_hw_body_preheader_mem_flat_cast49_reg >> 2'd2);
+	end
+end
+assign axi_master_warpPerspective_orig_entry_warp_matrix__write_en_b = 1'd0;
+assign axi_master_warpPerspective_orig_entry_warp_matrix__write_data_b = 17'd0;
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b = 1'd0;
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2_enable_cond_b) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3_enable_cond_b) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4_enable_cond_b) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_warp_matrix__LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5_enable_cond_b) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__read_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_warp_matrix__address_b = 4'd0;
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_2)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_b = (warpPerspective_hw_body_preheader_mem_flat_gep15 >> 2'd2);
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_3)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_b = (warpPerspective_hw_body_preheader_mem_flat_gep25_reg >> 2'd2);
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_4)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_b = (warpPerspective_hw_body_preheader_mem_flat_gep55_reg >> 2'd2);
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_for_body_preheader_5)) begin
+		axi_master_warpPerspective_orig_entry_warp_matrix__address_b = (warpPerspective_hw_body_preheader_mem_flat_gep75_reg >> 2'd2);
+	end
+end
+assign mem_even_clken = 1'd1;
+assign mem_even_write_en_a = 1'd0;
+assign mem_even_write_data_a = 16'd0;
+always @(*) begin
+	mem_even_read_en_a = 1'd0;
+	if ((mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_a & 1'd1)) begin
+		mem_even_read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	mem_even_address_a = 14'd0;
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & 1'd1)) begin
+		mem_even_address_a = (warpPerspective_hw_for_body_mem_flat_gep105 >> 1'd1);
+	end
+end
+assign mem_even_write_en_b = 1'd0;
+assign mem_even_write_data_b = 16'd0;
+always @(*) begin
+	mem_even_read_en_b = 1'd0;
+	if ((mem_even_for_loop_warp_cpp_218_2_state_0_enable_cond_b & 1'd1)) begin
+		mem_even_read_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	mem_even_address_b = 14'd0;
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & 1'd1)) begin
+		mem_even_address_b = (warpPerspective_hw_for_body_mem_flat_gep115 >> 1'd1);
+	end
+end
+assign mem_odd_clken = 1'd1;
+assign mem_odd_write_en_a = 1'd0;
+assign mem_odd_write_data_a = 16'd0;
+always @(*) begin
+	mem_odd_read_en_a = 1'd0;
+	if ((mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_a & 1'd1)) begin
+		mem_odd_read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	mem_odd_address_a = 14'd0;
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & 1'd1)) begin
+		mem_odd_address_a = (warpPerspective_hw_for_body_mem_flat_gep125 >> 1'd1);
+	end
+end
+assign mem_odd_write_en_b = 1'd0;
+assign mem_odd_write_data_b = 16'd0;
+always @(*) begin
+	mem_odd_read_en_b = 1'd0;
+	if ((mem_odd_for_loop_warp_cpp_218_2_state_0_enable_cond_b & 1'd1)) begin
+		mem_odd_read_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	mem_odd_address_b = 14'd0;
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & 1'd1)) begin
+		mem_odd_address_b = (warpPerspective_hw_for_body_mem_flat_gep135 >> 1'd1);
+	end
+end
+always @(*) begin
+		fifo = warpPerspective_hw_for_body_bit_select19;
+end
+always @(*) begin
+	fifo_valid = 1'd0;
+	if ((axi_master_warpPerspective_orig_entry_output_fifo_for_loop_warp_cpp_218_2_state_6_enable_cond_a & warpPerspective_hw_for_body_cmp_reg_stage6)) begin
+		fifo_valid = 1'd1;
+	end
+end
+always @(*) begin
+	burst_size = 8'd0;
+	if ((for_loop_warp_cpp_218_2_valid_bit_0 & warpPerspective_hw_for_body_102)) begin
+		burst_size = -8'd128;
+	end
+	if ((cur_state == LEGUP_F_warpPerspective_hw_BB_if_then106_10)) begin
+		burst_size = warpPerspective_hw_for_body_select93_reg;
+	end
+end
+always @(*) begin
+	burst_size_valid = 1'd0;
+	if ((axi_master_warpPerspective_orig_entry_burst_size_for_loop_warp_cpp_218_2_state_0_enable_cond_a & warpPerspective_hw_for_body_102)) begin
+		burst_size_valid = 1'd1;
+	end
+	if (axi_master_warpPerspective_orig_entry_burst_size_LEGUP_F_warpPerspective_hw_BB_if_then106_10_enable_cond_a) begin
+		burst_size_valid = 1'd1;
+	end
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_axi_channel_write
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	addr_val,
+	width_val,
+	height_val,
+	burst_size,
+	burst_size_ready,
+	burst_size_valid,
+	master_aw_addr,
+	master_aw_ready,
+	master_aw_valid,
+	master_aw_burst,
+	master_aw_size,
+	master_aw_len,
+	fifo,
+	fifo_ready,
+	fifo_valid,
+	master_w_data,
+	master_w_ready,
+	master_w_valid,
+	master_w_strb,
+	master_w_last,
+	master_b_resp,
+	master_b_resp_ready,
+	master_b_resp_valid
+);
+
+parameter [4:0] LEGUP_0 = 5'd0;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_ZN3hlsrsILj24EiEENS_7ap_uintIXT_EEERKS2_RKT0_exit_1 = 5'd1;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_ZN3hlsrsILj24EiEENS_7ap_uintIXT_EEERKS2_RKT0_exit_2 = 5'd2;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_body_preheader_3 = 5'd3;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_cond_cleanup_4 = 5'd4;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_body62_preheader_5 = 5'd5;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_body_6 = 5'd6;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_body_7 = 5'd7;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_body46_preheader_8 = 5'd8;
+parameter [4:0] LEGUP_pipeline_wait_for_loop_warp_cpp_307_9_9 = 5'd9;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_end_loopexit_10 = 5'd10;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_end_11 = 5'd11;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_if_then_12 = 5'd12;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_if_else_13 = 5'd13;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_inc54_14 = 5'd14;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_loopexit_15 = 5'd15;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_16 = 5'd16;
+parameter [4:0] LEGUP_F_axi_channel_write_BB_for_body62_17 = 5'd17;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] addr_val;
+input [11:0] width_val;
+input [11:0] height_val;
+input [7:0] burst_size;
+output reg  burst_size_ready;
+input  burst_size_valid;
+output reg [31:0] master_aw_addr;
+input  master_aw_ready;
+output reg  master_aw_valid;
+output reg [1:0] master_aw_burst;
+output reg [2:0] master_aw_size;
+output reg [7:0] master_aw_len;
+input [31:0] fifo;
+output reg  fifo_ready;
+input  fifo_valid;
+output reg [31:0] master_w_data;
+input  master_w_ready;
+output reg  master_w_valid;
+output [3:0] master_w_strb;
+output reg  master_w_last;
+input [1:0] master_b_resp;
+output reg  master_b_resp_ready;
+input  master_b_resp_valid;
+reg [4:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [4:0] next_state;
+reg [31:0] addr_val_reg;
+reg [11:0] width_val_reg;
+reg [11:0] height_val_reg;
+reg  fsm_stall;
+reg [11:0] axi_channel_write_RKS2_RKT0_exit_bit_concat4;
+reg [11:0] axi_channel_write_RKS2_RKT0_exit_bit_concat3;
+reg [23:0] axi_channel_write_RKS2_RKT0_exit_0;
+reg [21:0] axi_channel_write_RKS2_RKT0_exit_bit_select2;
+reg [21:0] axi_channel_write_RKS2_RKT0_exit_bit_select2_reg;
+reg  axi_channel_write_RKS2_RKT0_exit_1;
+reg  axi_channel_write_or_cond_cleanup_2;
+reg [31:0] axi_channel_write_for_body_indvar2;
+reg [31:0] axi_channel_write_for_body_indvar2_reg;
+reg [21:0] axi_channel_write_for_body_burst_cnt_0;
+reg [21:0] axi_channel_write_for_body_burst_cnt_0_reg;
+reg [15:0] axi_channel_write_for_body_outstanding_1;
+reg [15:0] axi_channel_write_for_body_outstanding_1_reg;
+reg [22:0] axi_channel_write_for_body_bit_select;
+reg [31:0] axi_channel_write_for_body_bit_concat1;
+reg [31:0] axi_channel_write_for_body_r_addr_0;
+reg [31:0] axi_channel_write_for_body_r_addr_0_reg;
+reg [7:0] axi_channel_write_for_body_3;
+reg [7:0] axi_channel_write_for_body_3_reg;
+reg [7:0] axi_channel_write_for_body_4;
+reg [7:0] axi_channel_write_for_body_4_reg;
+reg  axi_channel_write_for_body_5;
+reg  axi_channel_write_for_body_5_reg;
+reg [7:0] axi_channel_write_for_body46_data_cnt_0;
+reg [7:0] axi_channel_write_for_body46_6;
+reg  axi_channel_write_for_body46_7;
+reg [31:0] axi_channel_write_for_body46_8;
+reg  axi_channel_write_for_body46_9;
+wire  axi_channel_write_for_end_10;
+reg [15:0] axi_channel_write_if_else_12;
+reg [15:0] axi_channel_write_for_inc54_outstanding_2;
+reg [15:0] axi_channel_write_for_inc54_outstanding_2_reg;
+reg [7:0] axi_channel_write_for_inc54_bit_concat;
+reg [21:0] axi_channel_write_for_inc54_13;
+reg  axi_channel_write_for_inc54_14;
+reg [31:0] axi_channel_write_for_inc54_indvar_next3;
+reg [15:0] axi_channel_write_for_body62_resp_0;
+reg [15:0] axi_channel_write_for_body62_resp_0_reg;
+reg [15:0] axi_channel_write_for_body62_16;
+reg  axi_channel_write_for_body62_exitcond;
+reg  for_loop_warp_cpp_307_9_valid_bit_0;
+reg  for_loop_warp_cpp_307_9_state_stall_0;
+reg  for_loop_warp_cpp_307_9_state_enable_0;
+reg  for_loop_warp_cpp_307_9_valid_bit_1;
+reg  for_loop_warp_cpp_307_9_state_stall_1;
+reg  for_loop_warp_cpp_307_9_state_enable_1;
+reg  for_loop_warp_cpp_307_9_II_counter;
+reg  for_loop_warp_cpp_307_9_start;
+reg  for_loop_warp_cpp_307_9_activate_pipeline;
+reg  axi_channel_write_for_body46_7_reg_stage1;
+reg [31:0] axi_channel_write_for_body46_8_reg_stage1;
+reg [7:0] for_loop_warp_cpp_307_9_inductionVar_stage0;
+reg  for_loop_warp_cpp_307_9_pipeline_exit_cond;
+reg  for_loop_warp_cpp_307_9_active;
+reg  for_loop_warp_cpp_307_9_begin_pipeline;
+reg  for_loop_warp_cpp_307_9_epilogue;
+reg  for_loop_warp_cpp_307_9_pipeline_finish;
+reg  for_loop_warp_cpp_307_9_pipeline_finishing;
+reg  for_loop_warp_cpp_307_9_only_last_stage_enabled;
+reg [1:0] for_loop_warp_cpp_307_9_num_active_iterations;
+reg  for_loop_warp_cpp_307_9_inserting_new_iteration;
+reg  for_loop_warp_cpp_307_9_pipeline_finish_reg;
+wire [11:0] axi_channel_write_RKS2_RKT0_exit_bit_concat4_bit_select_operand_0;
+wire [11:0] axi_channel_write_RKS2_RKT0_exit_bit_concat3_bit_select_operand_0;
+reg  legup_mult_unsigned_12_12_1_0_clock;
+reg  legup_mult_unsigned_12_12_1_0_aclr;
+reg  legup_mult_unsigned_12_12_1_0_clken;
+reg [11:0] legup_mult_unsigned_12_12_1_0_dataa;
+reg [11:0] legup_mult_unsigned_12_12_1_0_datab;
+wire [23:0] legup_mult_unsigned_12_12_1_0_result;
+reg [23:0] legup_mult_axi_channel_write_RKS2_RKT0_exit_0_out_actual;
+reg [23:0] legup_mult_axi_channel_write_RKS2_RKT0_exit_0_out;
+reg  legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en;
+wire  legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en_not_in_pipeline;
+reg  legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en_sequential_cond;
+wire [8:0] axi_channel_write_for_body_bit_concat1_bit_select_operand_2;
+reg  axi_master_warpPerspective_orig_entry_burst_size_consumed_valid;
+reg [7:0] axi_master_warpPerspective_orig_entry_burst_size_consumed_data;
+reg  axi_master_warpPerspective_orig_entry_burst_size_consumed_taken;
+reg  master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a;
+reg  master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg;
+reg  master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a;
+reg  master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a;
+reg  master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg;
+reg  master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a;
+reg  master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a;
+reg  master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg;
+reg  master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a;
+reg  master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a;
+reg  master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg;
+reg  master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_consumed_valid;
+reg [31:0] axi_master_warpPerspective_orig_entry_output_fifo_consumed_data;
+reg  axi_master_warpPerspective_orig_entry_output_fifo_consumed_taken;
+reg  master_w_data_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a;
+reg  master_w_data_for_loop_warp_cpp_307_9_state_1_stalln_reg;
+reg  master_w_data_for_loop_warp_cpp_307_9_state_1_enable_cond_a;
+reg  master_w_strb_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a;
+reg  master_w_strb_for_loop_warp_cpp_307_9_state_1_stalln_reg;
+reg  master_w_strb_for_loop_warp_cpp_307_9_state_1_enable_cond_a;
+reg  master_w_last_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a;
+reg  master_w_last_for_loop_warp_cpp_307_9_state_1_stalln_reg;
+reg  master_w_last_for_loop_warp_cpp_307_9_state_1_enable_cond_a;
+reg  master_b_resp_consumed_valid;
+reg  master_b_resp_consumed_taken;
+wire [13:0] axi_channel_write_for_inc54_bit_concat_bit_select_operand_0;
+
+/*   %0 = mul i24 %bit_concat4, %bit_concat3, !dbg !29194, !MSB !29197, !LSB !29193, !ExtendFrom !29197*/
+axi_master_warpPerspective_legup_mult legup_mult_unsigned_12_12_1_0 (
+	.clock (legup_mult_unsigned_12_12_1_0_clock),
+	.aclr (legup_mult_unsigned_12_12_1_0_aclr),
+	.clken (legup_mult_unsigned_12_12_1_0_clken),
+	.dataa (legup_mult_unsigned_12_12_1_0_dataa),
+	.datab (legup_mult_unsigned_12_12_1_0_datab),
+	.result (legup_mult_unsigned_12_12_1_0_result)
+);
+
+defparam
+	legup_mult_unsigned_12_12_1_0.widtha = 12,
+	legup_mult_unsigned_12_12_1_0.widthb = 12,
+	legup_mult_unsigned_12_12_1_0.widthp = 24,
+	legup_mult_unsigned_12_12_1_0.pipeline = 1,
+	legup_mult_unsigned_12_12_1_0.representation = "UNSIGNED";
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_ZN3hlsrsILj24EiEENS_7ap_uintIXT_EEERKS2_RKT0_exit_1;
+LEGUP_F_axi_channel_write_BB_ZN3hlsrsILj24EiEENS_7ap_uintIXT_EEERKS2_RKT0_exit_1:
+		next_state = LEGUP_F_axi_channel_write_BB_ZN3hlsrsILj24EiEENS_7ap_uintIXT_EEERKS2_RKT0_exit_2;
+LEGUP_F_axi_channel_write_BB_ZN3hlsrsILj24EiEENS_7ap_uintIXT_EEERKS2_RKT0_exit_2:
+	if ((fsm_stall == 1'd0) && (axi_channel_write_RKS2_RKT0_exit_1 == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_16;
+	else if ((fsm_stall == 1'd0) && (axi_channel_write_RKS2_RKT0_exit_1 == 1'd0))
+		next_state = LEGUP_F_axi_channel_write_BB_for_body_preheader_3;
+LEGUP_F_axi_channel_write_BB_for_body46_preheader_8:
+		next_state = LEGUP_pipeline_wait_for_loop_warp_cpp_307_9_9;
+LEGUP_F_axi_channel_write_BB_for_body62_17:
+	if ((fsm_stall == 1'd0) && (axi_channel_write_for_body62_exitcond == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_loopexit_15;
+LEGUP_F_axi_channel_write_BB_for_body62_preheader_5:
+		next_state = LEGUP_F_axi_channel_write_BB_for_body62_17;
+LEGUP_F_axi_channel_write_BB_for_body_6:
+		next_state = LEGUP_F_axi_channel_write_BB_for_body_7;
+LEGUP_F_axi_channel_write_BB_for_body_7:
+	if ((fsm_stall == 1'd0) && (axi_channel_write_for_body_5_reg == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_for_end_11;
+	else if ((fsm_stall == 1'd0) && (axi_channel_write_for_body_5_reg == 1'd0))
+		next_state = LEGUP_F_axi_channel_write_BB_for_body46_preheader_8;
+LEGUP_F_axi_channel_write_BB_for_body_preheader_3:
+		next_state = LEGUP_F_axi_channel_write_BB_for_body_6;
+LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_16:
+		next_state = LEGUP_0;
+LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_loopexit_15:
+		next_state = LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_16;
+LEGUP_F_axi_channel_write_BB_for_cond_cleanup_4:
+	if ((fsm_stall == 1'd0) && (axi_channel_write_or_cond_cleanup_2 == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_16;
+	else if ((fsm_stall == 1'd0) && (axi_channel_write_or_cond_cleanup_2 == 1'd0))
+		next_state = LEGUP_F_axi_channel_write_BB_for_body62_preheader_5;
+LEGUP_F_axi_channel_write_BB_for_end_11:
+	if ((fsm_stall == 1'd0) && (axi_channel_write_for_end_10 == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_if_else_13;
+	else if ((fsm_stall == 1'd0) && (axi_channel_write_for_end_10 == 1'd0))
+		next_state = LEGUP_F_axi_channel_write_BB_if_then_12;
+LEGUP_F_axi_channel_write_BB_for_end_loopexit_10:
+		next_state = LEGUP_F_axi_channel_write_BB_for_end_11;
+LEGUP_F_axi_channel_write_BB_for_inc54_14:
+	if ((fsm_stall == 1'd0) && (axi_channel_write_for_inc54_14 == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_for_body_6;
+	else if ((fsm_stall == 1'd0) && (axi_channel_write_for_inc54_14 == 1'd0))
+		next_state = LEGUP_F_axi_channel_write_BB_for_cond_cleanup_4;
+LEGUP_F_axi_channel_write_BB_if_else_13:
+		next_state = LEGUP_F_axi_channel_write_BB_for_inc54_14;
+LEGUP_F_axi_channel_write_BB_if_then_12:
+		next_state = LEGUP_F_axi_channel_write_BB_for_inc54_14;
+LEGUP_pipeline_wait_for_loop_warp_cpp_307_9_9:
+	if ((fsm_stall == 1'd0) && (for_loop_warp_cpp_307_9_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_for_end_loopexit_10;
+	else if ((fsm_stall == 1'd0) && (for_loop_warp_cpp_307_9_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_channel_write_BB_for_end_loopexit_10;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		addr_val_reg <= addr_val;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		width_val_reg <= width_val;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		height_val_reg <= height_val;
+	end
+end
+always @(*) begin
+	fsm_stall = 1'd0;
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body_6) & ~(axi_master_warpPerspective_orig_entry_burst_size_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & ~(master_aw_ready)) & (master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & ~(master_aw_ready)) & (master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & ~(master_aw_ready)) & (master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & ~(master_aw_ready)) & (master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_if_then_12) & ~(master_b_resp_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body62_17) & ~(master_b_resp_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+		axi_channel_write_RKS2_RKT0_exit_bit_concat4 = {axi_channel_write_RKS2_RKT0_exit_bit_concat4_bit_select_operand_0[11:0], height_val_reg[11:0]};
+end
+always @(*) begin
+		axi_channel_write_RKS2_RKT0_exit_bit_concat3 = {axi_channel_write_RKS2_RKT0_exit_bit_concat3_bit_select_operand_0[11:0], width_val_reg[11:0]};
+end
+always @(*) begin
+	axi_channel_write_RKS2_RKT0_exit_0 = legup_mult_axi_channel_write_RKS2_RKT0_exit_0_out;
+end
+always @(*) begin
+		axi_channel_write_RKS2_RKT0_exit_bit_select2 = axi_channel_write_RKS2_RKT0_exit_0[23:2];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_ZN3hlsrsILj24EiEENS_7ap_uintIXT_EEERKS2_RKT0_exit_2)) begin
+		axi_channel_write_RKS2_RKT0_exit_bit_select2_reg <= axi_channel_write_RKS2_RKT0_exit_bit_select2;
+	end
+end
+always @(*) begin
+		axi_channel_write_RKS2_RKT0_exit_1 = (axi_channel_write_RKS2_RKT0_exit_bit_select2 == 22'd0);
+end
+always @(*) begin
+		axi_channel_write_or_cond_cleanup_2 = (axi_channel_write_for_inc54_outstanding_2_reg == 16'd0);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body_preheader_3) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body_indvar2 = 32'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_inc54_14) & (fsm_stall == 1'd0)) & (axi_channel_write_for_inc54_14 == 1'd1))) */ begin
+		axi_channel_write_for_body_indvar2 = axi_channel_write_for_inc54_indvar_next3;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body_preheader_3) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body_indvar2_reg <= axi_channel_write_for_body_indvar2;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_inc54_14) & (fsm_stall == 1'd0)) & (axi_channel_write_for_inc54_14 == 1'd1))) begin
+		axi_channel_write_for_body_indvar2_reg <= axi_channel_write_for_body_indvar2;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body_preheader_3) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body_burst_cnt_0 = 22'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_inc54_14) & (fsm_stall == 1'd0)) & (axi_channel_write_for_inc54_14 == 1'd1))) */ begin
+		axi_channel_write_for_body_burst_cnt_0 = axi_channel_write_for_inc54_13;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body_preheader_3) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body_burst_cnt_0_reg <= axi_channel_write_for_body_burst_cnt_0;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_inc54_14) & (fsm_stall == 1'd0)) & (axi_channel_write_for_inc54_14 == 1'd1))) begin
+		axi_channel_write_for_body_burst_cnt_0_reg <= axi_channel_write_for_body_burst_cnt_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body_preheader_3) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body_outstanding_1 = 16'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_inc54_14) & (fsm_stall == 1'd0)) & (axi_channel_write_for_inc54_14 == 1'd1))) */ begin
+		axi_channel_write_for_body_outstanding_1 = axi_channel_write_for_inc54_outstanding_2_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body_preheader_3) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body_outstanding_1_reg <= axi_channel_write_for_body_outstanding_1;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_inc54_14) & (fsm_stall == 1'd0)) & (axi_channel_write_for_inc54_14 == 1'd1))) begin
+		axi_channel_write_for_body_outstanding_1_reg <= axi_channel_write_for_body_outstanding_1;
+	end
+end
+always @(*) begin
+		axi_channel_write_for_body_bit_select = axi_channel_write_for_body_indvar2_reg[22:0];
+end
+always @(*) begin
+		axi_channel_write_for_body_bit_concat1 = {axi_channel_write_for_body_bit_select[22:0], axi_channel_write_for_body_bit_concat1_bit_select_operand_2[8:0]};
+end
+always @(*) begin
+		axi_channel_write_for_body_r_addr_0 = (axi_channel_write_for_body_bit_concat1 + addr_val_reg);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_6)) begin
+		axi_channel_write_for_body_r_addr_0_reg <= axi_channel_write_for_body_r_addr_0;
+	end
+end
+always @(*) begin
+	axi_channel_write_for_body_3 = axi_master_warpPerspective_orig_entry_burst_size_consumed_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_6)) begin
+		axi_channel_write_for_body_3_reg <= axi_channel_write_for_body_3;
+	end
+end
+always @(*) begin
+		axi_channel_write_for_body_4 = (axi_channel_write_for_body_3 + $signed(-8'd1));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_6)) begin
+		axi_channel_write_for_body_4_reg <= axi_channel_write_for_body_4;
+	end
+end
+always @(*) begin
+		axi_channel_write_for_body_5 = (axi_channel_write_for_body_3 == 8'd0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_6)) begin
+		axi_channel_write_for_body_5_reg <= axi_channel_write_for_body_5;
+	end
+end
+always @(*) begin
+		axi_channel_write_for_body46_data_cnt_0 = (for_loop_warp_cpp_307_9_inductionVar_stage0 + 8'd1);
+end
+always @(*) begin
+		axi_channel_write_for_body46_6 = (for_loop_warp_cpp_307_9_inductionVar_stage0 + 8'd2);
+end
+always @(*) begin
+		axi_channel_write_for_body46_7 = (axi_channel_write_for_body46_data_cnt_0 == axi_channel_write_for_body_3_reg);
+end
+always @(*) begin
+	axi_channel_write_for_body46_8 = axi_master_warpPerspective_orig_entry_output_fifo_consumed_data;
+end
+always @(*) begin
+		axi_channel_write_for_body46_9 = (axi_channel_write_for_body46_6 > axi_channel_write_for_body_3_reg);
+end
+assign axi_channel_write_for_end_10 = ~(master_b_resp_consumed_valid);
+always @(*) begin
+		axi_channel_write_if_else_12 = (axi_channel_write_for_body_outstanding_1_reg + 16'd1);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_if_then_12) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_inc54_outstanding_2 = axi_channel_write_for_body_outstanding_1_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_channel_write_BB_if_else_13) & (fsm_stall == 1'd0))) */ begin
+		axi_channel_write_for_inc54_outstanding_2 = axi_channel_write_if_else_12;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_if_then_12) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_inc54_outstanding_2_reg <= axi_channel_write_for_inc54_outstanding_2;
+	end
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_if_else_13) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_inc54_outstanding_2_reg <= axi_channel_write_for_inc54_outstanding_2;
+	end
+end
+always @(*) begin
+		axi_channel_write_for_inc54_bit_concat = {axi_channel_write_for_inc54_bit_concat_bit_select_operand_0[13:0], axi_channel_write_for_body_3_reg[7:0]};
+end
+always @(*) begin
+		axi_channel_write_for_inc54_13 = ({14'd0,axi_channel_write_for_inc54_bit_concat} + axi_channel_write_for_body_burst_cnt_0_reg);
+end
+always @(*) begin
+		axi_channel_write_for_inc54_14 = (axi_channel_write_RKS2_RKT0_exit_bit_select2_reg > axi_channel_write_for_inc54_13);
+end
+always @(*) begin
+		axi_channel_write_for_inc54_indvar_next3 = (axi_channel_write_for_body_indvar2_reg + 32'd1);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body62_preheader_5) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body62_resp_0 = 16'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_body62_17) & (fsm_stall == 1'd0)) & (axi_channel_write_for_body62_exitcond == 1'd0))) */ begin
+		axi_channel_write_for_body62_resp_0 = axi_channel_write_for_body62_16;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body62_preheader_5) & (fsm_stall == 1'd0))) begin
+		axi_channel_write_for_body62_resp_0_reg <= axi_channel_write_for_body62_resp_0;
+	end
+	if ((((cur_state == LEGUP_F_axi_channel_write_BB_for_body62_17) & (fsm_stall == 1'd0)) & (axi_channel_write_for_body62_exitcond == 1'd0))) begin
+		axi_channel_write_for_body62_resp_0_reg <= axi_channel_write_for_body62_resp_0;
+	end
+end
+always @(*) begin
+		axi_channel_write_for_body62_16 = (axi_channel_write_for_body62_resp_0_reg + 16'd1);
+end
+always @(*) begin
+		axi_channel_write_for_body62_exitcond = (axi_channel_write_for_body62_16 == axi_channel_write_for_inc54_outstanding_2_reg);
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_307_9_state_stall_0)) begin
+		for_loop_warp_cpp_307_9_valid_bit_0 <= (for_loop_warp_cpp_307_9_II_counter & for_loop_warp_cpp_307_9_start);
+	end
+	if (reset) begin
+		for_loop_warp_cpp_307_9_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_state_stall_0 = 1'd0;
+	if (for_loop_warp_cpp_307_9_state_stall_1) begin
+		for_loop_warp_cpp_307_9_state_stall_0 = 1'd1;
+	end
+	if ((for_loop_warp_cpp_307_9_valid_bit_0 & ~(axi_master_warpPerspective_orig_entry_output_fifo_consumed_valid))) begin
+		for_loop_warp_cpp_307_9_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_state_enable_0 = (for_loop_warp_cpp_307_9_valid_bit_0 & ~(for_loop_warp_cpp_307_9_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_warp_cpp_307_9_state_stall_1)) begin
+		for_loop_warp_cpp_307_9_valid_bit_1 <= for_loop_warp_cpp_307_9_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_warp_cpp_307_9_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_state_stall_1 = 1'd0;
+	if ((((for_loop_warp_cpp_307_9_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_data_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_warp_cpp_307_9_state_1_stalln_reg))) begin
+		for_loop_warp_cpp_307_9_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_307_9_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_strb_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_warp_cpp_307_9_state_1_stalln_reg))) begin
+		for_loop_warp_cpp_307_9_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_warp_cpp_307_9_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_last_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_warp_cpp_307_9_state_1_stalln_reg))) begin
+		for_loop_warp_cpp_307_9_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_state_enable_1 = (for_loop_warp_cpp_307_9_valid_bit_1 & ~(for_loop_warp_cpp_307_9_state_stall_1));
+end
+always @(posedge clk) begin
+	for_loop_warp_cpp_307_9_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_start = (for_loop_warp_cpp_307_9_activate_pipeline | ((for_loop_warp_cpp_307_9_active & ~(for_loop_warp_cpp_307_9_epilogue)) & ~(for_loop_warp_cpp_307_9_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_warp_cpp_307_9_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_warp_cpp_307_9_begin_pipeline) & ~(for_loop_warp_cpp_307_9_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_307_9_state_enable_0) begin
+		axi_channel_write_for_body46_7_reg_stage1 <= axi_channel_write_for_body46_7;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_warp_cpp_307_9_state_enable_0) begin
+		axi_channel_write_for_body46_8_reg_stage1 <= axi_channel_write_for_body46_8;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_307_9_inductionVar_stage0 <= 8'd0;
+	end
+	if (for_loop_warp_cpp_307_9_activate_pipeline) begin
+		for_loop_warp_cpp_307_9_inductionVar_stage0 <= 8'd0;
+	end
+	if ((for_loop_warp_cpp_307_9_II_counter & for_loop_warp_cpp_307_9_state_enable_0)) begin
+		for_loop_warp_cpp_307_9_inductionVar_stage0 <= (for_loop_warp_cpp_307_9_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_pipeline_exit_cond = (for_loop_warp_cpp_307_9_state_enable_0 & axi_channel_write_for_body46_9);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_307_9_active <= 1'd0;
+	end
+	if (for_loop_warp_cpp_307_9_activate_pipeline) begin
+		for_loop_warp_cpp_307_9_active <= 1'd1;
+	end
+	if (for_loop_warp_cpp_307_9_pipeline_finishing) begin
+		for_loop_warp_cpp_307_9_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_warp_cpp_307_9_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_axi_channel_write_BB_for_body46_preheader_8) & (fsm_stall == 1'd0))) begin
+		for_loop_warp_cpp_307_9_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_307_9_epilogue <= 1'd0;
+	end
+	if ((for_loop_warp_cpp_307_9_pipeline_exit_cond & for_loop_warp_cpp_307_9_active)) begin
+		for_loop_warp_cpp_307_9_epilogue <= 1'd1;
+	end
+	if (for_loop_warp_cpp_307_9_pipeline_finishing) begin
+		for_loop_warp_cpp_307_9_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_pipeline_finish = (for_loop_warp_cpp_307_9_pipeline_finishing | for_loop_warp_cpp_307_9_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_pipeline_finishing = ((for_loop_warp_cpp_307_9_epilogue | for_loop_warp_cpp_307_9_pipeline_exit_cond) & for_loop_warp_cpp_307_9_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_only_last_stage_enabled = ((for_loop_warp_cpp_307_9_num_active_iterations == 1'd1) & for_loop_warp_cpp_307_9_state_enable_1);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_warp_cpp_307_9_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_warp_cpp_307_9_inserting_new_iteration & ~(for_loop_warp_cpp_307_9_state_enable_1))) begin
+		for_loop_warp_cpp_307_9_num_active_iterations <= (for_loop_warp_cpp_307_9_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_warp_cpp_307_9_inserting_new_iteration) & for_loop_warp_cpp_307_9_state_enable_1)) begin
+		for_loop_warp_cpp_307_9_num_active_iterations <= (for_loop_warp_cpp_307_9_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_warp_cpp_307_9_inserting_new_iteration = ((~(for_loop_warp_cpp_307_9_state_stall_0) & for_loop_warp_cpp_307_9_II_counter) & for_loop_warp_cpp_307_9_start);
+end
+always @(posedge clk) begin
+	for_loop_warp_cpp_307_9_pipeline_finish_reg <= for_loop_warp_cpp_307_9_pipeline_finish;
+	if (reset) begin
+		for_loop_warp_cpp_307_9_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_warp_cpp_307_9_activate_pipeline) begin
+		for_loop_warp_cpp_307_9_pipeline_finish_reg <= 1'd0;
+	end
+end
+assign axi_channel_write_RKS2_RKT0_exit_bit_concat4_bit_select_operand_0 = 12'd0;
+assign axi_channel_write_RKS2_RKT0_exit_bit_concat3_bit_select_operand_0 = 12'd0;
+always @(*) begin
+	legup_mult_unsigned_12_12_1_0_clock = clk;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_1_0_aclr = reset;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_1_0_clken = legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_1_0_dataa = axi_channel_write_RKS2_RKT0_exit_bit_concat4;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_1_0_datab = axi_channel_write_RKS2_RKT0_exit_bit_concat3;
+end
+always @(*) begin
+	legup_mult_axi_channel_write_RKS2_RKT0_exit_0_out_actual = legup_mult_unsigned_12_12_1_0_result;
+end
+always @(*) begin
+	legup_mult_axi_channel_write_RKS2_RKT0_exit_0_out = $signed(legup_mult_axi_channel_write_RKS2_RKT0_exit_0_out_actual);
+end
+always @(*) begin
+	legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en = legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en_sequential_cond;
+end
+assign legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en_not_in_pipeline = 1'd1;
+always @(*) begin
+	legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en_sequential_cond = ((legup_mult_axi_channel_write_RKS2_RKT0_exit_0_en_not_in_pipeline & (cur_state != LEGUP_0)) & ~(fsm_stall));
+end
+assign axi_channel_write_for_body_bit_concat1_bit_select_operand_2 = 9'd0;
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_consumed_valid = burst_size_valid;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_consumed_data = burst_size;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_burst_size_consumed_taken = 1'd0;
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_6)) begin
+		axi_master_warpPerspective_orig_entry_burst_size_consumed_taken = ~(fsm_stall);
+	end
+end
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a = ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & (master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a = ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & (master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a = ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & (master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a = ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7) & (master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_stalln_reg));
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_consumed_valid = fifo_valid;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_consumed_data = fifo;
+end
+always @(*) begin
+	axi_master_warpPerspective_orig_entry_output_fifo_consumed_taken = 1'd0;
+	if (for_loop_warp_cpp_307_9_valid_bit_0) begin
+		axi_master_warpPerspective_orig_entry_output_fifo_consumed_taken = ~(for_loop_warp_cpp_307_9_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_307_9_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_warp_cpp_307_9_state_1_stalln_reg <= ~(for_loop_warp_cpp_307_9_state_stall_1);
+end
+always @(*) begin
+	master_w_data_for_loop_warp_cpp_307_9_state_1_enable_cond_a = (for_loop_warp_cpp_307_9_valid_bit_1 & (master_w_data_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_warp_cpp_307_9_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_307_9_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_warp_cpp_307_9_state_1_stalln_reg <= ~(for_loop_warp_cpp_307_9_state_stall_1);
+end
+always @(*) begin
+	master_w_strb_for_loop_warp_cpp_307_9_state_1_enable_cond_a = (for_loop_warp_cpp_307_9_valid_bit_1 & (master_w_strb_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_warp_cpp_307_9_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a <= ((for_loop_warp_cpp_307_9_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_warp_cpp_307_9_state_1_stalln_reg <= ~(for_loop_warp_cpp_307_9_state_stall_1);
+end
+always @(*) begin
+	master_w_last_for_loop_warp_cpp_307_9_state_1_enable_cond_a = (for_loop_warp_cpp_307_9_valid_bit_1 & (master_w_last_for_loop_warp_cpp_307_9_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_warp_cpp_307_9_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	if (master_b_resp_consumed_taken) begin
+		master_b_resp_consumed_valid <= 1'd0;
+	end
+	if ((master_b_resp_ready & master_b_resp_valid)) begin
+		master_b_resp_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_b_resp_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	master_b_resp_consumed_taken = 1'd0;
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_if_then_12)) begin
+		master_b_resp_consumed_taken = ~(fsm_stall);
+	end
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body62_17)) begin
+		master_b_resp_consumed_taken = ~(fsm_stall);
+	end
+end
+assign axi_channel_write_for_inc54_bit_concat_bit_select_operand_0 = 14'd0;
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_cond_cleanup61_16)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+always @(*) begin
+	burst_size_ready = axi_master_warpPerspective_orig_entry_burst_size_consumed_taken;
+end
+always @(*) begin
+	master_aw_addr = 0;
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7)) begin
+		master_aw_addr = axi_channel_write_for_body_r_addr_0_reg;
+	end
+end
+always @(*) begin
+	master_aw_valid = 1'd0;
+	if (master_aw_addr_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_burst_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_size_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_len_LEGUP_F_axi_channel_write_BB_for_body_7_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+end
+always @(*) begin
+	master_aw_burst = 2'd0;
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7)) begin
+		master_aw_burst = 2'd1;
+	end
+end
+always @(*) begin
+	master_aw_size = 3'd0;
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7)) begin
+		master_aw_size = 3'd2;
+	end
+end
+always @(*) begin
+	master_aw_len = 8'd0;
+	if ((cur_state == LEGUP_F_axi_channel_write_BB_for_body_7)) begin
+		master_aw_len = axi_channel_write_for_body_4_reg;
+	end
+end
+always @(*) begin
+	fifo_ready = axi_master_warpPerspective_orig_entry_output_fifo_consumed_taken;
+end
+always @(*) begin
+		master_w_data = axi_channel_write_for_body46_8_reg_stage1;
+end
+always @(*) begin
+	master_w_valid = 1'd0;
+	if (master_w_data_for_loop_warp_cpp_307_9_state_1_enable_cond_a) begin
+		master_w_valid = 1'd1;
+	end
+	if (master_w_strb_for_loop_warp_cpp_307_9_state_1_enable_cond_a) begin
+		master_w_valid = 1'd1;
+	end
+	if (master_w_last_for_loop_warp_cpp_307_9_state_1_enable_cond_a) begin
+		master_w_valid = 1'd1;
+	end
+end
+assign master_w_strb = -4'd1;
+always @(*) begin
+		master_w_last = axi_channel_write_for_body46_7_reg_stage1;
+end
+always @(*) begin
+	master_b_resp_ready = (~(master_b_resp_consumed_valid) | master_b_resp_consumed_taken);
+	if (reset) begin
+		master_b_resp_ready = 1'd0;
+	end
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_bilinear_warp_control_memory_read
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	s_ar_addr,
+	axi_s_ar_ready,
+	axi_s_ar_valid,
+	s_ar_burst,
+	s_ar_size,
+	s_ar_len,
+	bilinear_warp_control_memory_out_addr_write_en,
+	bilinear_warp_control_memory_out_addr_write_data,
+	bilinear_warp_control_memory_out_addr_read_data,
+	bilinear_warp_control_memory_in_addr_write_en,
+	bilinear_warp_control_memory_in_addr_write_data,
+	bilinear_warp_control_memory_in_addr_read_data,
+	bilinear_warp_control_memory_out_height_write_en,
+	bilinear_warp_control_memory_out_height_write_data,
+	bilinear_warp_control_memory_out_height_read_data,
+	bilinear_warp_control_memory_out_width_write_en,
+	bilinear_warp_control_memory_out_width_write_data,
+	bilinear_warp_control_memory_out_width_read_data,
+	bilinear_warp_control_memory_m_clken,
+	bilinear_warp_control_memory_m_write_en_a,
+	bilinear_warp_control_memory_m_write_data_a,
+	bilinear_warp_control_memory_m_read_en_a,
+	bilinear_warp_control_memory_m_address_a,
+	bilinear_warp_control_memory_m_read_data_a,
+	bilinear_warp_control_memory_m_write_en_b,
+	bilinear_warp_control_memory_m_write_data_b,
+	bilinear_warp_control_memory_m_read_en_b,
+	bilinear_warp_control_memory_m_address_b,
+	bilinear_warp_control_memory_m_read_data_b,
+	bilinear_warp_control_memory_ctrl_write_en,
+	bilinear_warp_control_memory_ctrl_write_data,
+	bilinear_warp_control_memory_ctrl_read_data,
+	s_r_data,
+	axi_s_r_ready,
+	axi_s_r_valid,
+	s_r_resp,
+	s_r_last
+);
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] s_ar_addr;
+output reg  axi_s_ar_ready;
+input  axi_s_ar_valid;
+input [1:0] s_ar_burst;
+input [2:0] s_ar_size;
+input [7:0] s_ar_len;
+output  bilinear_warp_control_memory_out_addr_write_en;
+output [31:0] bilinear_warp_control_memory_out_addr_write_data;
+input [31:0] bilinear_warp_control_memory_out_addr_read_data;
+output  bilinear_warp_control_memory_in_addr_write_en;
+output [31:0] bilinear_warp_control_memory_in_addr_write_data;
+input [31:0] bilinear_warp_control_memory_in_addr_read_data;
+output  bilinear_warp_control_memory_out_height_write_en;
+output [31:0] bilinear_warp_control_memory_out_height_write_data;
+input [31:0] bilinear_warp_control_memory_out_height_read_data;
+output  bilinear_warp_control_memory_out_width_write_en;
+output [31:0] bilinear_warp_control_memory_out_width_write_data;
+input [31:0] bilinear_warp_control_memory_out_width_read_data;
+output reg  bilinear_warp_control_memory_m_clken;
+output  bilinear_warp_control_memory_m_write_en_a;
+output [31:0] bilinear_warp_control_memory_m_write_data_a;
+output reg  bilinear_warp_control_memory_m_read_en_a;
+output reg [3:0] bilinear_warp_control_memory_m_address_a;
+input [31:0] bilinear_warp_control_memory_m_read_data_a;
+output  bilinear_warp_control_memory_m_write_en_b;
+output [31:0] bilinear_warp_control_memory_m_write_data_b;
+output reg  bilinear_warp_control_memory_m_read_en_b;
+output reg [3:0] bilinear_warp_control_memory_m_address_b;
+input [31:0] bilinear_warp_control_memory_m_read_data_b;
+output  bilinear_warp_control_memory_ctrl_write_en;
+output  bilinear_warp_control_memory_ctrl_write_data;
+input  bilinear_warp_control_memory_ctrl_read_data;
+output reg [63:0] s_r_data;
+input  axi_s_r_ready;
+output reg  axi_s_r_valid;
+output [1:0] s_r_resp;
+output reg  s_r_last;
+reg  bilinear_warp_control_memory_read_entry_0;
+reg [31:0] bilinear_warp_control_memory_read_entry_1;
+reg [7:0] bilinear_warp_control_memory_read_entry_2;
+reg [7:0] bilinear_warp_control_memory_read_entry_3;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi;
+wire  bilinear_warp_control_memory_read_entry_4;
+reg  bilinear_warp_control_memory_read_entry_exitMask_T;
+reg  bilinear_warp_control_memory_read_entry_NotConditi;
+reg  bilinear_warp_control_memory_read_entry_exitMask_F;
+reg [7:0] bilinear_warp_control_memory_read_entry_5;
+reg  bilinear_warp_control_memory_read_entry_6;
+reg  bilinear_warp_control_memory_read_entry_not_1;
+reg  bilinear_warp_control_memory_read_entry_1_0;
+reg [7:0] bilinear_warp_control_memory_read_entry_bit_concat;
+reg [31:0] bilinear_warp_control_memory_read_entry_7;
+reg [2:0] bilinear_warp_control_memory_read_entry_bit_select;
+reg [1:0] bilinear_warp_control_memory_read_entry_bit_select_1;
+reg [2:0] bilinear_warp_control_memory_read_entry_bit_concat_2;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_4;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_5;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_6;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_7;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_8;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_9;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_10;
+reg [2:0] bilinear_warp_control_memory_read_entry_bit_concat_11;
+reg  bilinear_warp_control_memory_read_entry_8;
+reg  bilinear_warp_control_memory_read_entry_9;
+reg  bilinear_warp_control_memory_read_entry_10;
+reg  bilinear_warp_control_memory_read_entry_11;
+reg  bilinear_warp_control_memory_read_entry_OrCaseExit;
+reg  bilinear_warp_control_memory_read_entry_OrCaseExit_12;
+reg  bilinear_warp_control_memory_read_entry_OrCaseExit_13;
+reg  bilinear_warp_control_memory_read_entry_CaseDefaul;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_15;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_16;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_17;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_18;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_19;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_20;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_21;
+reg  bilinear_warp_control_memory_read_entry_CaseDefaul_22;
+reg [31:0] bilinear_warp_control_memory_read_entry_12;
+reg [28:0] bilinear_warp_control_memory_read_entry_bit_select_23;
+reg [7:0] bilinear_warp_control_memory_read_entry_15;
+reg [28:0] bilinear_warp_control_memory_read_entry_bit_concat_24;
+reg [31:0] bilinear_warp_control_memory_read_entry_16;
+reg [31:0] bilinear_warp_control_memory_read_entry_17;
+reg [63:0] bilinear_warp_control_memory_read_entry_bit_concat_25;
+reg [31:0] bilinear_warp_control_memory_read_entry_18;
+reg [31:0] bilinear_warp_control_memory_read_entry_19;
+reg [63:0] bilinear_warp_control_memory_read_entry_bit_concat_26;
+reg [31:0] bilinear_warp_control_memory_read_entry_20;
+reg [31:0] bilinear_warp_control_memory_read_entry_21;
+reg [63:0] bilinear_warp_control_memory_read_entry_bit_concat_27;
+reg [31:0] bilinear_warp_control_memory_read_entry_22;
+reg [31:0] bilinear_warp_control_memory_read_entry_23;
+reg [63:0] bilinear_warp_control_memory_read_entry_bit_concat_28;
+reg [31:0] bilinear_warp_control_memory_read_entry_24;
+reg [31:0] bilinear_warp_control_memory_read_entry_25;
+reg [63:0] bilinear_warp_control_memory_read_entry_bit_concat_29;
+reg [31:0] bilinear_warp_control_memory_read_entry_26;
+reg [31:0] bilinear_warp_control_memory_read_entry_27;
+reg [63:0] bilinear_warp_control_memory_read_entry_bit_concat_30;
+reg [31:0] bilinear_warp_control_memory_read_entry_28;
+reg [31:0] bilinear_warp_control_memory_read_entry_bit_concat_31;
+reg  bilinear_warp_control_memory_read_entry_29;
+reg  bilinear_warp_control_memory_read_entry_bit_concat_32;
+reg [63:0] bilinear_warp_control_memory_read_entry_select;
+reg  bilinear_warp_control_memory_read_entry_ORexitM18;
+reg [63:0] bilinear_warp_control_memory_read_entry_select19;
+reg  bilinear_warp_control_memory_read_entry_ORexitM20;
+reg [63:0] bilinear_warp_control_memory_read_entry_select21;
+reg  bilinear_warp_control_memory_read_entry_ORexitM22;
+reg [63:0] bilinear_warp_control_memory_read_entry_select23;
+reg [63:0] bilinear_warp_control_memory_read_entry_select25;
+reg  bilinear_warp_control_memory_read_entry_ORexitM26;
+reg [63:0] bilinear_warp_control_memory_read_entry_select27;
+reg [63:0] bilinear_warp_control_memory_read_entry_select29;
+reg [63:0] bilinear_warp_control_memory_read_entry_select31;
+reg  bilinear_warp_control_memory_read_entry_select46;
+reg  bilinear_warp_control_memory_read_entry_select48;
+reg  bilinear_warp_control_memory_read_entry_ORCondM41;
+reg [31:0] bilinear_warp_control_memory_read_entry_select43;
+reg [7:0] bilinear_warp_control_memory_read_entry_select39;
+reg [7:0] bilinear_warp_control_memory_read_entry_select33;
+reg [7:0] bilinear_warp_control_memory_read_entry_select35;
+reg  axi_s_read_state_inferred_reg;
+reg [31:0] axi_s_read_word_addr_inferred_reg;
+reg [7:0] axi_s_read_burst_len_minus1_inferred_reg;
+reg [7:0] axi_s_read_count_inferred_reg;
+reg  bilinear_warp_control_memory_read_valid_bit_0;
+reg  bilinear_warp_control_memory_read_state_stall_0;
+reg  bilinear_warp_control_memory_read_state_enable_0;
+reg  bilinear_warp_control_memory_read_valid_bit_1;
+reg  bilinear_warp_control_memory_read_state_stall_1;
+reg  bilinear_warp_control_memory_read_state_enable_1;
+reg  bilinear_warp_control_memory_read_II_counter;
+reg  bilinear_warp_control_memory_read_entry_0_reg_stage1;
+reg  bilinear_warp_control_memory_read_entry_6_reg_stage1;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_15_reg_stage1;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_17_reg_stage1;
+reg  bilinear_warp_control_memory_read_entry_CaseCmpExi_19_reg_stage1;
+reg [63:0] bilinear_warp_control_memory_read_entry_bit_concat_26_reg_stage1;
+reg  bilinear_warp_control_memory_read_entry_ORexitM18_reg_stage1;
+reg  bilinear_warp_control_memory_read_entry_ORexitM22_reg_stage1;
+reg [63:0] bilinear_warp_control_memory_read_entry_select25_reg_stage1;
+reg  bilinear_warp_control_memory_read_entry_ORexitM26_reg_stage1;
+reg  axi_s_ar_addr_consumed_valid;
+reg [31:0] axi_s_ar_addr_consumed_data;
+reg  axi_s_ar_addr_consumed_taken;
+wire [23:0] bilinear_warp_control_memory_read_entry_bit_concat_bit_select_operand_0;
+wire [28:0] bilinear_warp_control_memory_read_entry_bit_concat_2_bit_select_operand_0;
+wire [28:0] bilinear_warp_control_memory_read_entry_bit_concat_11_bit_select_operand_0;
+wire  bilinear_warp_control_memory_read_entry_bit_concat_11_bit_select_operand_4;
+reg  axi_s_ar_burst_consumed_valid;
+reg  axi_s_ar_burst_consumed_taken;
+reg  axi_s_ar_size_consumed_valid;
+reg  axi_s_ar_size_consumed_taken;
+reg  axi_s_ar_len_consumed_valid;
+reg [7:0] axi_s_ar_len_consumed_data;
+reg  axi_s_ar_len_consumed_taken;
+wire [2:0] bilinear_warp_control_memory_read_entry_bit_concat_24_bit_select_operand_0;
+reg [31:0] bilinear_warp_control_memory_m_read_data_wire_a;
+reg  bilinear_warp_control_memory_m_clken_pipeline_cond;
+reg [31:0] bilinear_warp_control_memory_m_read_data_wire_b;
+wire [31:0] bilinear_warp_control_memory_read_entry_bit_concat_31_bit_select_operand_0;
+wire [62:0] bilinear_warp_control_memory_read_entry_bit_concat_32_bit_select_operand_0;
+reg  axi_s_r_data_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_r_data_bilinear_warp_control_memory_read_state_1_stalln_reg;
+reg  axi_s_r_data_bilinear_warp_control_memory_read_state_1_enable_cond_a;
+reg  axi_s_r_resp_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_r_resp_bilinear_warp_control_memory_read_state_1_stalln_reg;
+reg  axi_s_r_resp_bilinear_warp_control_memory_read_state_1_enable_cond_a;
+reg  axi_s_r_last_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_r_last_bilinear_warp_control_memory_read_state_1_stalln_reg;
+reg  axi_s_r_last_bilinear_warp_control_memory_read_state_1_enable_cond_a;
+
+
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_0 = axi_s_read_state_inferred_reg;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_1 = axi_s_read_word_addr_inferred_reg;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_2 = axi_s_read_burst_len_minus1_inferred_reg;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_3 = axi_s_read_count_inferred_reg;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi = (bilinear_warp_control_memory_read_entry_0 ^ 1'd1);
+end
+assign bilinear_warp_control_memory_read_entry_4 = ~(axi_s_ar_addr_consumed_valid);
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_exitMask_T = (bilinear_warp_control_memory_read_entry_4 & bilinear_warp_control_memory_read_entry_CaseCmpExi);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_NotConditi = (bilinear_warp_control_memory_read_entry_4 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_exitMask_F = (bilinear_warp_control_memory_read_entry_CaseCmpExi & bilinear_warp_control_memory_read_entry_NotConditi);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_5 = (bilinear_warp_control_memory_read_entry_3 + 8'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_6 = (bilinear_warp_control_memory_read_entry_3 == bilinear_warp_control_memory_read_entry_2);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_not_1 = (bilinear_warp_control_memory_read_entry_6 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_1_0 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_not_1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat = {bilinear_warp_control_memory_read_entry_bit_concat_bit_select_operand_0[23:0], bilinear_warp_control_memory_read_entry_3[7:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_7 = (bilinear_warp_control_memory_read_entry_1 + {24'd0,bilinear_warp_control_memory_read_entry_bit_concat});
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_select = bilinear_warp_control_memory_read_entry_7[2:0];
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_select_1 = bilinear_warp_control_memory_read_entry_7[2:1];
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_2 = {bilinear_warp_control_memory_read_entry_bit_concat_2_bit_select_operand_0[28:0], bilinear_warp_control_memory_read_entry_bit_select[2:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_4 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_2} == 32'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_5 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_2} == 32'd2);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_6 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_2} == 32'd3);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_7 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_2} == 32'd4);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_8 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_2} == 32'd5);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_9 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_2} == 32'd6);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_10 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_2} == 32'd7);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_11 = {{bilinear_warp_control_memory_read_entry_bit_concat_11_bit_select_operand_0[28:0], bilinear_warp_control_memory_read_entry_bit_select_1[1:0]}, bilinear_warp_control_memory_read_entry_bit_concat_11_bit_select_operand_4};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_8 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_11} == 32'd0);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_9 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_11} == 32'd2);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_10 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_11} == 32'd4);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_11 = ({29'd0,bilinear_warp_control_memory_read_entry_bit_concat_11} == 32'd6);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_OrCaseExit = (bilinear_warp_control_memory_read_entry_8 | bilinear_warp_control_memory_read_entry_9);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_OrCaseExit_12 = (bilinear_warp_control_memory_read_entry_10 | bilinear_warp_control_memory_read_entry_11);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_OrCaseExit_13 = (bilinear_warp_control_memory_read_entry_OrCaseExit | bilinear_warp_control_memory_read_entry_OrCaseExit_12);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseDefaul = (bilinear_warp_control_memory_read_entry_OrCaseExit_13 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_15 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_4);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_16 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_5);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_17 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_6);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_18 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_7);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_19 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_8);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_20 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_9);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_21 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_10);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_CaseDefaul_22 = (bilinear_warp_control_memory_read_entry_0 & bilinear_warp_control_memory_read_entry_CaseDefaul);
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_entry_12 = axi_s_ar_addr_consumed_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_select_23 = bilinear_warp_control_memory_read_entry_12[31:3];
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_entry_15 = axi_s_ar_len_consumed_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_24 = {bilinear_warp_control_memory_read_entry_bit_concat_24_bit_select_operand_0[2:0], bilinear_warp_control_memory_read_entry_bit_select_23[28:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_16 = bilinear_warp_control_memory_out_addr_read_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_17 = bilinear_warp_control_memory_in_addr_read_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_25 = {bilinear_warp_control_memory_read_entry_16[31:0], bilinear_warp_control_memory_read_entry_17[31:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_18 = bilinear_warp_control_memory_out_height_read_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_19 = bilinear_warp_control_memory_out_width_read_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_26 = {bilinear_warp_control_memory_read_entry_18[31:0], bilinear_warp_control_memory_read_entry_19[31:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_20 = bilinear_warp_control_memory_m_read_data_wire_a;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_21 = bilinear_warp_control_memory_m_read_data_wire_b;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_27 = {bilinear_warp_control_memory_read_entry_20[31:0], bilinear_warp_control_memory_read_entry_21[31:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_22 = bilinear_warp_control_memory_m_read_data_wire_a;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_23 = bilinear_warp_control_memory_m_read_data_wire_b;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_28 = {bilinear_warp_control_memory_read_entry_22[31:0], bilinear_warp_control_memory_read_entry_23[31:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_24 = bilinear_warp_control_memory_m_read_data_wire_a;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_25 = bilinear_warp_control_memory_m_read_data_wire_b;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_29 = {bilinear_warp_control_memory_read_entry_24[31:0], bilinear_warp_control_memory_read_entry_25[31:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_26 = bilinear_warp_control_memory_m_read_data_wire_a;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_27 = bilinear_warp_control_memory_m_read_data_wire_b;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_30 = {bilinear_warp_control_memory_read_entry_26[31:0], bilinear_warp_control_memory_read_entry_27[31:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_28 = bilinear_warp_control_memory_m_read_data_wire_a;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_31 = {bilinear_warp_control_memory_read_entry_bit_concat_31_bit_select_operand_0[31:0], bilinear_warp_control_memory_read_entry_28[31:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_29 = bilinear_warp_control_memory_ctrl_read_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_32 = {bilinear_warp_control_memory_read_entry_bit_concat_32_bit_select_operand_0[62:0], bilinear_warp_control_memory_read_entry_29};
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select = (bilinear_warp_control_memory_read_entry_CaseDefaul_22 ? 64'd0 : bilinear_warp_control_memory_read_entry_bit_concat_25);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_ORexitM18 = (bilinear_warp_control_memory_read_entry_CaseCmpExi_15 | bilinear_warp_control_memory_read_entry_CaseCmpExi_16);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select19 = (bilinear_warp_control_memory_read_entry_CaseCmpExi_15_reg_stage1 ? bilinear_warp_control_memory_read_entry_bit_concat_26_reg_stage1 : bilinear_warp_control_memory_read_entry_bit_concat_27);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_ORexitM20 = (bilinear_warp_control_memory_read_entry_CaseCmpExi_17 | bilinear_warp_control_memory_read_entry_CaseCmpExi_18);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select21 = (bilinear_warp_control_memory_read_entry_CaseCmpExi_17_reg_stage1 ? bilinear_warp_control_memory_read_entry_bit_concat_28 : bilinear_warp_control_memory_read_entry_bit_concat_29);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_ORexitM22 = (bilinear_warp_control_memory_read_entry_CaseCmpExi_19 | bilinear_warp_control_memory_read_entry_CaseCmpExi_20);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select23 = (bilinear_warp_control_memory_read_entry_CaseCmpExi_19_reg_stage1 ? bilinear_warp_control_memory_read_entry_bit_concat_30 : {32'd0,bilinear_warp_control_memory_read_entry_bit_concat_31});
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select25 = (bilinear_warp_control_memory_read_entry_CaseCmpExi_21 ? bilinear_warp_control_memory_read_entry_bit_concat_32 : bilinear_warp_control_memory_read_entry_select);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_ORexitM26 = (bilinear_warp_control_memory_read_entry_ORexitM18 | bilinear_warp_control_memory_read_entry_ORexitM20);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select27 = (bilinear_warp_control_memory_read_entry_ORexitM18_reg_stage1 ? bilinear_warp_control_memory_read_entry_select19 : bilinear_warp_control_memory_read_entry_select21);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select29 = (bilinear_warp_control_memory_read_entry_ORexitM22_reg_stage1 ? bilinear_warp_control_memory_read_entry_select23 : bilinear_warp_control_memory_read_entry_select25_reg_stage1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select31 = (bilinear_warp_control_memory_read_entry_ORexitM26_reg_stage1 ? bilinear_warp_control_memory_read_entry_select27 : bilinear_warp_control_memory_read_entry_select29);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select46 = (bilinear_warp_control_memory_read_entry_exitMask_F | bilinear_warp_control_memory_read_entry_1_0);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select48 = (bilinear_warp_control_memory_read_entry_exitMask_T ? bilinear_warp_control_memory_read_entry_0 : bilinear_warp_control_memory_read_entry_select46);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_ORCondM41 = (bilinear_warp_control_memory_read_entry_exitMask_T | bilinear_warp_control_memory_read_entry_0);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select43 = (bilinear_warp_control_memory_read_entry_ORCondM41 ? bilinear_warp_control_memory_read_entry_1 : {3'd0,bilinear_warp_control_memory_read_entry_bit_concat_24});
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select39 = (bilinear_warp_control_memory_read_entry_ORCondM41 ? bilinear_warp_control_memory_read_entry_2 : bilinear_warp_control_memory_read_entry_15);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select33 = (bilinear_warp_control_memory_read_entry_exitMask_F ? 8'd0 : bilinear_warp_control_memory_read_entry_3);
+end
+always @(*) begin
+		bilinear_warp_control_memory_read_entry_select35 = (bilinear_warp_control_memory_read_entry_0 ? bilinear_warp_control_memory_read_entry_5 : bilinear_warp_control_memory_read_entry_select33);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_state_inferred_reg <= 1'd0;
+	end
+	if ((bilinear_warp_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_state_inferred_reg <= bilinear_warp_control_memory_read_entry_select48;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_word_addr_inferred_reg <= 32'd0;
+	end
+	if ((bilinear_warp_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_word_addr_inferred_reg <= bilinear_warp_control_memory_read_entry_select43;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_burst_len_minus1_inferred_reg <= 8'd0;
+	end
+	if ((bilinear_warp_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_burst_len_minus1_inferred_reg <= bilinear_warp_control_memory_read_entry_select39;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_count_inferred_reg <= 8'd0;
+	end
+	if ((bilinear_warp_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_count_inferred_reg <= bilinear_warp_control_memory_read_entry_select35;
+	end
+end
+always @(posedge clk) begin
+	if (~(bilinear_warp_control_memory_read_state_stall_0)) begin
+		bilinear_warp_control_memory_read_valid_bit_0 <= (bilinear_warp_control_memory_read_II_counter & start);
+	end
+	if (reset) begin
+		bilinear_warp_control_memory_read_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_state_stall_0 = 1'd0;
+	if (bilinear_warp_control_memory_read_state_stall_1) begin
+		bilinear_warp_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F) & ~(axi_s_ar_addr_consumed_valid))) begin
+		bilinear_warp_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F) & ~(axi_s_ar_burst_consumed_valid))) begin
+		bilinear_warp_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F) & ~(axi_s_ar_size_consumed_valid))) begin
+		bilinear_warp_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F) & ~(axi_s_ar_len_consumed_valid))) begin
+		bilinear_warp_control_memory_read_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_state_enable_0 = (bilinear_warp_control_memory_read_valid_bit_0 & ~(bilinear_warp_control_memory_read_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(bilinear_warp_control_memory_read_state_stall_1)) begin
+		bilinear_warp_control_memory_read_valid_bit_1 <= bilinear_warp_control_memory_read_state_enable_0;
+	end
+	if (reset) begin
+		bilinear_warp_control_memory_read_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_state_stall_1 = 1'd0;
+	if ((((bilinear_warp_control_memory_read_valid_bit_1 & axi_s_r_valid) & ~(axi_s_r_ready)) & (axi_s_r_data_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_data_bilinear_warp_control_memory_read_state_1_stalln_reg))) begin
+		bilinear_warp_control_memory_read_state_stall_1 = 1'd1;
+	end
+	if ((((bilinear_warp_control_memory_read_valid_bit_1 & axi_s_r_valid) & ~(axi_s_r_ready)) & (axi_s_r_resp_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_resp_bilinear_warp_control_memory_read_state_1_stalln_reg))) begin
+		bilinear_warp_control_memory_read_state_stall_1 = 1'd1;
+	end
+	if ((((bilinear_warp_control_memory_read_valid_bit_1 & axi_s_r_valid) & ~(axi_s_r_ready)) & (axi_s_r_last_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_last_bilinear_warp_control_memory_read_state_1_stalln_reg))) begin
+		bilinear_warp_control_memory_read_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_read_state_enable_1 = (bilinear_warp_control_memory_read_valid_bit_1 & ~(bilinear_warp_control_memory_read_state_stall_1));
+end
+always @(posedge clk) begin
+	bilinear_warp_control_memory_read_II_counter <= 1'd1;
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_0_reg_stage1 <= bilinear_warp_control_memory_read_entry_0;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_6_reg_stage1 <= bilinear_warp_control_memory_read_entry_6;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_15_reg_stage1 <= bilinear_warp_control_memory_read_entry_CaseCmpExi_15;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_17_reg_stage1 <= bilinear_warp_control_memory_read_entry_CaseCmpExi_17;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_CaseCmpExi_19_reg_stage1 <= bilinear_warp_control_memory_read_entry_CaseCmpExi_19;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_bit_concat_26_reg_stage1 <= bilinear_warp_control_memory_read_entry_bit_concat_26;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_ORexitM18_reg_stage1 <= bilinear_warp_control_memory_read_entry_ORexitM18;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_ORexitM22_reg_stage1 <= bilinear_warp_control_memory_read_entry_ORexitM22;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_select25_reg_stage1 <= bilinear_warp_control_memory_read_entry_select25;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_read_entry_ORexitM26_reg_stage1 <= bilinear_warp_control_memory_read_entry_ORexitM26;
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_ar_addr_consumed_taken) begin
+		axi_s_ar_addr_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_addr_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_addr_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_addr_consumed_data <= s_ar_addr;
+	end
+end
+always @(*) begin
+	axi_s_ar_addr_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F)) begin
+		axi_s_ar_addr_consumed_taken = ~(bilinear_warp_control_memory_read_state_stall_0);
+	end
+end
+assign bilinear_warp_control_memory_read_entry_bit_concat_bit_select_operand_0 = 24'd0;
+assign bilinear_warp_control_memory_read_entry_bit_concat_2_bit_select_operand_0 = 29'd0;
+assign bilinear_warp_control_memory_read_entry_bit_concat_11_bit_select_operand_0 = 29'd0;
+assign bilinear_warp_control_memory_read_entry_bit_concat_11_bit_select_operand_4 = 1'd0;
+always @(posedge clk) begin
+	if (axi_s_ar_burst_consumed_taken) begin
+		axi_s_ar_burst_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_burst_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_burst_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_ar_burst_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F)) begin
+		axi_s_ar_burst_consumed_taken = ~(bilinear_warp_control_memory_read_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_ar_size_consumed_taken) begin
+		axi_s_ar_size_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_size_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_size_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_ar_size_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F)) begin
+		axi_s_ar_size_consumed_taken = ~(bilinear_warp_control_memory_read_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_ar_len_consumed_taken) begin
+		axi_s_ar_len_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_len_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_len_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_len_consumed_data <= s_ar_len;
+	end
+end
+always @(*) begin
+	axi_s_ar_len_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_exitMask_F)) begin
+		axi_s_ar_len_consumed_taken = ~(bilinear_warp_control_memory_read_state_stall_0);
+	end
+end
+assign bilinear_warp_control_memory_read_entry_bit_concat_24_bit_select_operand_0 = 3'd0;
+always @(*) begin
+	bilinear_warp_control_memory_m_read_data_wire_a = bilinear_warp_control_memory_m_read_data_a;
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_clken_pipeline_cond = ~(bilinear_warp_control_memory_read_state_stall_1);
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_read_data_wire_b = bilinear_warp_control_memory_m_read_data_b;
+end
+assign bilinear_warp_control_memory_read_entry_bit_concat_31_bit_select_operand_0 = 32'd0;
+assign bilinear_warp_control_memory_read_entry_bit_concat_32_bit_select_operand_0 = 63'd0;
+always @(posedge clk) begin
+	axi_s_r_data_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a <= ((bilinear_warp_control_memory_read_state_stall_1 & axi_s_r_valid) & ~(axi_s_r_ready));
+end
+always @(posedge clk) begin
+	axi_s_r_data_bilinear_warp_control_memory_read_state_1_stalln_reg <= ~(bilinear_warp_control_memory_read_state_stall_1);
+end
+always @(*) begin
+	axi_s_r_data_bilinear_warp_control_memory_read_state_1_enable_cond_a = (bilinear_warp_control_memory_read_valid_bit_1 & (axi_s_r_data_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_data_bilinear_warp_control_memory_read_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_s_r_resp_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a <= ((bilinear_warp_control_memory_read_state_stall_1 & axi_s_r_valid) & ~(axi_s_r_ready));
+end
+always @(posedge clk) begin
+	axi_s_r_resp_bilinear_warp_control_memory_read_state_1_stalln_reg <= ~(bilinear_warp_control_memory_read_state_stall_1);
+end
+always @(*) begin
+	axi_s_r_resp_bilinear_warp_control_memory_read_state_1_enable_cond_a = (bilinear_warp_control_memory_read_valid_bit_1 & (axi_s_r_resp_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_resp_bilinear_warp_control_memory_read_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_s_r_last_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a <= ((bilinear_warp_control_memory_read_state_stall_1 & axi_s_r_valid) & ~(axi_s_r_ready));
+end
+always @(posedge clk) begin
+	axi_s_r_last_bilinear_warp_control_memory_read_state_1_stalln_reg <= ~(bilinear_warp_control_memory_read_state_stall_1);
+end
+always @(*) begin
+	axi_s_r_last_bilinear_warp_control_memory_read_state_1_enable_cond_a = (bilinear_warp_control_memory_read_valid_bit_1 & (axi_s_r_last_bilinear_warp_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_last_bilinear_warp_control_memory_read_state_1_stalln_reg));
+end
+always @(*) begin
+	ready = ~(bilinear_warp_control_memory_read_state_stall_0);
+end
+always @(posedge clk) begin
+	finish <= bilinear_warp_control_memory_read_state_enable_1;
+end
+always @(*) begin
+	axi_s_ar_ready = (~(axi_s_ar_len_consumed_valid) | axi_s_ar_len_consumed_taken);
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+end
+assign bilinear_warp_control_memory_out_addr_write_en = 1'd0;
+assign bilinear_warp_control_memory_out_addr_write_data = 1'd0;
+assign bilinear_warp_control_memory_in_addr_write_en = 1'd0;
+assign bilinear_warp_control_memory_in_addr_write_data = 1'd0;
+assign bilinear_warp_control_memory_out_height_write_en = 1'd0;
+assign bilinear_warp_control_memory_out_height_write_data = 1'd0;
+assign bilinear_warp_control_memory_out_width_write_en = 1'd0;
+assign bilinear_warp_control_memory_out_width_write_data = 1'd0;
+always @(*) begin
+	bilinear_warp_control_memory_m_clken = bilinear_warp_control_memory_m_clken_pipeline_cond;
+end
+assign bilinear_warp_control_memory_m_write_en_a = 1'd0;
+assign bilinear_warp_control_memory_m_write_data_a = 0;
+always @(*) begin
+	bilinear_warp_control_memory_m_read_en_a = 1'd0;
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_a = 1'd1;
+	end
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_a = 1'd1;
+	end
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_a = 1'd1;
+	end
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_a = 1'd1;
+	end
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_address_a = 4'd0;
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_16)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd1)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_17)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd3)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_18)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd5)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_19)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd7)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_20)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd8)) >> 2'd2);
+	end
+end
+assign bilinear_warp_control_memory_m_write_en_b = 1'd0;
+assign bilinear_warp_control_memory_m_write_data_b = 0;
+always @(*) begin
+	bilinear_warp_control_memory_m_read_en_b = 1'd0;
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_b = 1'd1;
+	end
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_b = 1'd1;
+	end
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_b = 1'd1;
+	end
+	if (bilinear_warp_control_memory_read_state_enable_0) begin
+		bilinear_warp_control_memory_m_read_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_address_b = 4'd0;
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_16)) begin
+		bilinear_warp_control_memory_m_address_b = (1'd0 >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_17)) begin
+		bilinear_warp_control_memory_m_address_b = ((1'd0 + (4 * 32'd2)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_18)) begin
+		bilinear_warp_control_memory_m_address_b = ((1'd0 + (4 * 32'd4)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_read_valid_bit_0 & bilinear_warp_control_memory_read_entry_CaseCmpExi_19)) begin
+		bilinear_warp_control_memory_m_address_b = ((1'd0 + (4 * 32'd6)) >> 2'd2);
+	end
+end
+assign bilinear_warp_control_memory_ctrl_write_en = 1'd0;
+assign bilinear_warp_control_memory_ctrl_write_data = 1'd0;
+always @(*) begin
+		s_r_data = bilinear_warp_control_memory_read_entry_select31;
+end
+always @(*) begin
+	axi_s_r_valid = 1'd0;
+	if ((axi_s_r_data_bilinear_warp_control_memory_read_state_1_enable_cond_a & bilinear_warp_control_memory_read_entry_0_reg_stage1)) begin
+		axi_s_r_valid = 1'd1;
+	end
+	if ((axi_s_r_resp_bilinear_warp_control_memory_read_state_1_enable_cond_a & bilinear_warp_control_memory_read_entry_0_reg_stage1)) begin
+		axi_s_r_valid = 1'd1;
+	end
+	if ((axi_s_r_last_bilinear_warp_control_memory_read_state_1_enable_cond_a & bilinear_warp_control_memory_read_entry_0_reg_stage1)) begin
+		axi_s_r_valid = 1'd1;
+	end
+end
+assign s_r_resp = 2'd0;
+always @(*) begin
+		s_r_last = bilinear_warp_control_memory_read_entry_6_reg_stage1;
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_bilinear_warp_control_memory_write
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	s_aw_addr,
+	axi_s_aw_ready,
+	axi_s_aw_valid,
+	s_w_data,
+	axi_s_w_ready,
+	axi_s_w_valid,
+	s_aw_burst,
+	s_aw_size,
+	s_aw_len,
+	s_w_strb,
+	s_w_last,
+	bilinear_warp_control_memory_ctrl_write_en,
+	bilinear_warp_control_memory_ctrl_write_data,
+	bilinear_warp_control_memory_ctrl_read_data,
+	bilinear_warp_control_memory_in_addr_write_en,
+	bilinear_warp_control_memory_in_addr_write_data,
+	bilinear_warp_control_memory_in_addr_read_data,
+	bilinear_warp_control_memory_out_width_write_en,
+	bilinear_warp_control_memory_out_width_write_data,
+	bilinear_warp_control_memory_out_width_read_data,
+	bilinear_warp_control_memory_m_clken,
+	bilinear_warp_control_memory_m_write_en_a,
+	bilinear_warp_control_memory_m_write_data_a,
+	bilinear_warp_control_memory_m_read_en_a,
+	bilinear_warp_control_memory_m_address_a,
+	bilinear_warp_control_memory_m_read_data_a,
+	bilinear_warp_control_memory_m_write_en_b,
+	bilinear_warp_control_memory_m_write_data_b,
+	bilinear_warp_control_memory_m_read_en_b,
+	bilinear_warp_control_memory_m_address_b,
+	bilinear_warp_control_memory_m_read_data_b,
+	bilinear_warp_control_memory_out_addr_write_en,
+	bilinear_warp_control_memory_out_addr_write_data,
+	bilinear_warp_control_memory_out_addr_read_data,
+	bilinear_warp_control_memory_out_height_write_en,
+	bilinear_warp_control_memory_out_height_write_data,
+	bilinear_warp_control_memory_out_height_read_data,
+	s_b_resp,
+	s_b_resp_ready,
+	s_b_resp_valid
+);
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] s_aw_addr;
+output reg  axi_s_aw_ready;
+input  axi_s_aw_valid;
+input [63:0] s_w_data;
+output reg  axi_s_w_ready;
+input  axi_s_w_valid;
+input [1:0] s_aw_burst;
+input [2:0] s_aw_size;
+input [7:0] s_aw_len;
+input [7:0] s_w_strb;
+input  s_w_last;
+output reg  bilinear_warp_control_memory_ctrl_write_en;
+output reg  bilinear_warp_control_memory_ctrl_write_data;
+input  bilinear_warp_control_memory_ctrl_read_data;
+output reg  bilinear_warp_control_memory_in_addr_write_en;
+output reg [31:0] bilinear_warp_control_memory_in_addr_write_data;
+input [31:0] bilinear_warp_control_memory_in_addr_read_data;
+output reg  bilinear_warp_control_memory_out_width_write_en;
+output reg [31:0] bilinear_warp_control_memory_out_width_write_data;
+input [31:0] bilinear_warp_control_memory_out_width_read_data;
+output reg  bilinear_warp_control_memory_m_clken;
+output reg  bilinear_warp_control_memory_m_write_en_a;
+output reg [31:0] bilinear_warp_control_memory_m_write_data_a;
+output  bilinear_warp_control_memory_m_read_en_a;
+output reg [3:0] bilinear_warp_control_memory_m_address_a;
+input [31:0] bilinear_warp_control_memory_m_read_data_a;
+output reg  bilinear_warp_control_memory_m_write_en_b;
+output reg [31:0] bilinear_warp_control_memory_m_write_data_b;
+output  bilinear_warp_control_memory_m_read_en_b;
+output reg [3:0] bilinear_warp_control_memory_m_address_b;
+input [31:0] bilinear_warp_control_memory_m_read_data_b;
+output reg  bilinear_warp_control_memory_out_addr_write_en;
+output reg [31:0] bilinear_warp_control_memory_out_addr_write_data;
+input [31:0] bilinear_warp_control_memory_out_addr_read_data;
+output reg  bilinear_warp_control_memory_out_height_write_en;
+output reg [31:0] bilinear_warp_control_memory_out_height_write_data;
+input [31:0] bilinear_warp_control_memory_out_height_read_data;
+output [1:0] s_b_resp;
+input  s_b_resp_ready;
+output reg  s_b_resp_valid;
+reg  bilinear_warp_control_memory_write_entry_0;
+reg [31:0] bilinear_warp_control_memory_write_entry_1;
+reg [7:0] bilinear_warp_control_memory_write_entry_2;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx;
+wire  bilinear_warp_control_memory_write_entry_3;
+reg  bilinear_warp_control_memory_write_entry_exitMask_;
+reg  bilinear_warp_control_memory_write_entry_NotCondit;
+reg  bilinear_warp_control_memory_write_entry_exitMask__0;
+wire  bilinear_warp_control_memory_write_entry_4;
+reg  bilinear_warp_control_memory_write_entry_exitMask__1;
+reg  bilinear_warp_control_memory_write_entry_NotCondit_2;
+reg  bilinear_warp_control_memory_write_entry_exitMask__3;
+reg [31:0] bilinear_warp_control_memory_write_entry_5;
+reg [28:0] bilinear_warp_control_memory_write_entry_bit_selec;
+reg [28:0] bilinear_warp_control_memory_write_entry_bit_conca;
+reg [63:0] bilinear_warp_control_memory_write_entry_9;
+reg  bilinear_warp_control_memory_write_entry_bit_selec_4;
+reg [31:0] bilinear_warp_control_memory_write_entry_bit_selec_5;
+reg [31:0] bilinear_warp_control_memory_write_entry_bit_selec_6;
+reg [7:0] bilinear_warp_control_memory_write_entry_10;
+reg [1:0] bilinear_warp_control_memory_write_entry_bit_selec_7;
+reg [3:0] bilinear_warp_control_memory_write_entry_bit_selec_8;
+reg  bilinear_warp_control_memory_write_entry_11;
+reg [7:0] bilinear_warp_control_memory_write_entry_12;
+reg  bilinear_warp_control_memory_write_entry_not_1;
+reg  bilinear_warp_control_memory_write_entry_1_9;
+reg [7:0] bilinear_warp_control_memory_write_entry_bit_conca_10;
+reg [31:0] bilinear_warp_control_memory_write_entry_13;
+reg [2:0] bilinear_warp_control_memory_write_entry_bit_selec_11;
+reg  bilinear_warp_control_memory_write_entry_cmp_i;
+reg [5:0] bilinear_warp_control_memory_write_entry_bit_conca_12;
+reg  bilinear_warp_control_memory_write_entry_cmp43_i;
+reg  bilinear_warp_control_memory_write_entry_and28_i;
+reg [3:0] bilinear_warp_control_memory_write_entry_bit_conca_13;
+reg  bilinear_warp_control_memory_write_entry_14;
+reg [2:0] bilinear_warp_control_memory_write_entry_bit_conca_14;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_15;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_16;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_17;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_18;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_19;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_20;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_21;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_22;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_23;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_24;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_25;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_26;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_27;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_28;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_29;
+reg  bilinear_warp_control_memory_write_entry_CaseCmpEx_30;
+reg  bilinear_warp_control_memory_write_entry_exitMask__31;
+reg  bilinear_warp_control_memory_write_entry_exitMask__32;
+reg  bilinear_warp_control_memory_write_entry_exitMask__33;
+reg  bilinear_warp_control_memory_write_entry_exitMask__34;
+reg  bilinear_warp_control_memory_write_entry_exitMask__35;
+reg  bilinear_warp_control_memory_write_entry_exitMask__36;
+reg  bilinear_warp_control_memory_write_entry_exitMask__37;
+reg  bilinear_warp_control_memory_write_entry_bit_conca_38;
+reg  bilinear_warp_control_memory_write_entry_15;
+reg  bilinear_warp_control_memory_write_entry_exitMask__39;
+reg  bilinear_warp_control_memory_write_entry_exitMask__40;
+reg  bilinear_warp_control_memory_write_entry_exitMask__41;
+reg  bilinear_warp_control_memory_write_entry_exitMask__42;
+reg  bilinear_warp_control_memory_write_entry_exitMask__43;
+reg  bilinear_warp_control_memory_write_entry_exitMask__44;
+reg  bilinear_warp_control_memory_write_entry_exitMask__45;
+reg  bilinear_warp_control_memory_write_entry_select77;
+reg  bilinear_warp_control_memory_write_entry_select79;
+reg  bilinear_warp_control_memory_write_entry_ORCondM69;
+reg  bilinear_warp_control_memory_write_entry_ORCondM70;
+reg [31:0] bilinear_warp_control_memory_write_entry_select72;
+reg [7:0] bilinear_warp_control_memory_write_entry_select;
+reg [7:0] bilinear_warp_control_memory_write_entry_select66;
+reg  axi_s_write_state_inferred_reg;
+reg [31:0] axi_s_write_word_addr_inferred_reg;
+reg [7:0] axi_s_write_count_inferred_reg;
+reg  bilinear_warp_control_memory_write_valid_bit_0;
+reg  bilinear_warp_control_memory_write_state_stall_0;
+reg  bilinear_warp_control_memory_write_state_enable_0;
+reg  bilinear_warp_control_memory_write_valid_bit_1;
+reg  bilinear_warp_control_memory_write_state_stall_1;
+reg  bilinear_warp_control_memory_write_state_enable_1;
+reg  bilinear_warp_control_memory_write_II_counter;
+reg  bilinear_warp_control_memory_write_entry_exitMask__45_reg_stage1;
+reg  axi_s_aw_addr_consumed_valid;
+reg [31:0] axi_s_aw_addr_consumed_data;
+reg  axi_s_aw_addr_consumed_taken;
+reg  axi_s_w_data_consumed_valid;
+reg [63:0] axi_s_w_data_consumed_data;
+reg  axi_s_w_data_consumed_taken;
+reg  axi_s_aw_burst_consumed_valid;
+reg  axi_s_aw_burst_consumed_taken;
+reg  axi_s_aw_size_consumed_valid;
+reg  axi_s_aw_size_consumed_taken;
+reg  axi_s_aw_len_consumed_valid;
+reg  axi_s_aw_len_consumed_taken;
+wire [2:0] bilinear_warp_control_memory_write_entry_bit_conca_bit_select_operand_0;
+reg  axi_s_w_strb_consumed_valid;
+reg [7:0] axi_s_w_strb_consumed_data;
+reg  axi_s_w_strb_consumed_taken;
+reg  axi_s_w_last_consumed_valid;
+reg  axi_s_w_last_consumed_data;
+reg  axi_s_w_last_consumed_taken;
+wire [23:0] bilinear_warp_control_memory_write_entry_bit_conca_10_bit_select_operand_0;
+wire [1:0] bilinear_warp_control_memory_write_entry_bit_conca_12_bit_select_operand_0;
+wire [3:0] bilinear_warp_control_memory_write_entry_bit_conca_12_bit_select_operand_4;
+wire [3:0] bilinear_warp_control_memory_write_entry_bit_conca_13_bit_select_operand_0;
+wire [28:0] bilinear_warp_control_memory_write_entry_bit_conca_14_bit_select_operand_0;
+wire [62:0] bilinear_warp_control_memory_write_entry_bit_conca_38_bit_select_operand_0;
+reg  bilinear_warp_control_memory_m_clken_pipeline_cond;
+reg  axi_s_b_resp_bilinear_warp_control_memory_write_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_b_resp_bilinear_warp_control_memory_write_state_1_stalln_reg;
+reg  axi_s_b_resp_bilinear_warp_control_memory_write_state_1_enable_cond_a;
+
+
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_0 = axi_s_write_state_inferred_reg;
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_1 = axi_s_write_word_addr_inferred_reg;
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_2 = axi_s_write_count_inferred_reg;
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx = (bilinear_warp_control_memory_write_entry_0 ^ 1'd1);
+end
+assign bilinear_warp_control_memory_write_entry_3 = ~(axi_s_aw_addr_consumed_valid);
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask_ = (bilinear_warp_control_memory_write_entry_3 & bilinear_warp_control_memory_write_entry_CaseCmpEx);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_NotCondit = (bilinear_warp_control_memory_write_entry_3 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__0 = (bilinear_warp_control_memory_write_entry_CaseCmpEx & bilinear_warp_control_memory_write_entry_NotCondit);
+end
+assign bilinear_warp_control_memory_write_entry_4 = ~(axi_s_w_data_consumed_valid);
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__1 = (bilinear_warp_control_memory_write_entry_0 & bilinear_warp_control_memory_write_entry_4);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_NotCondit_2 = (bilinear_warp_control_memory_write_entry_4 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__3 = (bilinear_warp_control_memory_write_entry_0 & bilinear_warp_control_memory_write_entry_NotCondit_2);
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_entry_5 = axi_s_aw_addr_consumed_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_selec = bilinear_warp_control_memory_write_entry_5[31:3];
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_conca = {bilinear_warp_control_memory_write_entry_bit_conca_bit_select_operand_0[2:0], bilinear_warp_control_memory_write_entry_bit_selec[28:0]};
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_entry_9 = axi_s_w_data_consumed_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_selec_4 = bilinear_warp_control_memory_write_entry_9[0];
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_selec_5 = bilinear_warp_control_memory_write_entry_9[31:0];
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_selec_6 = bilinear_warp_control_memory_write_entry_9[63:32];
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_entry_10 = axi_s_w_strb_consumed_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_selec_7 = bilinear_warp_control_memory_write_entry_10[5:4];
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_selec_8 = bilinear_warp_control_memory_write_entry_10[3:0];
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_entry_11 = axi_s_w_last_consumed_data;
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_12 = (bilinear_warp_control_memory_write_entry_2 + 8'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_not_1 = (bilinear_warp_control_memory_write_entry_11 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_1_9 = (bilinear_warp_control_memory_write_entry_0 & bilinear_warp_control_memory_write_entry_not_1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_conca_10 = {bilinear_warp_control_memory_write_entry_bit_conca_10_bit_select_operand_0[23:0], bilinear_warp_control_memory_write_entry_2[7:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_13 = (bilinear_warp_control_memory_write_entry_1 + {24'd0,bilinear_warp_control_memory_write_entry_bit_conca_10});
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_selec_11 = bilinear_warp_control_memory_write_entry_13[2:0];
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_cmp_i = (bilinear_warp_control_memory_write_entry_10 > -8'd65);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_conca_12 = {{bilinear_warp_control_memory_write_entry_bit_conca_12_bit_select_operand_0[1:0], bilinear_warp_control_memory_write_entry_bit_selec_7[1:0]}, bilinear_warp_control_memory_write_entry_bit_conca_12_bit_select_operand_4[3:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_cmp43_i = ({2'd0,bilinear_warp_control_memory_write_entry_bit_conca_12} == 8'd48);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_and28_i = (bilinear_warp_control_memory_write_entry_cmp_i & bilinear_warp_control_memory_write_entry_cmp43_i);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_conca_13 = {bilinear_warp_control_memory_write_entry_bit_conca_13_bit_select_operand_0[3:0], bilinear_warp_control_memory_write_entry_bit_selec_8[3:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_14 = ({4'd0,bilinear_warp_control_memory_write_entry_bit_conca_13} == 8'd15);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_conca_14 = {bilinear_warp_control_memory_write_entry_bit_conca_14_bit_select_operand_0[28:0], bilinear_warp_control_memory_write_entry_bit_selec_11[2:0]};
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_15 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd0);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_16 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_17 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd2);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_18 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd3);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_19 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd4);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_20 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd5);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_21 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd6);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_22 = ({29'd0,bilinear_warp_control_memory_write_entry_bit_conca_14} == 32'd7);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_23 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_15);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_24 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_16);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_25 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_17);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_26 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_18);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_27 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_19);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_28 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_20);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_29 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_21);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_CaseCmpEx_30 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_CaseCmpEx_22);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__31 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_23 & bilinear_warp_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__32 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_24 & bilinear_warp_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__33 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_25 & bilinear_warp_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__34 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_26 & bilinear_warp_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__35 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_27 & bilinear_warp_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__36 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_28 & bilinear_warp_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__37 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_29 & bilinear_warp_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_bit_conca_38 = {bilinear_warp_control_memory_write_entry_bit_conca_38_bit_select_operand_0[62:0], bilinear_warp_control_memory_write_entry_bit_selec_4};
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_15 = (bilinear_warp_control_memory_write_entry_bit_conca_38 != 64'd0);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__39 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_23 & bilinear_warp_control_memory_write_entry_and28_i);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__40 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_24 & bilinear_warp_control_memory_write_entry_and28_i);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__41 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_25 & bilinear_warp_control_memory_write_entry_and28_i);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__42 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_26 & bilinear_warp_control_memory_write_entry_and28_i);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__43 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_27 & bilinear_warp_control_memory_write_entry_and28_i);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__44 = (bilinear_warp_control_memory_write_entry_CaseCmpEx_28 & bilinear_warp_control_memory_write_entry_and28_i);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_exitMask__45 = (bilinear_warp_control_memory_write_entry_exitMask__3 & bilinear_warp_control_memory_write_entry_11);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_select77 = (bilinear_warp_control_memory_write_entry_exitMask__0 | bilinear_warp_control_memory_write_entry_0);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_select79 = (bilinear_warp_control_memory_write_entry_exitMask__3 ? bilinear_warp_control_memory_write_entry_1_9 : bilinear_warp_control_memory_write_entry_select77);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_ORCondM69 = (bilinear_warp_control_memory_write_entry_exitMask_ | bilinear_warp_control_memory_write_entry_exitMask__1);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_ORCondM70 = (bilinear_warp_control_memory_write_entry_exitMask__3 | bilinear_warp_control_memory_write_entry_ORCondM69);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_select72 = (bilinear_warp_control_memory_write_entry_ORCondM70 ? bilinear_warp_control_memory_write_entry_1 : {3'd0,bilinear_warp_control_memory_write_entry_bit_conca});
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_select = (bilinear_warp_control_memory_write_entry_exitMask__0 ? 8'd0 : bilinear_warp_control_memory_write_entry_2);
+end
+always @(*) begin
+		bilinear_warp_control_memory_write_entry_select66 = (bilinear_warp_control_memory_write_entry_exitMask__3 ? bilinear_warp_control_memory_write_entry_12 : bilinear_warp_control_memory_write_entry_select);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_write_state_inferred_reg <= 1'd0;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & 1'd1)) begin
+		axi_s_write_state_inferred_reg <= bilinear_warp_control_memory_write_entry_select79;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_write_word_addr_inferred_reg <= 32'd0;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & 1'd1)) begin
+		axi_s_write_word_addr_inferred_reg <= bilinear_warp_control_memory_write_entry_select72;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_write_count_inferred_reg <= 8'd0;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & 1'd1)) begin
+		axi_s_write_count_inferred_reg <= bilinear_warp_control_memory_write_entry_select66;
+	end
+end
+always @(posedge clk) begin
+	if (~(bilinear_warp_control_memory_write_state_stall_0)) begin
+		bilinear_warp_control_memory_write_valid_bit_0 <= (bilinear_warp_control_memory_write_II_counter & start);
+	end
+	if (reset) begin
+		bilinear_warp_control_memory_write_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_state_stall_0 = 1'd0;
+	if (bilinear_warp_control_memory_write_state_stall_1) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0) & ~(axi_s_aw_addr_consumed_valid))) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0) & ~(axi_s_aw_burst_consumed_valid))) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0) & ~(axi_s_aw_size_consumed_valid))) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0) & ~(axi_s_aw_len_consumed_valid))) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__3) & ~(axi_s_w_data_consumed_valid))) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__3) & ~(axi_s_w_strb_consumed_valid))) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__3) & ~(axi_s_w_last_consumed_valid))) begin
+		bilinear_warp_control_memory_write_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_state_enable_0 = (bilinear_warp_control_memory_write_valid_bit_0 & ~(bilinear_warp_control_memory_write_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(bilinear_warp_control_memory_write_state_stall_1)) begin
+		bilinear_warp_control_memory_write_valid_bit_1 <= bilinear_warp_control_memory_write_state_enable_0;
+	end
+	if (reset) begin
+		bilinear_warp_control_memory_write_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_state_stall_1 = 1'd0;
+	if ((((bilinear_warp_control_memory_write_valid_bit_1 & s_b_resp_valid) & ~(s_b_resp_ready)) & (axi_s_b_resp_bilinear_warp_control_memory_write_state_1_not_accessed_due_to_stall_a | axi_s_b_resp_bilinear_warp_control_memory_write_state_1_stalln_reg))) begin
+		bilinear_warp_control_memory_write_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_write_state_enable_1 = (bilinear_warp_control_memory_write_valid_bit_1 & ~(bilinear_warp_control_memory_write_state_stall_1));
+end
+always @(posedge clk) begin
+	bilinear_warp_control_memory_write_II_counter <= 1'd1;
+end
+always @(posedge clk) begin
+	if (bilinear_warp_control_memory_write_state_enable_0) begin
+		bilinear_warp_control_memory_write_entry_exitMask__45_reg_stage1 <= bilinear_warp_control_memory_write_entry_exitMask__45;
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_addr_consumed_taken) begin
+		axi_s_aw_addr_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_addr_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_addr_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_addr_consumed_data <= s_aw_addr;
+	end
+end
+always @(*) begin
+	axi_s_aw_addr_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0)) begin
+		axi_s_aw_addr_consumed_taken = ~(bilinear_warp_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_w_data_consumed_taken) begin
+		axi_s_w_data_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_data_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_w_data_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_data_consumed_data <= s_w_data;
+	end
+end
+always @(*) begin
+	axi_s_w_data_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__3)) begin
+		axi_s_w_data_consumed_taken = ~(bilinear_warp_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_burst_consumed_taken) begin
+		axi_s_aw_burst_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_burst_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_burst_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_aw_burst_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0)) begin
+		axi_s_aw_burst_consumed_taken = ~(bilinear_warp_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_size_consumed_taken) begin
+		axi_s_aw_size_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_size_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_size_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_aw_size_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0)) begin
+		axi_s_aw_size_consumed_taken = ~(bilinear_warp_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_len_consumed_taken) begin
+		axi_s_aw_len_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_len_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_len_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_aw_len_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__0)) begin
+		axi_s_aw_len_consumed_taken = ~(bilinear_warp_control_memory_write_state_stall_0);
+	end
+end
+assign bilinear_warp_control_memory_write_entry_bit_conca_bit_select_operand_0 = 3'd0;
+always @(posedge clk) begin
+	if (axi_s_w_strb_consumed_taken) begin
+		axi_s_w_strb_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_strb_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_w_strb_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_strb_consumed_data <= s_w_strb;
+	end
+end
+always @(*) begin
+	axi_s_w_strb_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__3)) begin
+		axi_s_w_strb_consumed_taken = ~(bilinear_warp_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_w_last_consumed_taken) begin
+		axi_s_w_last_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_last_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_w_last_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_last_consumed_data <= s_w_last;
+	end
+end
+always @(*) begin
+	axi_s_w_last_consumed_taken = 1'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__3)) begin
+		axi_s_w_last_consumed_taken = ~(bilinear_warp_control_memory_write_state_stall_0);
+	end
+end
+assign bilinear_warp_control_memory_write_entry_bit_conca_10_bit_select_operand_0 = 24'd0;
+assign bilinear_warp_control_memory_write_entry_bit_conca_12_bit_select_operand_0 = 2'd0;
+assign bilinear_warp_control_memory_write_entry_bit_conca_12_bit_select_operand_4 = 4'd0;
+assign bilinear_warp_control_memory_write_entry_bit_conca_13_bit_select_operand_0 = 4'd0;
+assign bilinear_warp_control_memory_write_entry_bit_conca_14_bit_select_operand_0 = 29'd0;
+assign bilinear_warp_control_memory_write_entry_bit_conca_38_bit_select_operand_0 = 63'd0;
+always @(*) begin
+	bilinear_warp_control_memory_m_clken_pipeline_cond = ~(bilinear_warp_control_memory_write_state_stall_1);
+end
+always @(posedge clk) begin
+	axi_s_b_resp_bilinear_warp_control_memory_write_state_1_not_accessed_due_to_stall_a <= ((bilinear_warp_control_memory_write_state_stall_1 & s_b_resp_valid) & ~(s_b_resp_ready));
+end
+always @(posedge clk) begin
+	axi_s_b_resp_bilinear_warp_control_memory_write_state_1_stalln_reg <= ~(bilinear_warp_control_memory_write_state_stall_1);
+end
+always @(*) begin
+	axi_s_b_resp_bilinear_warp_control_memory_write_state_1_enable_cond_a = (bilinear_warp_control_memory_write_valid_bit_1 & (axi_s_b_resp_bilinear_warp_control_memory_write_state_1_not_accessed_due_to_stall_a | axi_s_b_resp_bilinear_warp_control_memory_write_state_1_stalln_reg));
+end
+always @(*) begin
+	ready = ~(bilinear_warp_control_memory_write_state_stall_0);
+end
+always @(posedge clk) begin
+	finish <= bilinear_warp_control_memory_write_state_enable_1;
+end
+always @(*) begin
+	axi_s_aw_ready = (~(axi_s_aw_len_consumed_valid) | axi_s_aw_len_consumed_taken);
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_w_ready = (~(axi_s_w_last_consumed_valid) | axi_s_w_last_consumed_taken);
+	if (reset) begin
+		axi_s_w_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_w_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_w_ready = 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_ctrl_write_en = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_CaseCmpEx_30)) begin
+		bilinear_warp_control_memory_ctrl_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_ctrl_write_data = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_CaseCmpEx_30)) begin
+		bilinear_warp_control_memory_ctrl_write_data = bilinear_warp_control_memory_write_entry_15;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_in_addr_write_en = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__31)) begin
+		bilinear_warp_control_memory_in_addr_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_in_addr_write_data = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__31)) begin
+		bilinear_warp_control_memory_in_addr_write_data = bilinear_warp_control_memory_write_entry_bit_selec_5;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_width_write_en = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__32)) begin
+		bilinear_warp_control_memory_out_width_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_width_write_data = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__32)) begin
+		bilinear_warp_control_memory_out_width_write_data = bilinear_warp_control_memory_write_entry_bit_selec_5;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_clken = bilinear_warp_control_memory_m_clken_pipeline_cond;
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_write_en_a = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__33)) begin
+		bilinear_warp_control_memory_m_write_en_a = 1'd1;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__34)) begin
+		bilinear_warp_control_memory_m_write_en_a = 1'd1;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__35)) begin
+		bilinear_warp_control_memory_m_write_en_a = 1'd1;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__36)) begin
+		bilinear_warp_control_memory_m_write_en_a = 1'd1;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__37)) begin
+		bilinear_warp_control_memory_m_write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_write_data_a = 0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__33)) begin
+		bilinear_warp_control_memory_m_write_data_a = bilinear_warp_control_memory_write_entry_bit_selec_5;
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__34)) begin
+		bilinear_warp_control_memory_m_write_data_a = bilinear_warp_control_memory_write_entry_bit_selec_5;
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__35)) begin
+		bilinear_warp_control_memory_m_write_data_a = bilinear_warp_control_memory_write_entry_bit_selec_5;
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__36)) begin
+		bilinear_warp_control_memory_m_write_data_a = bilinear_warp_control_memory_write_entry_bit_selec_5;
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__37)) begin
+		bilinear_warp_control_memory_m_write_data_a = bilinear_warp_control_memory_write_entry_bit_selec_5;
+	end
+end
+assign bilinear_warp_control_memory_m_read_en_a = 1'd0;
+always @(*) begin
+	bilinear_warp_control_memory_m_address_a = 4'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__33)) begin
+		bilinear_warp_control_memory_m_address_a = (1'd0 >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__34)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd2)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__35)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd4)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__36)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd6)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__37)) begin
+		bilinear_warp_control_memory_m_address_a = ((1'd0 + (4 * 32'd8)) >> 2'd2);
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_write_en_b = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__41)) begin
+		bilinear_warp_control_memory_m_write_en_b = 1'd1;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__42)) begin
+		bilinear_warp_control_memory_m_write_en_b = 1'd1;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__43)) begin
+		bilinear_warp_control_memory_m_write_en_b = 1'd1;
+	end
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__44)) begin
+		bilinear_warp_control_memory_m_write_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_m_write_data_b = 0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__41)) begin
+		bilinear_warp_control_memory_m_write_data_b = bilinear_warp_control_memory_write_entry_bit_selec_6;
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__42)) begin
+		bilinear_warp_control_memory_m_write_data_b = bilinear_warp_control_memory_write_entry_bit_selec_6;
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__43)) begin
+		bilinear_warp_control_memory_m_write_data_b = bilinear_warp_control_memory_write_entry_bit_selec_6;
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__44)) begin
+		bilinear_warp_control_memory_m_write_data_b = bilinear_warp_control_memory_write_entry_bit_selec_6;
+	end
+end
+assign bilinear_warp_control_memory_m_read_en_b = 1'd0;
+always @(*) begin
+	bilinear_warp_control_memory_m_address_b = 4'd0;
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__41)) begin
+		bilinear_warp_control_memory_m_address_b = ((1'd0 + (4 * 32'd1)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__42)) begin
+		bilinear_warp_control_memory_m_address_b = ((1'd0 + (4 * 32'd3)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__43)) begin
+		bilinear_warp_control_memory_m_address_b = ((1'd0 + (4 * 32'd5)) >> 2'd2);
+	end
+	if ((bilinear_warp_control_memory_write_valid_bit_0 & bilinear_warp_control_memory_write_entry_exitMask__44)) begin
+		bilinear_warp_control_memory_m_address_b = ((1'd0 + (4 * 32'd7)) >> 2'd2);
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_addr_write_en = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__39)) begin
+		bilinear_warp_control_memory_out_addr_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_addr_write_data = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__39)) begin
+		bilinear_warp_control_memory_out_addr_write_data = bilinear_warp_control_memory_write_entry_bit_selec_6;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_height_write_en = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__40)) begin
+		bilinear_warp_control_memory_out_height_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_warp_control_memory_out_height_write_data = 1'd0;
+	if ((bilinear_warp_control_memory_write_state_enable_0 & bilinear_warp_control_memory_write_entry_exitMask__40)) begin
+		bilinear_warp_control_memory_out_height_write_data = bilinear_warp_control_memory_write_entry_bit_selec_6;
+	end
+end
+assign s_b_resp = 2'd0;
+always @(*) begin
+	s_b_resp_valid = 1'd0;
+	if ((axi_s_b_resp_bilinear_warp_control_memory_write_state_1_enable_cond_a & bilinear_warp_control_memory_write_entry_exitMask__45_reg_stage1)) begin
+		s_b_resp_valid = 1'd1;
+	end
+end
+
+endmodule
+
+
+
+`timescale 1 ns / 1 ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+module axi_master_warpPerspective_data_receiver_fifo # (
+    parameter latency = 1,
+    parameter data_width = 32,
+    parameter fifo_depth = $clog2(latency+1) 
+) (
+    input clk,
+    input reset,
+    input op_start, // Asserted when the operation that gives data to this data receiver start. This starts the shift register. 
+    input user_enable, // Whether the return data is expected in the current cycle by the data path. 
+                       // For sequential case, it should be cur_state == usedState && !fsm_stall. For pipelined case, it should be an OR gate of all user state_enables. 
+    input  [data_width - 1 : 0] data_in,  // Return data from FU or RAM.
+    output [data_width - 1 : 0] data_out  // Data output to datapath (user).
+);
+
+wire user_expecting_data = user_enable;
+//// This shift register is to keep track of success data requests and to know
+// when the valid data returns from the FU.
+// <latency> cycles after a successful data request, a valid data returns.
+// This shift register shifts every clock cycle.
+wire data_in_valid;
+generate
+if (latency > 1) begin
+    reg [latency - 1: 0] shift_reg_data_in_valid;
+    assign data_in_valid = shift_reg_data_in_valid[latency - 1];
+    always @ (posedge clk) begin
+        if (reset)
+            shift_reg_data_in_valid <= {(latency - 1){1'b0}};
+        else
+            shift_reg_data_in_valid <=
+                {shift_reg_data_in_valid[latency - 2: 0], op_start};
+    end
+end else begin  // latency == 1.
+    reg shift_reg_data_in_valid;
+    assign data_in_valid = shift_reg_data_in_valid;
+    always @ (posedge clk) begin
+        shift_reg_data_in_valid <= reset ? 1'b0 : op_start;
+    end
+end
+endgenerate
+
+//// FWFT FIFO to store data.
+
+wire fifo_full;  // Used for assertion.
+wire fifo_write_en;
+wire fifo_empty;
+wire fifo_read_en;
+wire [data_width - 1 : 0] fifo_write_data = data_in;
+wire [data_width - 1 : 0] fifo_read_data;
+
+axi_master_warpPerspective_fwft_fifo fwft_fifo_inst(
+    .clk (clk),
+    .reset (reset),
+    .clken (1'b1),
+    // Interface to source.
+    .full (fifo_full),
+    .write_en (fifo_write_en),
+    .write_data (fifo_write_data),
+    // Interface to sink.
+    .empty (fifo_empty),
+    .read_en (fifo_read_en),
+    .read_data (fifo_read_data),
+    .usedw(),
+    .almost_empty(),
+    .almost_full()
+);
+defparam
+    fwft_fifo_inst.width = data_width,
+    fwft_fifo_inst.widthad = fifo_depth,
+    fwft_fifo_inst.depth = latency+1;
+
+`ifndef DATA_RECEIVER_FIFO_METHOD_2
+//// FIFO read, write and output MUX select.
+assign fifo_write_en = data_in_valid & (!fifo_empty | !user_expecting_data);
+//assign fifo_write_en = data_in_valid & !user_expecting_data;
+assign fifo_read_en = user_expecting_data;// & !fifo_empty;
+assign data_out = fifo_empty ? data_in : fifo_read_data;
+`else
+assign fifo_write_en = data_in_valid;
+assign fifo_read_en = user_expecting_data & !user_stall;
+assign data_out = (shift_reg_data_in_valid != shift_reg_user_expecting_data) ?  data_in : fifo_read_data;
+`endif
+
+/* synthesis translate_off */
+always @ (posedge clk) begin
+    if (fifo_write_en & fifo_full) begin
+        $write("Error: Data receiver FIFO is full when attempting to write.\n");
+        $finish;
+    end
+end
+/* synthesis translate_on */
+
+// Some synthesis tools (Synplify) do not natively support clog2, so we provide an
+// implementation here.
+function integer clog2;
+    input integer value;
+    begin
+        value = value-1;
+        for (clog2=0; value>0; clog2=clog2+1) begin        
+            value = value>>1;
+        end
+    end
+endfunction
+
+endmodule
+
+
+`timescale 1 ns / 1 ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+module axi_master_warpPerspective_fwft_fifo # (
+    parameter width = 32,
+    parameter widthad = 3,
+    parameter depth = 8,
+    parameter almost_empty_value = 2,
+    parameter almost_full_value = 2,
+    parameter name = "",
+    parameter ramstyle = "",
+    parameter disable_full_empty_check = 0
+) (
+    input reset,
+    input clk,
+    input clken,
+    // Interface to source.
+    output full,
+    output almost_full,
+    input write_en,
+    input [width-1:0] write_data,
+    // Interface to sink.
+    output empty,
+    output almost_empty,
+    input read_en,
+    output [width-1:0] read_data,
+    // Number of words stored in the FIFO.
+    output [widthad:0] usedw
+);
+
+generate
+if (depth == 0) begin
+	assign full = !read_en;
+	assign almost_full = 1'b1;
+	assign empty = !write_en;
+	assign almost_empty = 1'b1;
+	assign read_data = write_data;
+end else if (ramstyle == "block" || ramstyle == "") begin
+    axi_master_warpPerspective_fwft_fifo_bram # (
+      .width (width),
+      .widthad (widthad),
+      .depth (depth),
+      .almost_empty_value (almost_empty_value),
+      .almost_full_value (almost_full_value),
+      .name (name),
+      .ramstyle (ramstyle),
+      .disable_full_empty_check (disable_full_empty_check)
+    ) fwft_fifo_bram_inst (
+      .reset (reset),
+      .clk (clk),
+      .clken (clken),
+      .full (full),
+      .almost_full (almost_full),
+      .write_en (write_en),
+      .write_data (write_data),
+      .empty (empty),
+      .almost_empty (almost_empty),
+      .read_en (read_en),
+      .read_data (read_data),
+      .usedw (usedw)
+    );
+end else begin // if (ramstyle == distributed || ramstyle == registers)
+    axi_master_warpPerspective_fwft_fifo_lutram # (
+      .width (width),
+      .widthad (widthad),
+      .depth (depth),
+      .almost_empty_value (almost_empty_value),
+      .almost_full_value (almost_full_value),
+      .name (name),
+      .ramstyle (ramstyle),
+      .disable_full_empty_check (disable_full_empty_check)
+    ) fwft_fifo_lutram_inst (
+      .reset (reset),
+      .clk (clk),
+      .clken (clken),
+      .full (full),
+      .almost_full (almost_full),
+      .write_en (write_en),
+      .write_data (write_data),
+      .empty (empty),
+      .almost_empty (almost_empty),
+      .read_en (read_en),
+      .read_data (read_data),
+      .usedw (usedw)
+    );
+end
+endgenerate
+
+/* synthesis translate_off */
+
+localparam NUM_CYCLES_BETWEEN_STALL_WARNINGS = 1000000;
+integer num_empty_stall_cycles = 0;
+integer num_full_stall_cycles = 0;
+integer num_full_cycles = 0;
+
+always @ (posedge clk) begin
+    if (num_empty_stall_cycles == NUM_CYCLES_BETWEEN_STALL_WARNINGS) begin
+        num_empty_stall_cycles = 0;
+        if (name == "")
+            $display("Warning: fifo_read() has been stalled for %d cycles due to FIFO being empty.", NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+        else
+            $display("Warning: fifo_read() from %s has been stalled for %d cycles due to FIFO being empty.", name, NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+    end else if (empty & read_en)
+        num_empty_stall_cycles = num_empty_stall_cycles + 1;
+    else
+        num_empty_stall_cycles = 0;
+
+
+    if (num_full_stall_cycles == NUM_CYCLES_BETWEEN_STALL_WARNINGS) begin
+        num_full_stall_cycles = 0;
+        if (name == "")
+            $display("Warning: fifo_write() has been stalled for %d cycles due to FIFO being full.", NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+        else
+            $display("Warning: fifo_write() to %s has been stalled for %d cycles due to FIFO being full.", name, NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+    end else if (full & write_en)
+        num_full_stall_cycles = num_full_stall_cycles + 1;
+    else
+        num_full_stall_cycles = 0;
+
+
+    if (num_full_cycles == NUM_CYCLES_BETWEEN_STALL_WARNINGS) begin
+        num_full_cycles = 0;
+        $display("Warning: FIFO %s has been full for %d cycles. The circuit may have been stalled with no progress.", name, NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+        $display("         Please examine the simulation waveform and increase the corresponding FIFO depth if necessary.");
+    end else if (full)
+        num_full_cycles = num_full_cycles + 1;
+    else
+        num_full_cycles = 0;
+end
+
+/* synthesis translate_on */
+
+
+endmodule
+
+//--------------------------------------------
+// Block-RAM-based FWFT FIFO implementation.
+//--------------------------------------------
+
+module axi_master_warpPerspective_fwft_fifo_bram # (
+    parameter width = 32,
+    parameter widthad = 4,
+    parameter depth = 16,
+    parameter almost_empty_value = 2,
+    parameter almost_full_value = 2,
+    parameter name = "",
+    parameter ramstyle = "block",
+    parameter disable_full_empty_check = 0
+) (
+    input reset,
+    input clk,
+    input clken,
+    // Interface to source.
+    output reg full,
+    output almost_full,
+    input write_en,
+    input [width-1:0] write_data,
+    // Interface to sink.
+    output reg empty,
+    output almost_empty,
+    input read_en,
+    output [width-1:0] read_data,
+    // Number of words stored in the FIFO.
+    output reg [widthad:0] usedw
+);
+
+
+// The output data from RAM.
+wire [width-1:0] ram_data;
+// An extra register to either sample fifo output or write_data.
+reg [width-1:0] sample_data;
+// Use a mealy FSM with 4 states to handle the special cases.
+localparam [1:0] EMPTY = 2'd0;
+localparam [1:0] FALL_THRU = 2'd1;
+localparam [1:0] LEFT_OVER = 2'd2;
+localparam [1:0] STEADY = 2'd3;
+reg [1:0] state = 2'd0;
+
+always @ (posedge clk) begin
+    if (reset) begin
+        state <= EMPTY;
+        sample_data <= {width{1'b0}};
+    end else begin
+        case (state)
+            EMPTY:
+                if (write_en) begin
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end else begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end
+            FALL_THRU:  // usedw must be 1.
+                if (write_en & ~read_en) begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end else if (~write_en & read_en) begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end else if (~write_en & ~read_en) begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end else begin // write_en & read_en
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end
+            LEFT_OVER:  // usedw must be > 1.
+                if (usedw == 1 & read_en & ~write_en) begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end else if (usedw == 1 & read_en & write_en) begin
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end else if (read_en) begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end else begin // ~read_en
+                    state <= LEFT_OVER;
+                    sample_data <= sample_data;
+                end
+            STEADY:
+                if (usedw == 1 & read_en & ~write_en) begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end else if (usedw == 1 & read_en & write_en) begin
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end else if (~read_en) begin
+                    state <= LEFT_OVER; // Only transition to LEFT_OVER.
+                    sample_data <= ram_data;
+                end else begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end
+            default: begin
+                 state <= EMPTY;
+                 sample_data <= {width{1'b0}};
+            end
+        endcase
+    end
+end
+
+assign read_data = (state == LEFT_OVER || state == FALL_THRU) ? sample_data
+                                                              : ram_data;
+
+wire write_handshake = (write_en & ~full);
+wire read_handshake = (read_en & ~empty);
+
+// Full and empty.
+generate
+if (disable_full_empty_check) begin
+    always @ (posedge clk) begin full <= 0; empty <= 0; end
+end else begin
+    always @ (posedge clk) begin
+      if (reset) begin
+        full <= 0;
+        empty <= 1;
+      end else begin
+        full <= (full & ~read_handshake) | ((usedw == depth - 1) & (write_handshake & ~read_handshake));
+        empty <= (empty & ~write_handshake) | ((usedw == 1) & (read_handshake & ~write_handshake));
+      end
+    end
+end
+endgenerate
+
+// FIXME: may want to make almost_full/empty registers too.
+assign almost_full = (usedw >= almost_full_value);
+assign almost_empty= (usedw <= almost_empty_value);
+
+// Read/Write port addresses.
+reg [widthad-1:0] write_address = 0;
+reg [widthad-1:0] read_address = 0;
+
+function [widthad-1:0] increment;
+    input [widthad-1:0] address;
+    input integer depth;
+    increment = (address == depth - 1) ? 0 : address + 1;
+endfunction
+
+always @ (posedge clk) begin
+    if (reset) begin
+        write_address <= 0;
+        read_address <= 0;
+    end else begin
+        if (write_en & ~full)
+            write_address <= increment(write_address, depth);
+        if ((read_en & ~empty & ~(usedw==1)) | (state == FALL_THRU))
+            read_address <= increment(read_address, depth);
+    end
+end
+
+// Usedw.
+always @ (posedge clk) begin
+    if (reset) begin
+        usedw <= 0;
+    end else begin
+        if (write_handshake & read_handshake)
+            usedw <= usedw;
+        else if (write_handshake)
+            usedw <= usedw + 1;
+        else if (read_handshake)
+            usedw <= usedw - 1;
+        else
+            usedw <= usedw;
+    end
+end
+
+/* synthesis translate_off */
+initial
+if ( widthad < $clog2(depth) ) begin
+    $display("Error: Invalid FIFO parameter, widthad=%d, depth=%d.",
+             widthad, depth);
+    $finish;
+end
+
+always @ (posedge clk) begin
+    if ( (state == EMPTY &&
+            (usedw != 0 || read_address != write_address)) ||
+         (state == FALL_THRU &&
+            ((read_address + usedw) % depth != write_address)) ||
+         (state == STEADY &&
+            ((read_address + usedw - 1) % depth != write_address)) ||
+         (state == LEFT_OVER &&
+            ((read_address + usedw - 1) % depth != write_address)) ) begin
+        $display("Error: FIFO read/write address mismatch with usedw.");
+        $display("\t rd_addr=%d, wr_addr=%d, usedw=%d, state=%d.",
+                    read_address, write_address, usedw, state);
+        $finish;
+    end
+    if (usedw > depth) begin
+        $display("Error: usedw goes out of range.");
+        $finish;
+    end
+end
+
+/* synthesis translate_on */
+
+/// Instantiation of inferred ram.
+axi_master_warpPerspective_simple_ram_dual_port_fifo ram_dual_port_inst (
+  .clk( clk ),
+  // Write port, i.e., interface to source.
+  .waddr( write_address ),
+  .wr_en( write_en & ~full ),
+  .din( write_data ),
+  // Read port, i.e., interface to sink.
+  .raddr( read_address ),
+  .dout( ram_data )
+);
+defparam ram_dual_port_inst.width = width;
+defparam ram_dual_port_inst.widthad = widthad;
+defparam ram_dual_port_inst.numwords = depth;
+
+endmodule
+
+//--------------------------------------------
+// LUT-RAM-based FWFT FIFO implementation.
+//--------------------------------------------
+
+module axi_master_warpPerspective_fwft_fifo_lutram # (
+    parameter width = 32,
+    parameter widthad = 4,
+    parameter depth = 16,
+    parameter almost_empty_value = 2,
+    parameter almost_full_value = 2,
+    parameter name = "",
+    parameter ramstyle = "",
+    parameter disable_full_empty_check = 0
+) (
+    input reset,
+    input clk,
+    input clken,
+    // Interface to source.
+    output reg full,
+    output almost_full,
+    input write_en,
+    input [width-1:0] write_data,
+    // Interface to sink.
+    output reg empty,
+    output almost_empty,
+    input read_en,
+    output [width-1:0] read_data,
+    // Number of words stored in the FIFO.
+    output reg [widthad:0] usedw
+);
+
+wire write_handshake = (write_en & ~full);
+wire read_handshake = (read_en & ~empty);
+
+// Full and empty.
+generate
+if (disable_full_empty_check) begin
+    always @ (posedge clk) begin full <= 0; empty <= 0; end
+end else begin
+    always @ (posedge clk) begin
+      if (reset) begin
+        full <= 0;
+        empty <= 1;
+      end else begin
+        full <= (full & ~read_handshake) | ((usedw == depth - 1) & (write_handshake & ~read_handshake));
+        empty <= (empty & ~write_handshake) | ((usedw == 1) & (read_handshake & ~write_handshake));
+      end
+    end
+end
+endgenerate
+
+// FIXME: may want to make almost_full/empty registers too.
+assign almost_full = (usedw >= almost_full_value);
+assign almost_empty= (usedw <= almost_empty_value);
+
+// Read/Write port addresses.
+reg [widthad-1:0] write_address = 0;
+reg [widthad-1:0] read_address = 0;
+
+function [widthad-1:0] increment;
+    input [widthad-1:0] address;
+    input integer depth;
+    increment = (address == depth - 1) ? 0 : address + 1;
+endfunction
+
+always @ (posedge clk) begin
+    if (reset) begin
+        write_address <= 0;
+        read_address <= 0;
+    end else begin
+        if (write_en & ~full)
+            write_address <= increment(write_address, depth);
+        if (read_en & ~empty)
+            read_address <= increment(read_address, depth);
+    end
+end
+
+// Usedw.
+always @ (posedge clk) begin
+    if (reset) begin
+        usedw <= 0;
+    end else begin
+        if (write_handshake & read_handshake)
+            usedw <= usedw;
+        else if (write_handshake)
+            usedw <= usedw + 1;
+        else if (read_handshake)
+            usedw <= usedw - 1;
+        else
+            usedw <= usedw;
+    end
+end
+
+/* synthesis translate_off */
+initial
+if ( widthad < $clog2(depth) ) begin
+    $display("Error: Invalid FIFO parameter, widthad=%d, depth=%d.",
+             widthad, depth);
+    $finish;
+end
+
+always @ (posedge clk) begin
+    if ((read_address + usedw) % depth != write_address) begin
+        $display("Error: FIFO read/write address mismatch with usedw.");
+        $display("\t rd_addr=%d, wr_addr=%d, usedw=%d.",
+                    read_address, write_address, usedw);
+        $finish;
+    end
+    if (usedw > depth) begin
+        $display("Error: usedw goes out of range.");
+        $finish;
+    end
+end
+
+/* synthesis translate_on */
+
+/// Instantiation of inferred ram.
+axi_master_warpPerspective_lutram_dual_port_fifo lutram_dual_port_inst (
+	.clk( clk ),
+	.clken( clken ),
+    // Write port, i.e., interface to source.
+	.address_a( write_address ),
+	.wren_a( write_en & ~full ),
+    .data_a( write_data ),
+    // Read port, i.e., interface to sink.
+	.address_b( read_address ),
+	.q_b( read_data )
+);
+defparam lutram_dual_port_inst.width = width;
+defparam lutram_dual_port_inst.widthad = widthad;
+defparam lutram_dual_port_inst.numwords = depth;
+defparam lutram_dual_port_inst.ramstyle = ramstyle;
+
+endmodule
+
+
+`timescale 1 ns / 1 ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+// Adapted from Example 5 in:
+// Inferring Microchip PolarFire RAM Blocks
+// Synopsys® Application Note, April 2021
+module axi_master_warpPerspective_simple_ram_dual_port_fifo # (
+  parameter  width    = 1'd0,
+  parameter  widthad  = 1'd0,
+  parameter  numwords = 1'd0
+) (
+  input clk,
+  input [(width-1):0] din,
+  input wr_en,
+  input [(widthad-1):0] waddr, raddr,
+  output [(width-1):0] dout
+);
+  reg [(widthad-1):0] raddr_reg;
+  reg [(width-1):0] mem [(numwords-1):0];
+
+  assign dout = mem[raddr_reg];
+
+  always @ (posedge clk) begin
+    raddr_reg <= raddr;
+    if (wr_en) begin
+      mem[waddr] <= din;
+    end
+  end
+
+endmodule
+
+// Zero-cycle read latency and One-cycle write latency.
+// Port A is for write, Port B is for read.
+module axi_master_warpPerspective_lutram_dual_port_fifo # (
+    parameter  width = 1'd0,
+    parameter  widthad = 1'd0,
+    parameter  numwords = 1'd0,
+    parameter  ramstyle = ""
+) (
+    input  clk,
+    input  clken,
+    input [widthad - 1:0] address_a,
+    input  wren_a,
+    input [width - 1:0] data_a,
+    input [widthad - 1:0] address_b,
+    output [width - 1:0] q_b
+);
+
+generate
+if (ramstyle == "registers") begin: _M
+   (* ramstyle = ramstyle, ram_style = ramstyle *) reg [width - 1:0] ram [numwords - 1:0] /* synthesis syn_ramstyle = "registers" */;
+end else begin: _M
+   (* ramstyle = ramstyle, ram_style = ramstyle *) reg [width - 1:0] ram [numwords - 1:0] /* synthesis syn_ramstyle = "distributed" */;
+end
+endgenerate
+
+assign q_b = _M.ram[address_b];
+
+always @ (posedge clk) begin
+  if (clken & wren_a) _M.ram[address_a] <= data_a;
+end
+
+endmodule
+
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+`timescale 1 ns / 1 ns
+module axi_master_warpPerspective_hls_register (
+    clk,
+    reset,
+    write_en,
+    read_data,
+    write_data
+);
+
+parameter width = 32;
+parameter init_value = 0;
+input  clk;
+input  reset;
+input  write_en;
+input  [width-1 : 0 ] write_data;
+output [width-1 : 0 ] read_data;
+reg    [width-1 : 0 ] register [0 : 0];
+
+always @(posedge clk)
+begin
+  if (reset)
+    register[0] <= init_value;
+  else if (write_en)
+    register[0] <= write_data;
+end
+assign read_data = register[0];
+endmodule
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+`timescale 1ns / 1ns
+module axi_master_warpPerspective_legup_mult # (
+  parameter widtha = 32,
+  parameter widthb = 32,
+  parameter widthp = 64,
+  parameter pipeline = 3,
+  parameter representation = "UNSIGNED",
+  parameter pipeline_stallable = 0 
+) (
+  input clock,
+  input aclr,
+  input clken,
+  input [widtha-1:0] dataa,
+  input [widthb-1:0] datab,
+  output [widthp-1:0] result
+);
+
+generate 
+if (pipeline == 0) begin
+  // If the number of pipeline stages is 0, 
+  // instantiate the combinational multiplier
+  axi_master_warpPerspective_legup_mult_core legup_mult_core_inst(
+      .dataa(dataa),
+      .datab(datab),
+      .result(result) 
+  );
+  defparam legup_mult_core_inst.widtha = widtha;
+  defparam legup_mult_core_inst.widthb = widthb;
+  defparam legup_mult_core_inst.widthp = widthp;
+  defparam legup_mult_core_inst.representation = representation;
+
+end else if (pipeline_stallable == 0) begin
+  // If the datapath that uses the multiplier is not a pipeline or 
+  // is a pipeline but is not stallable, or if the number of pipeline stages
+  // is 1 or less,
+  // simply instantiate the normal multiplier
+  axi_master_warpPerspective_legup_mult_pipelined legup_mult_pipelined_inst(
+      .clock(clock),
+      .aclr(aclr),
+      .clken(clken),
+      .dataa(dataa),
+      .datab(datab),
+      .result(result) 
+  );
+  defparam legup_mult_pipelined_inst.widtha = widtha;
+  defparam legup_mult_pipelined_inst.widthb = widthb;
+  defparam legup_mult_pipelined_inst.widthp = widthp;
+  defparam legup_mult_pipelined_inst.pipeline = pipeline;
+  defparam legup_mult_pipelined_inst.representation = representation;
+
+end 
+endgenerate
+
+endmodule
+
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+// combinational generic multiplier
+`timescale 1ns / 1ns
+
+module axi_master_warpPerspective_legup_mult_core(
+    dataa,
+    datab,
+    result  
+);
+
+parameter widtha = 32;
+parameter widthb = 32;
+parameter widthp = 64;
+parameter representation = "UNSIGNED";
+
+input [widtha-1:0] dataa;
+input [widthb-1:0] datab;
+output [widthp-1:0] result;
+
+generate
+if (representation == "UNSIGNED")
+begin
+
+    wire [widtha-1:0] dataa_in = dataa;
+    wire [widthb-1:0] datab_in = datab;
+    assign result = dataa_in * datab_in;
+
+end else begin
+
+    wire signed [widtha-1:0] dataa_in = dataa;
+    wire signed [widthb-1:0] datab_in = datab;
+    assign result = dataa_in * datab_in;
+
+end
+endgenerate
+
+endmodule
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+// generic multiplier with parameterizable pipeline stages
+`timescale 1ns / 1ns
+module axi_master_warpPerspective_legup_mult_pipelined(
+    clock,
+    aclr,
+    clken, 
+    dataa,
+    datab,
+    result  
+)/* synthesis syn_hier = fixed */;
+
+parameter widtha = 32;
+parameter widthb = 32;
+parameter widthp = 64;
+parameter pipeline = 3;
+parameter representation = "UNSIGNED";
+localparam num_input_pipelines = pipeline >> 1;
+localparam num_output_pipelines = pipeline - num_input_pipelines;
+
+input clock;
+input aclr;
+input clken; 
+
+input [widtha-1:0] dataa;
+input [widthb-1:0] datab;
+output [widthp-1:0] result;
+
+`define PIPELINED_MULTIPLIER_CORE                                                                                \
+    integer input_stage;                                                                                         \
+    always @(*)                                                                                                  \
+    begin                                                                                                        \
+      dataa_reg[0] <= dataa;                                                                                     \
+      datab_reg[0] <= datab;                                                                                     \
+    end                                                                                                          \
+    always @(posedge clock)                                                                                      \
+    begin                                                                                                        \
+      for (input_stage=0; input_stage<num_input_pipelines; input_stage=input_stage+1) begin                      \
+        if (aclr) begin                                                                                          \
+          dataa_reg[input_stage+1] <= 'd0;                                                                       \
+          datab_reg[input_stage+1] <= 'd0;                                                                       \
+        end else if (clken) begin                                                                                \
+          dataa_reg[input_stage+1] <= dataa_reg[input_stage];                                                    \
+          datab_reg[input_stage+1] <= datab_reg[input_stage];                                                    \
+        end                                                                                                      \
+      end                                                                                                        \
+    end                                                                                                          \
+    integer output_stage;                                                                                        \
+    always @(*)                                                                                                  \
+    begin                                                                                                        \
+      result_reg[0] <= dataa_reg[num_input_pipelines] * datab_reg[num_input_pipelines];                          \
+    end                                                                                                          \
+    always @(posedge clock)                                                                                      \
+    begin                                                                                                        \
+      for (output_stage=0; output_stage<num_output_pipelines; output_stage=output_stage+1) begin                 \
+        if (aclr) begin                                                                                          \
+           result_reg[output_stage+1] <= 'd0;                                                                    \
+        end else if (clken) begin                                                                                \
+           result_reg[output_stage+1] <= result_reg[output_stage];                                               \
+        end                                                                                                      \
+      end                                                                                                        \
+    end                                                                                                          \
+    assign result = result_reg[num_output_pipelines];
+
+generate
+if (representation == "UNSIGNED")
+begin
+    reg [widtha-1:0] dataa_reg [num_input_pipelines:0];
+    reg [widthb-1:0] datab_reg [num_input_pipelines:0];
+    reg [widthp-1:0] result_reg [num_output_pipelines:0];
+
+    `PIPELINED_MULTIPLIER_CORE
+
+end else begin
+
+    reg signed [widtha-1:0] dataa_reg [num_input_pipelines:0];
+    reg signed [widthb-1:0] datab_reg [num_input_pipelines:0];
+    reg signed [widthp-1:0] result_reg [num_output_pipelines:0];
+
+    `PIPELINED_MULTIPLIER_CORE
+
+end
+endgenerate
+
+endmodule
+
+`timescale 1ns / 1ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+module axi_master_warpPerspective_ram_dual_port (
+	clk,
+	clken,
+	address_a,
+	read_en_a,
+	write_en_a,
+	write_data_a,
+	byte_en_a,
+	read_data_a,
+	address_b,
+	read_en_b,
+	write_en_b,
+	write_data_b,
+	byte_en_b,
+	read_data_b
+);
+
+parameter  width_a = 1'd1;
+parameter  widthad_a = 1'd1;
+parameter  numwords_a = 1'd1;
+parameter  width_be_a = 1'd1;
+parameter  width_b = 1'd1;
+parameter  widthad_b = 1'd1;
+parameter  numwords_b = 1'd1;
+parameter  width_be_b = 1'd1;
+parameter  init_file = "";
+parameter  latency = 1;
+parameter  fpga_device = "";
+parameter  uses_byte_enables = 1'd0;
+parameter  synthesis_ram_style = "";
+
+input  clk;
+input  clken;
+input [(widthad_a-1):0] address_a;
+output wire [(width_a-1):0] read_data_a;
+wire [(width_a-1):0] read_data_a_wire;
+input  read_en_a;
+input  write_en_a;
+input [(width_a-1):0] write_data_a;
+input [width_be_a-1:0] byte_en_a;
+input [(widthad_b-1):0] address_b;
+output wire [(width_b-1):0] read_data_b;
+wire [(width_b-1):0] read_data_b_wire;
+input  read_en_b;
+input  write_en_b;
+input [(width_b-1):0] write_data_b;
+input [width_be_b-1:0] byte_en_b;
+
+localparam input_latency = ((latency - 1) >> 1);
+localparam output_latency = (latency - 1) - input_latency;
+localparam output_latency_inner_module = ((output_latency >= 1) ? 1 : 0);
+localparam output_latency_wrapper = output_latency - output_latency_inner_module;
+integer latency_num;
+
+// additional input registers if needed
+reg [(widthad_a-1):0] address_a_reg[input_latency:0];
+reg  write_en_a_reg[input_latency:0];
+reg [(width_a-1):0] write_data_a_reg[input_latency:0];
+reg [(width_be_a-1):0] byte_en_a_reg[input_latency:0];
+reg [(widthad_b-1):0] address_b_reg[input_latency:0];
+reg  write_en_b_reg[input_latency:0];
+reg [(width_b-1):0] write_data_b_reg[input_latency:0];
+reg [(width_be_b-1):0] byte_en_b_reg[input_latency:0];
+
+always @(*) begin
+    address_a_reg[0] = address_a;
+    write_en_a_reg[0] = write_en_a;
+    write_data_a_reg[0] = write_data_a;
+    byte_en_a_reg[0] = byte_en_a;
+    address_b_reg[0] = address_b;
+    write_en_b_reg[0] = write_en_b;
+    write_data_b_reg[0] = write_data_b;
+    byte_en_b_reg[0] = byte_en_b;
+end
+
+always @(posedge clk)
+if (clken) begin
+    for (latency_num = 0; latency_num < input_latency; latency_num = latency_num + 1) begin
+        address_a_reg[latency_num + 1] <= address_a_reg[latency_num];
+        write_en_a_reg[latency_num + 1] <= write_en_a_reg[latency_num];
+        write_data_a_reg[latency_num + 1] <= write_data_a_reg[latency_num];
+        byte_en_a_reg[latency_num + 1] <= byte_en_a_reg[latency_num];
+        address_b_reg[latency_num + 1] <= address_b_reg[latency_num];
+        write_en_b_reg[latency_num + 1] <= write_en_b_reg[latency_num];
+        write_data_b_reg[latency_num + 1] <= write_data_b_reg[latency_num];
+        byte_en_b_reg[latency_num + 1] <= byte_en_b_reg[latency_num];
+    end
+end
+
+generate
+if (uses_byte_enables == 1) begin : byte_enabled
+
+    // instantiate byte-enabled RAM 
+    axi_master_warpPerspective_ram_dual_port_byte_enabled ram_dual_port_byte_enabled_inst(
+        .clk(clk),
+        .clken(clken),
+        .address_a(address_a_reg[input_latency]),
+        .read_en_a(),
+        .write_en_a(write_en_a_reg[input_latency]),
+        .write_data_a(write_data_a_reg[input_latency]),
+        .byte_en_a(byte_en_a_reg[input_latency]),
+        .read_data_a(read_data_a_wire),
+        .address_b(address_b_reg[input_latency]),
+        .read_en_b(),
+        .write_en_b(write_en_b_reg[input_latency]),
+        .write_data_b(write_data_b_reg[input_latency]),
+        .byte_en_b(byte_en_b_reg[input_latency]),
+        .read_data_b(read_data_b_wire)
+    );
+    defparam
+        ram_dual_port_byte_enabled_inst.width_a = width_a,
+        ram_dual_port_byte_enabled_inst.width_be_a = width_be_a,
+        ram_dual_port_byte_enabled_inst.widthad_a = widthad_a,
+        ram_dual_port_byte_enabled_inst.numwords_a = numwords_a,
+        ram_dual_port_byte_enabled_inst.width_b = width_b,
+        ram_dual_port_byte_enabled_inst.width_be_b = width_be_b,
+        ram_dual_port_byte_enabled_inst.widthad_b = widthad_b,
+        ram_dual_port_byte_enabled_inst.numwords_b = numwords_b,
+        ram_dual_port_byte_enabled_inst.use_output_reg = output_latency_inner_module,
+        ram_dual_port_byte_enabled_inst.fpga_device = fpga_device,
+        ram_dual_port_byte_enabled_inst.synthesis_ram_style = synthesis_ram_style,
+        ram_dual_port_byte_enabled_inst.init_file = init_file;
+
+end else begin : regular
+
+    // instantiate non-byte-enabled RAM
+    axi_master_warpPerspective_ram_dual_port_regular ram_dual_port_regular_inst(
+        .clk(clk),
+        .clken(clken),
+        .address_a(address_a_reg[input_latency]),
+        .read_en_a(),
+        .write_en_a(write_en_a_reg[input_latency]),
+        .write_data_a(write_data_a_reg[input_latency]),        
+        .read_data_a(read_data_a_wire),
+        .address_b(address_b_reg[input_latency]),
+        .read_en_b(),
+        .write_en_b(write_en_b_reg[input_latency]),
+        .write_data_b(write_data_b_reg[input_latency]),        
+        .read_data_b(read_data_b_wire)
+    );
+    defparam
+        ram_dual_port_regular_inst.width_a = width_a,        
+        ram_dual_port_regular_inst.widthad_a = widthad_a,
+        ram_dual_port_regular_inst.numwords_a = numwords_a,
+        ram_dual_port_regular_inst.width_b = width_b,        
+        ram_dual_port_regular_inst.widthad_b = widthad_b,
+        ram_dual_port_regular_inst.numwords_b = numwords_b,
+        ram_dual_port_regular_inst.use_output_reg = output_latency_inner_module,
+        ram_dual_port_regular_inst.fpga_device = fpga_device,
+        ram_dual_port_regular_inst.synthesis_ram_style = synthesis_ram_style,
+        ram_dual_port_regular_inst.init_file = init_file;
+   
+end
+endgenerate
+
+// additional output registers if needed
+reg [(width_a-1):0] read_data_a_reg[output_latency_wrapper:0];
+
+always @(*) begin
+   read_data_a_reg[0] <= read_data_a_wire;
+end
+
+always @(posedge clk)
+if (clken) begin
+    for (latency_num = 0; latency_num < output_latency_wrapper; latency_num = latency_num + 1) begin
+       read_data_a_reg[latency_num + 1] <= read_data_a_reg[latency_num];
+    end
+end
+
+assign read_data_a = read_data_a_reg[output_latency_wrapper];
+
+reg [(width_b-1):0] read_data_b_reg[output_latency_wrapper:0];
+
+always @(*) begin
+    read_data_b_reg[0] <= read_data_b_wire;
+end
+
+always @(posedge clk)
+if (clken) begin
+    for (latency_num = 0; latency_num < output_latency_wrapper; latency_num = latency_num + 1) begin
+        read_data_b_reg[latency_num + 1] <= read_data_b_reg[latency_num];
+    end
+end
+
+assign read_data_b = read_data_b_reg[output_latency_wrapper];
+
+endmodule
+
+// define all the logic that will be used multiple times in different modules
+
+`define SHLS_RAM_DUAL_PORT_INITIALIZATION      \
+    initial begin                              \
+        if (init_file != "")                   \
+            $readmemb(init_file, ram);         \
+    end
+
+`define SHLS_RAM_DUAL_PORT_BYTE_ENABLE_LOGIC                                                                                        \
+    always @ (posedge clk) begin                                                                                                    \
+        if (clken) begin                                                                                                            \
+            read_data_a_wire <= ram[address_a];                                                                                     \
+            if (write_en_a) begin                                                                                                   \
+                for(bank_num = 0; bank_num < width_be_a; bank_num = bank_num + 1) begin                                             \
+                    if (byte_en_a[bank_num]) begin                                                                                  \
+                        ram[address_a][bank_num * byte_width +: byte_width] <= write_data_a[bank_num * byte_width +: byte_width];   \
+                    end                                                                                                             \
+                end                                                                                                                 \
+            end                                                                                                                     \
+        end                                                                                                                         \
+        if (clken) begin                                                                                                            \
+            read_data_b_wire <= ram[address_b];                                                                                     \
+            if (write_en_b) begin                                                                                                   \
+                for(bank_num = 0; bank_num < width_be_b; bank_num = bank_num + 1) begin                                             \
+                    if (byte_en_b[bank_num]) begin                                                                                  \
+                        ram[address_b][bank_num * byte_width +: byte_width] <= write_data_b[bank_num * byte_width +: byte_width];   \
+                    end                                                                                                             \
+                end                                                                                                                 \
+            end                                                                                                                     \
+        end                                                                                                                         \
+    end
+
+`define SHLS_RAM_DUAL_PORT_LOGIC                        \
+    always @ (posedge clk) begin                        \
+        if (clken) begin                                \
+            read_data_a_wire <= ram[address_a];         \
+            if (write_en_a) begin                       \
+                ram[address_a] <= write_data_a;         \
+            end                                         \
+        end                                             \
+        if (clken) begin                                \
+            read_data_b_wire <= ram[address_b];         \
+            if (write_en_b) begin                       \
+                ram[address_b] <= write_data_b;         \
+            end                                         \
+        end                                             \
+    end 
+
+`define SHLS_RAM_DUAL_PORT_LOGIC_OUTPUT_REG                                         \
+    reg [(width_a-1):0] read_data_a_reg/* synthesis syn_allow_retiming = 0 */;      \
+    always @(posedge clk)                                                           \
+    if (clken) begin                                                                \
+        read_data_a_reg <= read_data_a_wire;                                        \
+    end                                                                             \
+    assign read_data_a = read_data_a_reg;                                           \
+    reg [(width_b-1):0] read_data_b_reg/* synthesis syn_allow_retiming = 0 */;      \
+    always @(posedge clk)                                                           \
+    if (clken) begin                                                                \
+        read_data_b_reg <= read_data_b_wire;                                        \
+    end                                                                             \
+    assign read_data_b = read_data_b_reg;
+
+module axi_master_warpPerspective_ram_dual_port_byte_enabled (
+	clk,
+	clken,
+	address_a,
+	read_en_a,
+	write_en_a,
+	write_data_a,
+	byte_en_a,
+	read_data_a,
+	address_b,
+	read_en_b,
+	write_en_b,
+	write_data_b,
+	byte_en_b,
+	read_data_b
+);
+
+parameter  width_a = 1'd1;
+parameter  widthad_a = 1'd1;
+parameter  numwords_a = 1'd1;
+parameter  width_be_a = 1'd1;
+parameter  width_b = 1'd1;
+parameter  widthad_b = 1'd1;
+parameter  numwords_b = 1'd1;
+parameter  width_be_b = 1'd1;
+parameter  init_file = "";
+parameter  use_output_reg = 0;
+parameter  fpga_device = "";
+parameter  synthesis_ram_style = "";
+localparam  byte_width = 8;
+integer bank_num;
+
+input  clk;
+input  clken;
+input [(widthad_a-1):0] address_a;
+output wire [(width_a-1):0] read_data_a;
+reg [(width_a-1):0] read_data_a_wire;
+input  read_en_a;
+input  write_en_a;
+input [(width_a-1):0] write_data_a;
+input [width_be_a-1:0] byte_en_a;
+input [(widthad_b-1):0] address_b;
+output wire [(width_b-1):0] read_data_b;
+reg [(width_b-1):0] read_data_b_wire;
+input  read_en_b;
+input  write_en_b;
+input [(width_b-1):0] write_data_b;
+input [width_be_b-1:0] byte_en_b;
+
+generate
+if (synthesis_ram_style == "registers" || (fpga_device == "SmartFusion2" && init_file != "") ) begin
+
+    reg [width_a-1:0] ram [numwords_a-1:0] /* synthesis syn_ramstyle = "registers" */;
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_BYTE_ENABLE_LOGIC
+
+end else begin : ram
+
+    reg [width_a-1:0] ram [numwords_a-1:0];
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_BYTE_ENABLE_LOGIC
+
+end
+endgenerate
+
+generate
+if (use_output_reg == 1) begin
+
+    // if using output registers
+    `SHLS_RAM_DUAL_PORT_LOGIC_OUTPUT_REG
+
+end else begin
+
+    // if not using output registers
+    assign read_data_a = read_data_a_wire;
+    assign read_data_b = read_data_b_wire;
+
+end
+endgenerate
+
+endmodule
+
+module axi_master_warpPerspective_ram_dual_port_regular (
+	clk,
+	clken,
+	address_a,
+	read_en_a,
+	write_en_a,
+	write_data_a,
+	read_data_a,
+	address_b,
+	read_en_b,
+	write_en_b,
+	write_data_b,
+	read_data_b
+);
+
+parameter  width_a = 1'd1;
+parameter  widthad_a = 1'd1;
+parameter  numwords_a = 1'd1;
+parameter  width_b = 1'd1;
+parameter  widthad_b = 1'd1;
+parameter  numwords_b = 1'd1;
+parameter  init_file = "";
+parameter  use_output_reg = 0;
+parameter  fpga_device = "";
+parameter  synthesis_ram_style = "";
+
+input  clk;
+input  clken;
+input [(widthad_a-1):0] address_a;
+output wire [(width_a-1):0] read_data_a;
+reg [(width_a-1):0] read_data_a_wire;
+input  read_en_a;
+input  write_en_a;
+input [(width_a-1):0] write_data_a;
+input [(widthad_b-1):0] address_b;
+output wire [(width_b-1):0] read_data_b;
+reg [(width_b-1):0] read_data_b_wire;
+input  read_en_b;
+input  write_en_b;
+input [(width_b-1):0] write_data_b;
+
+generate
+if (synthesis_ram_style == "registers" || (fpga_device == "SmartFusion2" && init_file != "") ) begin
+
+    reg [width_a-1:0] ram [numwords_a-1:0] /* synthesis syn_ramstyle = "registers" */;
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_LOGIC
+
+end else begin : ram
+
+    reg [width_a-1:0] ram [numwords_a-1:0];
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_LOGIC
+
+end
+endgenerate
+
+generate
+if (use_output_reg == 1) begin
+
+    // if using output registers
+    `SHLS_RAM_DUAL_PORT_LOGIC_OUTPUT_REG
+
+end else begin
+
+    // if not using output registers
+    assign read_data_a = read_data_a_wire;
+    assign read_data_b = read_data_b_wire;
+
+end
+endgenerate
+        
+endmodule
+
+`timescale 1 ns / 1 ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+module axi_master_warpPerspective_warp_round_robin_arbiter # (
+    parameter N = 4
+) (
+        rst_an,
+        clk,
+        req_in,
+        grant_final,
+        memory_controller_waitrequest
+);
+
+input           rst_an;
+input           clk;
+input   [N-1:0] req_in;
+input   memory_controller_waitrequest;
+output  [N-1:0] grant_final;
+
+wire [N-1:0] req_final;
+wire [N-1:0] req;
+reg     [N-1:0] req_reg;
+reg     [N-1:0] rotate_ptr;
+wire    [N-1:0] mask_req;
+wire    [N-1:0] mask_grant;
+wire    [N-1:0] grant_comb;
+reg     [N-1:0] grant;
+wire            no_mask_req;
+wire    [N-1:0] nomask_grant;
+wire            update_ptr;
+genvar i;
+
+// This module used to be printed from VerilogWriter and there used to be the following
+// comment and a different assignment for grant_final when targeting hybrid flow:
+// "For the hybrid case, the grant signal should only be asserted for one cycle
+// once the grant signal goes low or else it will make multiple requests over Avalon.
+// For pure HW case, it makes a combinational loop for Pthreads+OpenMP case when
+// the waitrequest is in the if condition."
+// The assignment when targeting hybrid was:
+// assign grant_final = (memory_controller_waitrequest) ? {N{1'b0}}: grant_comb;
+assign grant_final = grant_comb;
+always @(posedge clk)
+begin
+        if (!memory_controller_waitrequest)
+        req_reg[N-1:0] <= req_final[N-1:0];
+end
+
+assign req_final[N-1:0] = req_in[N-1:0] & ~req_reg[N-1:0];
+assign req[N-1:0] = req_in[N-1:0];
+// rotate pointer update logic
+assign update_ptr = |grant[N-1:0];
+always @ (posedge clk or negedge rst_an)
+begin
+        if (!rst_an)
+        begin
+                rotate_ptr[0] <= 1'b1;
+                rotate_ptr[1] <= 1'b1;
+        end
+        else if (update_ptr)
+        begin
+                // note: N must be at least 2
+                rotate_ptr[0] <= grant[N-1];
+                rotate_ptr[1] <= grant[N-1] | grant[0];
+        end
+end
+
+generate
+for (i=2;i<N;i=i+1) begin : abc
+always @ (posedge clk or negedge rst_an)
+begin
+        if (!rst_an)
+                rotate_ptr[i] <= 1'b1;
+        else if (update_ptr)
+                rotate_ptr[i] <= grant[N-1] | (|grant[i-1:0]);
+end
+end
+endgenerate
+
+// mask grant generation logic
+assign mask_req[N-1:0] = req[N-1:0] & rotate_ptr[N-1:0];
+
+assign mask_grant[0] = mask_req[0];
+generate
+for (i=1;i<N;i=i+1) begin : abcd
+        assign mask_grant[i] = (~|mask_req[i-1:0]) & mask_req[i];
+end
+endgenerate
+
+// non-mask grant generation logic
+assign nomask_grant[0] = req[0];
+generate
+for (i=1;i<N;i=i+1) begin : abcde
+        assign nomask_grant[i] = (~|req[i-1:0]) & req[i];
+end
+endgenerate
+
+// grant generation logic
+assign no_mask_req = ~|mask_req[N-1:0];
+assign grant_comb[N-1:0] = mask_grant[N-1:0] | (nomask_grant[N-1:0] & {N{no_mask_req}});
+
+always @ (posedge clk or negedge rst_an)
+begin
+        if (!rst_an)    grant[N-1:0] <= {N{1'b0}};
+        else if (!memory_controller_waitrequest) grant[N-1:0] <= grant_comb[N-1:0] & ~grant[N-1:0];
+
+end
+
+endmodule
+

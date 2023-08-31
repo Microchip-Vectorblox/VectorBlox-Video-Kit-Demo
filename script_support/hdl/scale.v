@@ -1,0 +1,13428 @@
+// ----------------------------------------------------------------------------
+// Smart High-Level Synthesis Tool Version 2023.2
+// Copyright (c) 2015-2023 Microchip Technology Inc. All Rights Reserved.
+// For support, please visit https://microchiptech.github.io/fpga-hls-docs/techsupport.html.
+// Date: Tue Jul 25 16:07:21 2023
+// ----------------------------------------------------------------------------
+`define MEMORY_CONTROLLER_ADDR_SIZE 32
+//
+// NOTE:// If you take this code outside the SmartHLS directory structure
+// into your own, then you should adjust this constant accordingly.
+// E.g. for simulation on Modelsim:
+//		vlog +define+MEM_INIT_DIR=/path/to/rtl/mem_init/ scaler_checksum_version.v  ...
+//
+`ifndef MEM_INIT_DIR
+`define MEM_INIT_DIR "../hdl/"
+`endif
+
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_top
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	axi_s_aw_addr,
+	axi_s_aw_ready,
+	axi_s_aw_valid,
+	axi_s_aw_burst,
+	axi_s_aw_size,
+	axi_s_aw_len,
+	axi_s_w_data,
+	axi_s_w_ready,
+	axi_s_w_valid,
+	axi_s_w_strb,
+	axi_s_w_last,
+	axi_s_b_resp,
+	axi_s_b_resp_ready,
+	axi_s_b_resp_valid,
+	axi_s_ar_addr,
+	axi_s_ar_ready,
+	axi_s_ar_valid,
+	axi_s_ar_burst,
+	axi_s_ar_size,
+	axi_s_ar_len,
+	axi_s_r_data,
+	axi_s_r_ready,
+	axi_s_r_valid,
+	axi_s_r_resp,
+	axi_s_r_last,
+	master_ar_addr,
+	master_ar_ready,
+	master_ar_valid,
+	master_ar_burst,
+	master_ar_size,
+	master_ar_len,
+	master_r_data,
+	master_r_ready,
+	master_r_valid,
+	master_r_resp,
+	master_r_last,
+	master_aw_addr,
+	master_aw_ready,
+	master_aw_valid,
+	master_aw_burst,
+	master_aw_size,
+	master_aw_len,
+	master_w_data,
+	master_w_ready,
+	master_w_valid,
+	master_w_strb,
+	master_w_last,
+	master_b_resp,
+	master_b_resp_ready,
+	master_b_resp_valid
+);
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] axi_s_aw_addr;
+output reg  axi_s_aw_ready;
+input  axi_s_aw_valid;
+input [1:0] axi_s_aw_burst;
+input [2:0] axi_s_aw_size;
+input [7:0] axi_s_aw_len;
+input [63:0] axi_s_w_data;
+output reg  axi_s_w_ready;
+input  axi_s_w_valid;
+input [7:0] axi_s_w_strb;
+input  axi_s_w_last;
+output reg [1:0] axi_s_b_resp;
+input  axi_s_b_resp_ready;
+output reg  axi_s_b_resp_valid;
+input [31:0] axi_s_ar_addr;
+output reg  axi_s_ar_ready;
+input  axi_s_ar_valid;
+input [1:0] axi_s_ar_burst;
+input [2:0] axi_s_ar_size;
+input [7:0] axi_s_ar_len;
+output reg [63:0] axi_s_r_data;
+input  axi_s_r_ready;
+output reg  axi_s_r_valid;
+output reg [1:0] axi_s_r_resp;
+output reg  axi_s_r_last;
+output reg [31:0] master_ar_addr;
+input  master_ar_ready;
+output reg  master_ar_valid;
+output reg [1:0] master_ar_burst;
+output reg [2:0] master_ar_size;
+output reg [7:0] master_ar_len;
+input [31:0] master_r_data;
+output reg  master_r_ready;
+input  master_r_valid;
+input [1:0] master_r_resp;
+input  master_r_last;
+output reg [31:0] master_aw_addr;
+input  master_aw_ready;
+output reg  master_aw_valid;
+output reg [1:0] master_aw_burst;
+output reg [2:0] master_aw_size;
+output reg [7:0] master_aw_len;
+output reg [31:0] master_w_data;
+input  master_w_ready;
+output reg  master_w_valid;
+output reg [3:0] master_w_strb;
+output reg  master_w_last;
+input [1:0] master_b_resp;
+output reg  master_b_resp_ready;
+input  master_b_resp_valid;
+reg  axi_master_scale_updown_bilinear_inst_clk;
+reg  axi_master_scale_updown_bilinear_inst_reset;
+reg  axi_master_scale_updown_bilinear_inst_start;
+wire  axi_master_scale_updown_bilinear_inst_ready;
+wire  axi_master_scale_updown_bilinear_inst_finish;
+wire  axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_start;
+reg  axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_finish;
+reg  axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_ready;
+wire  axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_start;
+reg  axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_finish;
+reg  axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_ready;
+wire  axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_start;
+reg  axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_finish;
+reg  axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_ready;
+reg  axi_master_scale_updown_bilinear_inst_finish_reg;
+reg  axi_master_scale_updown_bilinear_orig_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_inst_reset;
+reg  axi_master_scale_updown_bilinear_orig_inst_start;
+wire  axi_master_scale_updown_bilinear_orig_inst_ready;
+wire  axi_master_scale_updown_bilinear_orig_inst_finish;
+wire  axi_master_scale_updown_bilinear_orig_inst_axi_read_start;
+reg  axi_master_scale_updown_bilinear_orig_inst_axi_read_ready;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_read_addr_val;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_read_stride;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_read_width;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_read_height;
+wire [15:0] axi_master_scale_updown_bilinear_orig_inst_axi_read_threadID;
+wire  axi_master_scale_updown_bilinear_orig_inst_axi_read_data_start;
+reg  axi_master_scale_updown_bilinear_orig_inst_axi_read_data_ready;
+wire [15:0] axi_master_scale_updown_bilinear_orig_inst_axi_read_data_threadID;
+wire  axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_start;
+reg  axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_ready;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_in_width;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_in_height;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_out_width;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_out_height;
+wire [18:0] axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_xratio;
+wire [18:0] axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_yratio;
+wire [15:0] axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID;
+wire  axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_start;
+reg  axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_ready;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_r_val;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_g_val;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_b_val;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_width;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_height;
+wire [15:0] axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID;
+wire [15:0] axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_threadID;
+wire [15:0] axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_functionID;
+reg  axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish;
+wire [63:0] axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_return_val;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_read_data;
+wire  axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_write_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_write_data;
+reg [31:0] axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_read_data;
+reg  axi_master_scale_updown_bilinear_orig_inst_finish_reg;
+reg  bilinear_scale_control_memory_in_stride_inst_clk;
+reg  bilinear_scale_control_memory_in_stride_inst_reset;
+reg  bilinear_scale_control_memory_in_stride_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_in_stride_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_in_stride_inst_write_data;
+reg  bilinear_scale_control_memory_in_width_inst_clk;
+reg  bilinear_scale_control_memory_in_width_inst_reset;
+reg  bilinear_scale_control_memory_in_width_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_in_width_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_in_width_inst_write_data;
+reg  bilinear_scale_control_memory_in_height_inst_clk;
+reg  bilinear_scale_control_memory_in_height_inst_reset;
+reg  bilinear_scale_control_memory_in_height_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_in_height_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_in_height_inst_write_data;
+reg  bilinear_scale_control_memory_out_width_inst_clk;
+reg  bilinear_scale_control_memory_out_width_inst_reset;
+reg  bilinear_scale_control_memory_out_width_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_out_width_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_out_width_inst_write_data;
+reg  bilinear_scale_control_memory_out_height_inst_clk;
+reg  bilinear_scale_control_memory_out_height_inst_reset;
+reg  bilinear_scale_control_memory_out_height_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_out_height_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_out_height_inst_write_data;
+reg  bilinear_scale_control_memory_in_addr_inst_clk;
+reg  bilinear_scale_control_memory_in_addr_inst_reset;
+reg  bilinear_scale_control_memory_in_addr_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_in_addr_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_in_addr_inst_write_data;
+reg  bilinear_scale_control_memory_out_addr_inst_clk;
+reg  bilinear_scale_control_memory_out_addr_inst_reset;
+reg  bilinear_scale_control_memory_out_addr_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_out_addr_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_out_addr_inst_write_data;
+reg  bilinear_scale_control_memory_xratio_inst_clk;
+reg  bilinear_scale_control_memory_xratio_inst_reset;
+reg  bilinear_scale_control_memory_xratio_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_xratio_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_xratio_inst_write_data;
+reg  bilinear_scale_control_memory_yratio_inst_clk;
+reg  bilinear_scale_control_memory_yratio_inst_reset;
+reg  bilinear_scale_control_memory_yratio_inst_write_en;
+wire [31:0] bilinear_scale_control_memory_yratio_inst_read_data;
+reg [31:0] bilinear_scale_control_memory_yratio_inst_write_data;
+reg  axi_read_inst_clk;
+reg  axi_read_inst_reset;
+reg  axi_read_inst_start;
+wire  axi_read_inst_ready;
+wire  axi_read_inst_finish;
+reg [31:0] axi_read_inst_addr_val;
+reg [31:0] axi_read_inst_stride;
+reg [31:0] axi_read_inst_width;
+reg [31:0] axi_read_inst_height;
+wire [31:0] axi_read_inst_master_ar_addr;
+reg  axi_read_inst_master_ar_ready;
+wire  axi_read_inst_master_ar_valid;
+wire [1:0] axi_read_inst_master_ar_burst;
+wire [2:0] axi_read_inst_master_ar_size;
+wire [7:0] axi_read_inst_master_ar_len;
+wire [7:0] axi_read_inst_transaction_started;
+reg  axi_read_inst_transaction_started_ready;
+wire  axi_read_inst_transaction_started_valid;
+reg [7:0] axi_read_inst_transaction_done;
+wire  axi_read_inst_transaction_done_ready;
+reg  axi_read_inst_transaction_done_valid;
+reg  axi_read_inst_finish_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_reset;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_clken;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_write_en;
+reg [7:0] axi_master_scale_updown_bilinear_orig_entry_read_t_inst_write_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_read_en;
+wire [7:0] axi_master_scale_updown_bilinear_orig_entry_read_t_inst_read_data;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_almost_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_empty;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_inst_almost_empty;
+wire [2:0] axi_master_scale_updown_bilinear_orig_entry_read_t_inst_usedw;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_reset;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_clken;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_write_en;
+reg [7:0] axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_write_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_read_en;
+wire [7:0] axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_read_data;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_almost_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_empty;
+wire  axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_almost_empty;
+wire [2:0] axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_usedw;
+reg  axi_read_data_inst_clk;
+reg  axi_read_data_inst_reset;
+reg  axi_read_data_inst_start;
+wire  axi_read_data_inst_ready;
+wire  axi_read_data_inst_finish;
+reg [7:0] axi_read_data_inst_transaction_started;
+wire  axi_read_data_inst_transaction_started_ready;
+reg  axi_read_data_inst_transaction_started_valid;
+reg [31:0] axi_read_data_inst_master_r_data;
+wire  axi_read_data_inst_master_r_ready;
+reg  axi_read_data_inst_master_r_valid;
+reg [1:0] axi_read_data_inst_master_r_resp;
+reg  axi_read_data_inst_master_r_last;
+wire [31:0] axi_read_data_inst_fifo;
+reg  axi_read_data_inst_fifo_ready;
+wire  axi_read_data_inst_fifo_valid;
+wire [7:0] axi_read_data_inst_transaction_done;
+reg  axi_read_data_inst_transaction_done_ready;
+wire  axi_read_data_inst_transaction_done_valid;
+reg  axi_read_data_inst_finish_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_input_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_entry_input_inst_reset;
+wire  axi_master_scale_updown_bilinear_orig_entry_input_inst_clken;
+reg  axi_master_scale_updown_bilinear_orig_entry_input_inst_write_en;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_input_inst_write_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_input_inst_read_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_entry_input_inst_read_data;
+wire  axi_master_scale_updown_bilinear_orig_entry_input_inst_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_input_inst_almost_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_input_inst_empty;
+wire  axi_master_scale_updown_bilinear_orig_entry_input_inst_almost_empty;
+wire [12:0] axi_master_scale_updown_bilinear_orig_entry_input_inst_usedw;
+reg  scale_updown_bilinear_inst_clk;
+reg  scale_updown_bilinear_inst_reset;
+reg  scale_updown_bilinear_inst_start;
+wire  scale_updown_bilinear_inst_ready;
+wire  scale_updown_bilinear_inst_finish;
+reg [31:0] scale_updown_bilinear_inst_in_width;
+reg [31:0] scale_updown_bilinear_inst_in_height;
+reg [31:0] scale_updown_bilinear_inst_out_width;
+reg [31:0] scale_updown_bilinear_inst_out_height;
+reg [18:0] scale_updown_bilinear_inst_xratio;
+reg [18:0] scale_updown_bilinear_inst_yratio;
+reg [31:0] scale_updown_bilinear_inst_input_fifo;
+wire  scale_updown_bilinear_inst_input_fifo_ready;
+reg  scale_updown_bilinear_inst_input_fifo_valid;
+wire [31:0] scale_updown_bilinear_inst_output_red_fifo;
+reg  scale_updown_bilinear_inst_output_red_fifo_ready;
+wire  scale_updown_bilinear_inst_output_red_fifo_valid;
+wire [31:0] scale_updown_bilinear_inst_output_green_fifo;
+reg  scale_updown_bilinear_inst_output_green_fifo_ready;
+wire  scale_updown_bilinear_inst_output_green_fifo_valid;
+wire [31:0] scale_updown_bilinear_inst_output_blue_fifo;
+reg  scale_updown_bilinear_inst_output_blue_fifo_ready;
+wire  scale_updown_bilinear_inst_output_blue_fifo_valid;
+wire [7:0] scale_updown_bilinear_inst_burst_ready;
+reg  scale_updown_bilinear_inst_burst_ready_ready;
+wire  scale_updown_bilinear_inst_burst_ready_valid;
+reg  scale_updown_bilinear_inst_finish_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_inst_reset;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_inst_clken;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_inst_write_en;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_output_inst_write_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_inst_read_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_entry_output_inst_read_data;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_inst_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_inst_almost_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_inst_empty;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_inst_almost_empty;
+wire [9:0] axi_master_scale_updown_bilinear_orig_entry_output_inst_usedw;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_reset;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_clken;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_write_en;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_output_1_inst_write_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_read_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_entry_output_1_inst_read_data;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_almost_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_empty;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_1_inst_almost_empty;
+wire [9:0] axi_master_scale_updown_bilinear_orig_entry_output_1_inst_usedw;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_reset;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_clken;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_write_en;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_output_2_inst_write_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_read_en;
+wire [31:0] axi_master_scale_updown_bilinear_orig_entry_output_2_inst_read_data;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_almost_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_empty;
+wire  axi_master_scale_updown_bilinear_orig_entry_output_2_inst_almost_empty;
+wire [9:0] axi_master_scale_updown_bilinear_orig_entry_output_2_inst_usedw;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst_inst_clk;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst_inst_reset;
+wire  axi_master_scale_updown_bilinear_orig_entry_burst_inst_clken;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst_inst_write_en;
+reg [7:0] axi_master_scale_updown_bilinear_orig_entry_burst_inst_write_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst_inst_read_en;
+wire [7:0] axi_master_scale_updown_bilinear_orig_entry_burst_inst_read_data;
+wire  axi_master_scale_updown_bilinear_orig_entry_burst_inst_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_burst_inst_almost_full;
+wire  axi_master_scale_updown_bilinear_orig_entry_burst_inst_empty;
+wire  axi_master_scale_updown_bilinear_orig_entry_burst_inst_almost_empty;
+wire [2:0] axi_master_scale_updown_bilinear_orig_entry_burst_inst_usedw;
+reg  axi_rgb_write_inst_clk;
+reg  axi_rgb_write_inst_reset;
+reg  axi_rgb_write_inst_start;
+wire  axi_rgb_write_inst_ready;
+wire  axi_rgb_write_inst_finish;
+reg [31:0] axi_rgb_write_inst_addr_r_val;
+reg [31:0] axi_rgb_write_inst_addr_g_val;
+reg [31:0] axi_rgb_write_inst_addr_b_val;
+reg [31:0] axi_rgb_write_inst_width;
+reg [31:0] axi_rgb_write_inst_height;
+reg [7:0] axi_rgb_write_inst_burst_ready;
+wire  axi_rgb_write_inst_burst_ready_ready;
+reg  axi_rgb_write_inst_burst_ready_valid;
+wire [31:0] axi_rgb_write_inst_master_aw_addr;
+reg  axi_rgb_write_inst_master_aw_ready;
+wire  axi_rgb_write_inst_master_aw_valid;
+wire [1:0] axi_rgb_write_inst_master_aw_burst;
+wire [2:0] axi_rgb_write_inst_master_aw_size;
+wire [7:0] axi_rgb_write_inst_master_aw_len;
+reg [31:0] axi_rgb_write_inst_fifo_r;
+wire  axi_rgb_write_inst_fifo_r_ready;
+reg  axi_rgb_write_inst_fifo_r_valid;
+wire [31:0] axi_rgb_write_inst_master_w_data;
+reg  axi_rgb_write_inst_master_w_ready;
+wire  axi_rgb_write_inst_master_w_valid;
+wire [3:0] axi_rgb_write_inst_master_w_strb;
+wire  axi_rgb_write_inst_master_w_last;
+reg [1:0] axi_rgb_write_inst_master_b_resp;
+wire  axi_rgb_write_inst_master_b_resp_ready;
+reg  axi_rgb_write_inst_master_b_resp_valid;
+reg [31:0] axi_rgb_write_inst_fifo_g;
+wire  axi_rgb_write_inst_fifo_g_ready;
+reg  axi_rgb_write_inst_fifo_g_valid;
+reg [31:0] axi_rgb_write_inst_fifo_b;
+wire  axi_rgb_write_inst_fifo_b_ready;
+reg  axi_rgb_write_inst_fifo_b_valid;
+reg  axi_rgb_write_inst_finish_reg;
+reg  bilinear_scale_control_memory_read_inst_clk;
+reg  bilinear_scale_control_memory_read_inst_reset;
+reg  bilinear_scale_control_memory_read_inst_start;
+wire  bilinear_scale_control_memory_read_inst_ready;
+wire  bilinear_scale_control_memory_read_inst_finish;
+reg [31:0] bilinear_scale_control_memory_read_inst_s_ar_addr;
+wire  bilinear_scale_control_memory_read_inst_axi_s_ar_ready;
+reg  bilinear_scale_control_memory_read_inst_axi_s_ar_valid;
+reg [1:0] bilinear_scale_control_memory_read_inst_s_ar_burst;
+reg [2:0] bilinear_scale_control_memory_read_inst_s_ar_size;
+reg [7:0] bilinear_scale_control_memory_read_inst_s_ar_len;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_write_en;
+wire [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_write_data;
+reg [31:0] bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_read_data;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_ctrl_write_en;
+wire  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_ctrl_write_data;
+reg  bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_ctrl_read_data;
+wire [63:0] bilinear_scale_control_memory_read_inst_s_r_data;
+reg  bilinear_scale_control_memory_read_inst_axi_s_r_ready;
+wire  bilinear_scale_control_memory_read_inst_axi_s_r_valid;
+wire [1:0] bilinear_scale_control_memory_read_inst_s_r_resp;
+wire  bilinear_scale_control_memory_read_inst_s_r_last;
+reg  bilinear_scale_control_memory_read_inst_finish_reg;
+reg  bilinear_scale_control_memory_ctrl_inst_clk;
+reg  bilinear_scale_control_memory_ctrl_inst_reset;
+reg  bilinear_scale_control_memory_ctrl_inst_write_en;
+wire  bilinear_scale_control_memory_ctrl_inst_read_data;
+wire  bilinear_scale_control_memory_ctrl_inst_write_data;
+reg  bilinear_scale_control_memory_write_inst_clk;
+reg  bilinear_scale_control_memory_write_inst_reset;
+reg  bilinear_scale_control_memory_write_inst_start;
+wire  bilinear_scale_control_memory_write_inst_ready;
+wire  bilinear_scale_control_memory_write_inst_finish;
+reg [31:0] bilinear_scale_control_memory_write_inst_s_aw_addr;
+wire  bilinear_scale_control_memory_write_inst_axi_s_aw_ready;
+reg  bilinear_scale_control_memory_write_inst_axi_s_aw_valid;
+reg [63:0] bilinear_scale_control_memory_write_inst_s_w_data;
+wire  bilinear_scale_control_memory_write_inst_axi_s_w_ready;
+reg  bilinear_scale_control_memory_write_inst_axi_s_w_valid;
+reg [1:0] bilinear_scale_control_memory_write_inst_s_aw_burst;
+reg [2:0] bilinear_scale_control_memory_write_inst_s_aw_size;
+reg [7:0] bilinear_scale_control_memory_write_inst_s_aw_len;
+reg [7:0] bilinear_scale_control_memory_write_inst_s_w_strb;
+reg  bilinear_scale_control_memory_write_inst_s_w_last;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_write_en;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_write_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_read_data;
+wire  bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_write_en;
+wire [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_write_data;
+reg [31:0] bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_read_data;
+wire [1:0] bilinear_scale_control_memory_write_inst_s_b_resp;
+reg  bilinear_scale_control_memory_write_inst_s_b_resp_ready;
+wire  bilinear_scale_control_memory_write_inst_s_b_resp_valid;
+reg  bilinear_scale_control_memory_write_inst_finish_reg;
+reg  muxOutput_for_axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish;
+
+
+axi_master_scale_updown_bilinear_axi_master_scale_updown_bilinear axi_master_scale_updown_bilinear_inst (
+	.clk (axi_master_scale_updown_bilinear_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_inst_reset),
+	.start (axi_master_scale_updown_bilinear_inst_start),
+	.ready (axi_master_scale_updown_bilinear_inst_ready),
+	.finish (axi_master_scale_updown_bilinear_inst_finish),
+	.axi_master_scale_updown_bilinear_orig_start (axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_start),
+	.axi_master_scale_updown_bilinear_orig_finish (axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_finish),
+	.axi_master_scale_updown_bilinear_orig_ready (axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_ready),
+	.bilinear_scale_control_memory_read_start (axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_start),
+	.bilinear_scale_control_memory_read_finish (axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_finish),
+	.bilinear_scale_control_memory_read_ready (axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_ready),
+	.bilinear_scale_control_memory_write_start (axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_start),
+	.bilinear_scale_control_memory_write_finish (axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_finish),
+	.bilinear_scale_control_memory_write_ready (axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_ready)
+);
+
+
+
+axi_master_scale_updown_bilinear_axi_master_scale_updown_bilinear_orig axi_master_scale_updown_bilinear_orig_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_inst_reset),
+	.start (axi_master_scale_updown_bilinear_orig_inst_start),
+	.ready (axi_master_scale_updown_bilinear_orig_inst_ready),
+	.finish (axi_master_scale_updown_bilinear_orig_inst_finish),
+	.axi_read_start (axi_master_scale_updown_bilinear_orig_inst_axi_read_start),
+	.axi_read_ready (axi_master_scale_updown_bilinear_orig_inst_axi_read_ready),
+	.axi_read_addr_val (axi_master_scale_updown_bilinear_orig_inst_axi_read_addr_val),
+	.axi_read_stride (axi_master_scale_updown_bilinear_orig_inst_axi_read_stride),
+	.axi_read_width (axi_master_scale_updown_bilinear_orig_inst_axi_read_width),
+	.axi_read_height (axi_master_scale_updown_bilinear_orig_inst_axi_read_height),
+	.axi_read_threadID (axi_master_scale_updown_bilinear_orig_inst_axi_read_threadID),
+	.axi_read_data_start (axi_master_scale_updown_bilinear_orig_inst_axi_read_data_start),
+	.axi_read_data_ready (axi_master_scale_updown_bilinear_orig_inst_axi_read_data_ready),
+	.axi_read_data_threadID (axi_master_scale_updown_bilinear_orig_inst_axi_read_data_threadID),
+	.scale_updown_bilinear_start (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_start),
+	.scale_updown_bilinear_ready (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_ready),
+	.scale_updown_bilinear_in_width (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_in_width),
+	.scale_updown_bilinear_in_height (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_in_height),
+	.scale_updown_bilinear_out_width (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_out_width),
+	.scale_updown_bilinear_out_height (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_out_height),
+	.scale_updown_bilinear_xratio (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_xratio),
+	.scale_updown_bilinear_yratio (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_yratio),
+	.scale_updown_bilinear_threadID (axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID),
+	.axi_rgb_write_start (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_start),
+	.axi_rgb_write_ready (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_ready),
+	.axi_rgb_write_addr_r_val (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_r_val),
+	.axi_rgb_write_addr_g_val (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_g_val),
+	.axi_rgb_write_addr_b_val (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_b_val),
+	.axi_rgb_write_width (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_width),
+	.axi_rgb_write_height (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_height),
+	.axi_rgb_write_threadID (axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID),
+	.legup_pthreadpoll_threadID (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_threadID),
+	.legup_pthreadpoll_functionID (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_functionID),
+	.legup_pthreadpoll_finish (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish),
+	.legup_pthreadpoll_return_val (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_return_val),
+	.bilinear_scale_control_memory_in_stride_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_write_en),
+	.bilinear_scale_control_memory_in_stride_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_write_data),
+	.bilinear_scale_control_memory_in_stride_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_read_data),
+	.bilinear_scale_control_memory_in_width_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_write_en),
+	.bilinear_scale_control_memory_in_width_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_write_data),
+	.bilinear_scale_control_memory_in_width_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_read_data),
+	.bilinear_scale_control_memory_in_height_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_write_en),
+	.bilinear_scale_control_memory_in_height_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_write_data),
+	.bilinear_scale_control_memory_in_height_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_read_data),
+	.bilinear_scale_control_memory_out_width_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_write_en),
+	.bilinear_scale_control_memory_out_width_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_write_data),
+	.bilinear_scale_control_memory_out_width_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_read_data),
+	.bilinear_scale_control_memory_out_height_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_write_en),
+	.bilinear_scale_control_memory_out_height_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_write_data),
+	.bilinear_scale_control_memory_out_height_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_read_data),
+	.bilinear_scale_control_memory_in_addr_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_write_en),
+	.bilinear_scale_control_memory_in_addr_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_write_data),
+	.bilinear_scale_control_memory_in_addr_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_read_data),
+	.bilinear_scale_control_memory_out_addr_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_write_en),
+	.bilinear_scale_control_memory_out_addr_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_write_data),
+	.bilinear_scale_control_memory_out_addr_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_read_data),
+	.bilinear_scale_control_memory_xratio_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_write_en),
+	.bilinear_scale_control_memory_xratio_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_write_data),
+	.bilinear_scale_control_memory_xratio_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_read_data),
+	.bilinear_scale_control_memory_yratio_write_en (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_write_en),
+	.bilinear_scale_control_memory_yratio_write_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_write_data),
+	.bilinear_scale_control_memory_yratio_read_data (axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_read_data)
+);
+
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_in_stride_inst (
+	.clk (bilinear_scale_control_memory_in_stride_inst_clk),
+	.reset (bilinear_scale_control_memory_in_stride_inst_reset),
+	.write_en (bilinear_scale_control_memory_in_stride_inst_write_en),
+	.read_data (bilinear_scale_control_memory_in_stride_inst_read_data),
+	.write_data (bilinear_scale_control_memory_in_stride_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_in_stride_inst.width = 32,
+	bilinear_scale_control_memory_in_stride_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_in_width_inst (
+	.clk (bilinear_scale_control_memory_in_width_inst_clk),
+	.reset (bilinear_scale_control_memory_in_width_inst_reset),
+	.write_en (bilinear_scale_control_memory_in_width_inst_write_en),
+	.read_data (bilinear_scale_control_memory_in_width_inst_read_data),
+	.write_data (bilinear_scale_control_memory_in_width_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_in_width_inst.width = 32,
+	bilinear_scale_control_memory_in_width_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_in_height_inst (
+	.clk (bilinear_scale_control_memory_in_height_inst_clk),
+	.reset (bilinear_scale_control_memory_in_height_inst_reset),
+	.write_en (bilinear_scale_control_memory_in_height_inst_write_en),
+	.read_data (bilinear_scale_control_memory_in_height_inst_read_data),
+	.write_data (bilinear_scale_control_memory_in_height_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_in_height_inst.width = 32,
+	bilinear_scale_control_memory_in_height_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_out_width_inst (
+	.clk (bilinear_scale_control_memory_out_width_inst_clk),
+	.reset (bilinear_scale_control_memory_out_width_inst_reset),
+	.write_en (bilinear_scale_control_memory_out_width_inst_write_en),
+	.read_data (bilinear_scale_control_memory_out_width_inst_read_data),
+	.write_data (bilinear_scale_control_memory_out_width_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_out_width_inst.width = 32,
+	bilinear_scale_control_memory_out_width_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_out_height_inst (
+	.clk (bilinear_scale_control_memory_out_height_inst_clk),
+	.reset (bilinear_scale_control_memory_out_height_inst_reset),
+	.write_en (bilinear_scale_control_memory_out_height_inst_write_en),
+	.read_data (bilinear_scale_control_memory_out_height_inst_read_data),
+	.write_data (bilinear_scale_control_memory_out_height_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_out_height_inst.width = 32,
+	bilinear_scale_control_memory_out_height_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_in_addr_inst (
+	.clk (bilinear_scale_control_memory_in_addr_inst_clk),
+	.reset (bilinear_scale_control_memory_in_addr_inst_reset),
+	.write_en (bilinear_scale_control_memory_in_addr_inst_write_en),
+	.read_data (bilinear_scale_control_memory_in_addr_inst_read_data),
+	.write_data (bilinear_scale_control_memory_in_addr_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_in_addr_inst.width = 32,
+	bilinear_scale_control_memory_in_addr_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_out_addr_inst (
+	.clk (bilinear_scale_control_memory_out_addr_inst_clk),
+	.reset (bilinear_scale_control_memory_out_addr_inst_reset),
+	.write_en (bilinear_scale_control_memory_out_addr_inst_write_en),
+	.read_data (bilinear_scale_control_memory_out_addr_inst_read_data),
+	.write_data (bilinear_scale_control_memory_out_addr_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_out_addr_inst.width = 32,
+	bilinear_scale_control_memory_out_addr_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_xratio_inst (
+	.clk (bilinear_scale_control_memory_xratio_inst_clk),
+	.reset (bilinear_scale_control_memory_xratio_inst_reset),
+	.write_en (bilinear_scale_control_memory_xratio_inst_write_en),
+	.read_data (bilinear_scale_control_memory_xratio_inst_read_data),
+	.write_data (bilinear_scale_control_memory_xratio_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_xratio_inst.width = 32,
+	bilinear_scale_control_memory_xratio_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_yratio_inst (
+	.clk (bilinear_scale_control_memory_yratio_inst_clk),
+	.reset (bilinear_scale_control_memory_yratio_inst_reset),
+	.write_en (bilinear_scale_control_memory_yratio_inst_write_en),
+	.read_data (bilinear_scale_control_memory_yratio_inst_read_data),
+	.write_data (bilinear_scale_control_memory_yratio_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_yratio_inst.width = 32,
+	bilinear_scale_control_memory_yratio_inst.init_value = 32'd0;
+
+
+axi_master_scale_updown_bilinear_axi_read axi_read_inst (
+	.clk (axi_read_inst_clk),
+	.reset (axi_read_inst_reset),
+	.start (axi_read_inst_start),
+	.ready (axi_read_inst_ready),
+	.finish (axi_read_inst_finish),
+	.addr_val (axi_read_inst_addr_val),
+	.stride (axi_read_inst_stride),
+	.width (axi_read_inst_width),
+	.height (axi_read_inst_height),
+	.master_ar_addr (axi_read_inst_master_ar_addr),
+	.master_ar_ready (axi_read_inst_master_ar_ready),
+	.master_ar_valid (axi_read_inst_master_ar_valid),
+	.master_ar_burst (axi_read_inst_master_ar_burst),
+	.master_ar_size (axi_read_inst_master_ar_size),
+	.master_ar_len (axi_read_inst_master_ar_len),
+	.transaction_started (axi_read_inst_transaction_started),
+	.transaction_started_ready (axi_read_inst_transaction_started_ready),
+	.transaction_started_valid (axi_read_inst_transaction_started_valid),
+	.transaction_done (axi_read_inst_transaction_done),
+	.transaction_done_ready (axi_read_inst_transaction_done_ready),
+	.transaction_done_valid (axi_read_inst_transaction_done_valid)
+);
+
+
+
+axi_master_scale_updown_bilinear_fwft_fifo axi_master_scale_updown_bilinear_orig_entry_read_t_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_reset),
+	.clken (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_clken),
+	.write_en (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_write_en),
+	.write_data (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_write_data),
+	.read_en (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_read_en),
+	.read_data (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_read_data),
+	.full (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_full),
+	.almost_full (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_almost_full),
+	.empty (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_empty),
+	.almost_empty (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_almost_empty),
+	.usedw (axi_master_scale_updown_bilinear_orig_entry_read_t_inst_usedw)
+);
+
+defparam
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst.width = 8,
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst.depth = 3,
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst.name = "axi_master_scale_updown_bilinear_orig_entry_read_t",
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst.widthad = 2,
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst.ramstyle = "distributed";
+
+
+axi_master_scale_updown_bilinear_fwft_fifo axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_reset),
+	.clken (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_clken),
+	.write_en (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_write_en),
+	.write_data (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_write_data),
+	.read_en (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_read_en),
+	.read_data (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_read_data),
+	.full (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_full),
+	.almost_full (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_almost_full),
+	.empty (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_empty),
+	.almost_empty (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_almost_empty),
+	.usedw (axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_usedw)
+);
+
+defparam
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst.width = 8,
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst.depth = 3,
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst.name = "axi_master_scale_updown_bilinear_orig_entry_read_t_0",
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst.widthad = 2,
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst.ramstyle = "distributed";
+
+
+axi_master_scale_updown_bilinear_axi_read_data axi_read_data_inst (
+	.clk (axi_read_data_inst_clk),
+	.reset (axi_read_data_inst_reset),
+	.start (axi_read_data_inst_start),
+	.ready (axi_read_data_inst_ready),
+	.finish (axi_read_data_inst_finish),
+	.transaction_started (axi_read_data_inst_transaction_started),
+	.transaction_started_ready (axi_read_data_inst_transaction_started_ready),
+	.transaction_started_valid (axi_read_data_inst_transaction_started_valid),
+	.master_r_data (axi_read_data_inst_master_r_data),
+	.master_r_ready (axi_read_data_inst_master_r_ready),
+	.master_r_valid (axi_read_data_inst_master_r_valid),
+	.master_r_resp (axi_read_data_inst_master_r_resp),
+	.master_r_last (axi_read_data_inst_master_r_last),
+	.fifo (axi_read_data_inst_fifo),
+	.fifo_ready (axi_read_data_inst_fifo_ready),
+	.fifo_valid (axi_read_data_inst_fifo_valid),
+	.transaction_done (axi_read_data_inst_transaction_done),
+	.transaction_done_ready (axi_read_data_inst_transaction_done_ready),
+	.transaction_done_valid (axi_read_data_inst_transaction_done_valid)
+);
+
+
+
+axi_master_scale_updown_bilinear_fwft_fifo axi_master_scale_updown_bilinear_orig_entry_input_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_entry_input_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_entry_input_inst_reset),
+	.clken (axi_master_scale_updown_bilinear_orig_entry_input_inst_clken),
+	.write_en (axi_master_scale_updown_bilinear_orig_entry_input_inst_write_en),
+	.write_data (axi_master_scale_updown_bilinear_orig_entry_input_inst_write_data),
+	.read_en (axi_master_scale_updown_bilinear_orig_entry_input_inst_read_en),
+	.read_data (axi_master_scale_updown_bilinear_orig_entry_input_inst_read_data),
+	.full (axi_master_scale_updown_bilinear_orig_entry_input_inst_full),
+	.almost_full (axi_master_scale_updown_bilinear_orig_entry_input_inst_almost_full),
+	.empty (axi_master_scale_updown_bilinear_orig_entry_input_inst_empty),
+	.almost_empty (axi_master_scale_updown_bilinear_orig_entry_input_inst_almost_empty),
+	.usedw (axi_master_scale_updown_bilinear_orig_entry_input_inst_usedw)
+);
+
+defparam
+	axi_master_scale_updown_bilinear_orig_entry_input_inst.width = 32,
+	axi_master_scale_updown_bilinear_orig_entry_input_inst.depth = 3840,
+	axi_master_scale_updown_bilinear_orig_entry_input_inst.name = "axi_master_scale_updown_bilinear_orig_entry_input_",
+	axi_master_scale_updown_bilinear_orig_entry_input_inst.widthad = 12;
+
+
+axi_master_scale_updown_bilinear_scale_updown_bilinear scale_updown_bilinear_inst (
+	.clk (scale_updown_bilinear_inst_clk),
+	.reset (scale_updown_bilinear_inst_reset),
+	.start (scale_updown_bilinear_inst_start),
+	.ready (scale_updown_bilinear_inst_ready),
+	.finish (scale_updown_bilinear_inst_finish),
+	.in_width (scale_updown_bilinear_inst_in_width),
+	.in_height (scale_updown_bilinear_inst_in_height),
+	.out_width (scale_updown_bilinear_inst_out_width),
+	.out_height (scale_updown_bilinear_inst_out_height),
+	.xratio (scale_updown_bilinear_inst_xratio),
+	.yratio (scale_updown_bilinear_inst_yratio),
+	.input_fifo (scale_updown_bilinear_inst_input_fifo),
+	.input_fifo_ready (scale_updown_bilinear_inst_input_fifo_ready),
+	.input_fifo_valid (scale_updown_bilinear_inst_input_fifo_valid),
+	.output_red_fifo (scale_updown_bilinear_inst_output_red_fifo),
+	.output_red_fifo_ready (scale_updown_bilinear_inst_output_red_fifo_ready),
+	.output_red_fifo_valid (scale_updown_bilinear_inst_output_red_fifo_valid),
+	.output_green_fifo (scale_updown_bilinear_inst_output_green_fifo),
+	.output_green_fifo_ready (scale_updown_bilinear_inst_output_green_fifo_ready),
+	.output_green_fifo_valid (scale_updown_bilinear_inst_output_green_fifo_valid),
+	.output_blue_fifo (scale_updown_bilinear_inst_output_blue_fifo),
+	.output_blue_fifo_ready (scale_updown_bilinear_inst_output_blue_fifo_ready),
+	.output_blue_fifo_valid (scale_updown_bilinear_inst_output_blue_fifo_valid),
+	.burst_ready (scale_updown_bilinear_inst_burst_ready),
+	.burst_ready_ready (scale_updown_bilinear_inst_burst_ready_ready),
+	.burst_ready_valid (scale_updown_bilinear_inst_burst_ready_valid)
+);
+
+
+
+axi_master_scale_updown_bilinear_fwft_fifo axi_master_scale_updown_bilinear_orig_entry_output_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_entry_output_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_entry_output_inst_reset),
+	.clken (axi_master_scale_updown_bilinear_orig_entry_output_inst_clken),
+	.write_en (axi_master_scale_updown_bilinear_orig_entry_output_inst_write_en),
+	.write_data (axi_master_scale_updown_bilinear_orig_entry_output_inst_write_data),
+	.read_en (axi_master_scale_updown_bilinear_orig_entry_output_inst_read_en),
+	.read_data (axi_master_scale_updown_bilinear_orig_entry_output_inst_read_data),
+	.full (axi_master_scale_updown_bilinear_orig_entry_output_inst_full),
+	.almost_full (axi_master_scale_updown_bilinear_orig_entry_output_inst_almost_full),
+	.empty (axi_master_scale_updown_bilinear_orig_entry_output_inst_empty),
+	.almost_empty (axi_master_scale_updown_bilinear_orig_entry_output_inst_almost_empty),
+	.usedw (axi_master_scale_updown_bilinear_orig_entry_output_inst_usedw)
+);
+
+defparam
+	axi_master_scale_updown_bilinear_orig_entry_output_inst.width = 32,
+	axi_master_scale_updown_bilinear_orig_entry_output_inst.depth = 512,
+	axi_master_scale_updown_bilinear_orig_entry_output_inst.name = "axi_master_scale_updown_bilinear_orig_entry_output",
+	axi_master_scale_updown_bilinear_orig_entry_output_inst.widthad = 9;
+
+
+axi_master_scale_updown_bilinear_fwft_fifo axi_master_scale_updown_bilinear_orig_entry_output_1_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_reset),
+	.clken (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_clken),
+	.write_en (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_write_en),
+	.write_data (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_write_data),
+	.read_en (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_read_en),
+	.read_data (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_read_data),
+	.full (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_full),
+	.almost_full (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_almost_full),
+	.empty (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_empty),
+	.almost_empty (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_almost_empty),
+	.usedw (axi_master_scale_updown_bilinear_orig_entry_output_1_inst_usedw)
+);
+
+defparam
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst.width = 32,
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst.depth = 512,
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst.name = "axi_master_scale_updown_bilinear_orig_entry_output_1",
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst.widthad = 9;
+
+
+axi_master_scale_updown_bilinear_fwft_fifo axi_master_scale_updown_bilinear_orig_entry_output_2_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_reset),
+	.clken (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_clken),
+	.write_en (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_write_en),
+	.write_data (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_write_data),
+	.read_en (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_read_en),
+	.read_data (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_read_data),
+	.full (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_full),
+	.almost_full (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_almost_full),
+	.empty (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_empty),
+	.almost_empty (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_almost_empty),
+	.usedw (axi_master_scale_updown_bilinear_orig_entry_output_2_inst_usedw)
+);
+
+defparam
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst.width = 32,
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst.depth = 512,
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst.name = "axi_master_scale_updown_bilinear_orig_entry_output_2",
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst.widthad = 9;
+
+
+axi_master_scale_updown_bilinear_fwft_fifo axi_master_scale_updown_bilinear_orig_entry_burst_inst (
+	.clk (axi_master_scale_updown_bilinear_orig_entry_burst_inst_clk),
+	.reset (axi_master_scale_updown_bilinear_orig_entry_burst_inst_reset),
+	.clken (axi_master_scale_updown_bilinear_orig_entry_burst_inst_clken),
+	.write_en (axi_master_scale_updown_bilinear_orig_entry_burst_inst_write_en),
+	.write_data (axi_master_scale_updown_bilinear_orig_entry_burst_inst_write_data),
+	.read_en (axi_master_scale_updown_bilinear_orig_entry_burst_inst_read_en),
+	.read_data (axi_master_scale_updown_bilinear_orig_entry_burst_inst_read_data),
+	.full (axi_master_scale_updown_bilinear_orig_entry_burst_inst_full),
+	.almost_full (axi_master_scale_updown_bilinear_orig_entry_burst_inst_almost_full),
+	.empty (axi_master_scale_updown_bilinear_orig_entry_burst_inst_empty),
+	.almost_empty (axi_master_scale_updown_bilinear_orig_entry_burst_inst_almost_empty),
+	.usedw (axi_master_scale_updown_bilinear_orig_entry_burst_inst_usedw)
+);
+
+defparam
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst.width = 8,
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst.depth = 4,
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst.name = "axi_master_scale_updown_bilinear_orig_entry_burst_",
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst.widthad = 2,
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst.ramstyle = "distributed";
+
+
+axi_master_scale_updown_bilinear_axi_rgb_write axi_rgb_write_inst (
+	.clk (axi_rgb_write_inst_clk),
+	.reset (axi_rgb_write_inst_reset),
+	.start (axi_rgb_write_inst_start),
+	.ready (axi_rgb_write_inst_ready),
+	.finish (axi_rgb_write_inst_finish),
+	.addr_r_val (axi_rgb_write_inst_addr_r_val),
+	.addr_g_val (axi_rgb_write_inst_addr_g_val),
+	.addr_b_val (axi_rgb_write_inst_addr_b_val),
+	.width (axi_rgb_write_inst_width),
+	.height (axi_rgb_write_inst_height),
+	.burst_ready (axi_rgb_write_inst_burst_ready),
+	.burst_ready_ready (axi_rgb_write_inst_burst_ready_ready),
+	.burst_ready_valid (axi_rgb_write_inst_burst_ready_valid),
+	.master_aw_addr (axi_rgb_write_inst_master_aw_addr),
+	.master_aw_ready (axi_rgb_write_inst_master_aw_ready),
+	.master_aw_valid (axi_rgb_write_inst_master_aw_valid),
+	.master_aw_burst (axi_rgb_write_inst_master_aw_burst),
+	.master_aw_size (axi_rgb_write_inst_master_aw_size),
+	.master_aw_len (axi_rgb_write_inst_master_aw_len),
+	.fifo_r (axi_rgb_write_inst_fifo_r),
+	.fifo_r_ready (axi_rgb_write_inst_fifo_r_ready),
+	.fifo_r_valid (axi_rgb_write_inst_fifo_r_valid),
+	.master_w_data (axi_rgb_write_inst_master_w_data),
+	.master_w_ready (axi_rgb_write_inst_master_w_ready),
+	.master_w_valid (axi_rgb_write_inst_master_w_valid),
+	.master_w_strb (axi_rgb_write_inst_master_w_strb),
+	.master_w_last (axi_rgb_write_inst_master_w_last),
+	.master_b_resp (axi_rgb_write_inst_master_b_resp),
+	.master_b_resp_ready (axi_rgb_write_inst_master_b_resp_ready),
+	.master_b_resp_valid (axi_rgb_write_inst_master_b_resp_valid),
+	.fifo_g (axi_rgb_write_inst_fifo_g),
+	.fifo_g_ready (axi_rgb_write_inst_fifo_g_ready),
+	.fifo_g_valid (axi_rgb_write_inst_fifo_g_valid),
+	.fifo_b (axi_rgb_write_inst_fifo_b),
+	.fifo_b_ready (axi_rgb_write_inst_fifo_b_ready),
+	.fifo_b_valid (axi_rgb_write_inst_fifo_b_valid)
+);
+
+
+
+axi_master_scale_updown_bilinear_bilinear_scale_control_memory_read bilinear_scale_control_memory_read_inst (
+	.clk (bilinear_scale_control_memory_read_inst_clk),
+	.reset (bilinear_scale_control_memory_read_inst_reset),
+	.start (bilinear_scale_control_memory_read_inst_start),
+	.ready (bilinear_scale_control_memory_read_inst_ready),
+	.finish (bilinear_scale_control_memory_read_inst_finish),
+	.s_ar_addr (bilinear_scale_control_memory_read_inst_s_ar_addr),
+	.axi_s_ar_ready (bilinear_scale_control_memory_read_inst_axi_s_ar_ready),
+	.axi_s_ar_valid (bilinear_scale_control_memory_read_inst_axi_s_ar_valid),
+	.s_ar_burst (bilinear_scale_control_memory_read_inst_s_ar_burst),
+	.s_ar_size (bilinear_scale_control_memory_read_inst_s_ar_size),
+	.s_ar_len (bilinear_scale_control_memory_read_inst_s_ar_len),
+	.bilinear_scale_control_memory_out_addr_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_write_en),
+	.bilinear_scale_control_memory_out_addr_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_write_data),
+	.bilinear_scale_control_memory_out_addr_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_read_data),
+	.bilinear_scale_control_memory_in_addr_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_write_en),
+	.bilinear_scale_control_memory_in_addr_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_write_data),
+	.bilinear_scale_control_memory_in_addr_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_read_data),
+	.bilinear_scale_control_memory_yratio_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_write_en),
+	.bilinear_scale_control_memory_yratio_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_write_data),
+	.bilinear_scale_control_memory_yratio_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_read_data),
+	.bilinear_scale_control_memory_xratio_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_write_en),
+	.bilinear_scale_control_memory_xratio_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_write_data),
+	.bilinear_scale_control_memory_xratio_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_read_data),
+	.bilinear_scale_control_memory_in_width_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_write_en),
+	.bilinear_scale_control_memory_in_width_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_write_data),
+	.bilinear_scale_control_memory_in_width_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_read_data),
+	.bilinear_scale_control_memory_in_stride_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_write_en),
+	.bilinear_scale_control_memory_in_stride_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_write_data),
+	.bilinear_scale_control_memory_in_stride_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_read_data),
+	.bilinear_scale_control_memory_out_width_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_write_en),
+	.bilinear_scale_control_memory_out_width_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_write_data),
+	.bilinear_scale_control_memory_out_width_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_read_data),
+	.bilinear_scale_control_memory_in_height_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_write_en),
+	.bilinear_scale_control_memory_in_height_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_write_data),
+	.bilinear_scale_control_memory_in_height_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_read_data),
+	.bilinear_scale_control_memory_out_height_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_write_en),
+	.bilinear_scale_control_memory_out_height_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_write_data),
+	.bilinear_scale_control_memory_out_height_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_read_data),
+	.bilinear_scale_control_memory_ctrl_write_en (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_ctrl_write_en),
+	.bilinear_scale_control_memory_ctrl_write_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_ctrl_write_data),
+	.bilinear_scale_control_memory_ctrl_read_data (bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_ctrl_read_data),
+	.s_r_data (bilinear_scale_control_memory_read_inst_s_r_data),
+	.axi_s_r_ready (bilinear_scale_control_memory_read_inst_axi_s_r_ready),
+	.axi_s_r_valid (bilinear_scale_control_memory_read_inst_axi_s_r_valid),
+	.s_r_resp (bilinear_scale_control_memory_read_inst_s_r_resp),
+	.s_r_last (bilinear_scale_control_memory_read_inst_s_r_last)
+);
+
+
+
+axi_master_scale_updown_bilinear_hls_register bilinear_scale_control_memory_ctrl_inst (
+	.clk (bilinear_scale_control_memory_ctrl_inst_clk),
+	.reset (bilinear_scale_control_memory_ctrl_inst_reset),
+	.write_en (bilinear_scale_control_memory_ctrl_inst_write_en),
+	.read_data (bilinear_scale_control_memory_ctrl_inst_read_data),
+	.write_data (bilinear_scale_control_memory_ctrl_inst_write_data)
+);
+
+defparam
+	bilinear_scale_control_memory_ctrl_inst.width = 1,
+	bilinear_scale_control_memory_ctrl_inst.init_value = 1'd0;
+
+
+axi_master_scale_updown_bilinear_bilinear_scale_control_memory_write bilinear_scale_control_memory_write_inst (
+	.clk (bilinear_scale_control_memory_write_inst_clk),
+	.reset (bilinear_scale_control_memory_write_inst_reset),
+	.start (bilinear_scale_control_memory_write_inst_start),
+	.ready (bilinear_scale_control_memory_write_inst_ready),
+	.finish (bilinear_scale_control_memory_write_inst_finish),
+	.s_aw_addr (bilinear_scale_control_memory_write_inst_s_aw_addr),
+	.axi_s_aw_ready (bilinear_scale_control_memory_write_inst_axi_s_aw_ready),
+	.axi_s_aw_valid (bilinear_scale_control_memory_write_inst_axi_s_aw_valid),
+	.s_w_data (bilinear_scale_control_memory_write_inst_s_w_data),
+	.axi_s_w_ready (bilinear_scale_control_memory_write_inst_axi_s_w_ready),
+	.axi_s_w_valid (bilinear_scale_control_memory_write_inst_axi_s_w_valid),
+	.s_aw_burst (bilinear_scale_control_memory_write_inst_s_aw_burst),
+	.s_aw_size (bilinear_scale_control_memory_write_inst_s_aw_size),
+	.s_aw_len (bilinear_scale_control_memory_write_inst_s_aw_len),
+	.s_w_strb (bilinear_scale_control_memory_write_inst_s_w_strb),
+	.s_w_last (bilinear_scale_control_memory_write_inst_s_w_last),
+	.bilinear_scale_control_memory_ctrl_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_write_en),
+	.bilinear_scale_control_memory_ctrl_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_write_data),
+	.bilinear_scale_control_memory_ctrl_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_read_data),
+	.bilinear_scale_control_memory_in_addr_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_write_en),
+	.bilinear_scale_control_memory_in_addr_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_write_data),
+	.bilinear_scale_control_memory_in_addr_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_read_data),
+	.bilinear_scale_control_memory_xratio_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_write_en),
+	.bilinear_scale_control_memory_xratio_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_write_data),
+	.bilinear_scale_control_memory_xratio_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_read_data),
+	.bilinear_scale_control_memory_in_stride_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_write_en),
+	.bilinear_scale_control_memory_in_stride_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_write_data),
+	.bilinear_scale_control_memory_in_stride_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_read_data),
+	.bilinear_scale_control_memory_in_height_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_write_en),
+	.bilinear_scale_control_memory_in_height_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_write_data),
+	.bilinear_scale_control_memory_in_height_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_read_data),
+	.bilinear_scale_control_memory_out_height_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_write_en),
+	.bilinear_scale_control_memory_out_height_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_write_data),
+	.bilinear_scale_control_memory_out_height_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_read_data),
+	.bilinear_scale_control_memory_out_addr_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_write_en),
+	.bilinear_scale_control_memory_out_addr_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_write_data),
+	.bilinear_scale_control_memory_out_addr_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_read_data),
+	.bilinear_scale_control_memory_yratio_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_write_en),
+	.bilinear_scale_control_memory_yratio_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_write_data),
+	.bilinear_scale_control_memory_yratio_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_read_data),
+	.bilinear_scale_control_memory_in_width_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_write_en),
+	.bilinear_scale_control_memory_in_width_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_write_data),
+	.bilinear_scale_control_memory_in_width_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_read_data),
+	.bilinear_scale_control_memory_out_width_write_en (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_write_en),
+	.bilinear_scale_control_memory_out_width_write_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_write_data),
+	.bilinear_scale_control_memory_out_width_read_data (bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_read_data),
+	.s_b_resp (bilinear_scale_control_memory_write_inst_s_b_resp),
+	.s_b_resp_ready (bilinear_scale_control_memory_write_inst_s_b_resp_ready),
+	.s_b_resp_valid (bilinear_scale_control_memory_write_inst_s_b_resp_valid)
+);
+
+
+
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_reset = reset;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_start = start;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_finish = (~(axi_master_scale_updown_bilinear_orig_inst_start) & axi_master_scale_updown_bilinear_orig_inst_finish_reg);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_axi_master_scale_updown_bilinear_orig_ready = axi_master_scale_updown_bilinear_orig_inst_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_finish = bilinear_scale_control_memory_read_inst_finish;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_ready = bilinear_scale_control_memory_read_inst_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_finish = bilinear_scale_control_memory_write_inst_finish;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_ready = bilinear_scale_control_memory_write_inst_ready;
+end
+always @(posedge clk) begin
+	if ((reset | axi_master_scale_updown_bilinear_inst_start)) begin
+		axi_master_scale_updown_bilinear_inst_finish_reg <= 1'd0;
+	end
+	if (axi_master_scale_updown_bilinear_inst_finish) begin
+		axi_master_scale_updown_bilinear_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_reset = reset;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_start = (start | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_write_en);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_axi_read_ready = axi_read_inst_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_axi_read_data_ready = axi_read_data_inst_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_ready = scale_updown_bilinear_inst_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_ready = axi_rgb_write_inst_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish = muxOutput_for_axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_read_data = bilinear_scale_control_memory_in_stride_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_read_data = bilinear_scale_control_memory_in_width_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_read_data = bilinear_scale_control_memory_in_height_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_read_data = bilinear_scale_control_memory_out_width_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_read_data = bilinear_scale_control_memory_out_height_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_read_data = bilinear_scale_control_memory_in_addr_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_read_data = bilinear_scale_control_memory_out_addr_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_read_data = bilinear_scale_control_memory_xratio_inst_read_data;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_read_data = bilinear_scale_control_memory_yratio_inst_read_data;
+end
+always @(posedge clk) begin
+	if ((reset | axi_master_scale_updown_bilinear_orig_inst_start)) begin
+		axi_master_scale_updown_bilinear_orig_inst_finish_reg <= 1'd0;
+	end
+	if (axi_master_scale_updown_bilinear_orig_inst_finish) begin
+		axi_master_scale_updown_bilinear_orig_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_stride_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_stride_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_stride_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_stride_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_stride_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_width_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_width_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_width_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_width_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_width_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_height_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_height_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_height_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_height_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_height_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_width_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_width_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_width_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_width_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_width_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_height_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_height_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_height_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_height_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_height_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_addr_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_addr_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_addr_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_addr_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_in_addr_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_addr_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_addr_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_addr_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_addr_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_out_addr_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_xratio_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_xratio_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_xratio_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_xratio_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_xratio_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_write_data);
+end
+always @(*) begin
+	bilinear_scale_control_memory_yratio_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_yratio_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_yratio_inst_write_en = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_write_en | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_write_en) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_write_en);
+end
+always @(*) begin
+	bilinear_scale_control_memory_yratio_inst_write_data = ((axi_master_scale_updown_bilinear_orig_inst_bilinear_scale_control_memory_yratio_write_data | bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_write_data) | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_write_data);
+end
+always @(*) begin
+	axi_read_inst_clk = clk;
+end
+always @(*) begin
+	axi_read_inst_reset = reset;
+end
+always @(*) begin
+	axi_read_inst_start = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_read_threadID == 16'd0)) begin
+		axi_read_inst_start = axi_master_scale_updown_bilinear_orig_inst_axi_read_start;
+	end
+end
+always @(*) begin
+	axi_read_inst_addr_val = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_read_threadID == 16'd0)) begin
+		axi_read_inst_addr_val = axi_master_scale_updown_bilinear_orig_inst_axi_read_addr_val;
+	end
+end
+always @(*) begin
+	axi_read_inst_stride = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_read_threadID == 16'd0)) begin
+		axi_read_inst_stride = axi_master_scale_updown_bilinear_orig_inst_axi_read_stride;
+	end
+end
+always @(*) begin
+	axi_read_inst_width = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_read_threadID == 16'd0)) begin
+		axi_read_inst_width = axi_master_scale_updown_bilinear_orig_inst_axi_read_width;
+	end
+end
+always @(*) begin
+	axi_read_inst_height = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_read_threadID == 16'd0)) begin
+		axi_read_inst_height = axi_master_scale_updown_bilinear_orig_inst_axi_read_height;
+	end
+end
+always @(*) begin
+	axi_read_inst_master_ar_ready = master_ar_ready;
+end
+always @(*) begin
+	axi_read_inst_transaction_started_ready = ~(axi_master_scale_updown_bilinear_orig_entry_read_t_inst_full);
+end
+always @(*) begin
+	axi_read_inst_transaction_done = axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_read_data;
+end
+always @(*) begin
+	axi_read_inst_transaction_done_valid = ~(axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_empty);
+end
+always @(posedge clk) begin
+	if ((reset | axi_read_inst_start)) begin
+		axi_read_inst_finish_reg <= 1'd0;
+	end
+	if (axi_read_inst_finish) begin
+		axi_read_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst_reset = reset;
+end
+assign axi_master_scale_updown_bilinear_orig_entry_read_t_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst_write_en = axi_read_inst_transaction_started_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst_write_data = axi_read_inst_transaction_started;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_inst_read_en = axi_read_data_inst_transaction_started_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_reset = reset;
+end
+assign axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_write_en = axi_read_data_inst_transaction_done_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_write_data = axi_read_data_inst_transaction_done;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_read_en = axi_read_inst_transaction_done_ready;
+end
+always @(*) begin
+	axi_read_data_inst_clk = clk;
+end
+always @(*) begin
+	axi_read_data_inst_reset = reset;
+end
+always @(*) begin
+	axi_read_data_inst_start = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_read_data_threadID == 16'd0)) begin
+		axi_read_data_inst_start = axi_master_scale_updown_bilinear_orig_inst_axi_read_data_start;
+	end
+end
+always @(*) begin
+	axi_read_data_inst_transaction_started = axi_master_scale_updown_bilinear_orig_entry_read_t_inst_read_data;
+end
+always @(*) begin
+	axi_read_data_inst_transaction_started_valid = ~(axi_master_scale_updown_bilinear_orig_entry_read_t_inst_empty);
+end
+always @(*) begin
+	axi_read_data_inst_master_r_data = master_r_data;
+end
+always @(*) begin
+	axi_read_data_inst_master_r_valid = master_r_valid;
+end
+always @(*) begin
+	axi_read_data_inst_master_r_resp = master_r_resp;
+end
+always @(*) begin
+	axi_read_data_inst_master_r_last = master_r_last;
+end
+always @(*) begin
+	axi_read_data_inst_fifo_ready = ~(axi_master_scale_updown_bilinear_orig_entry_input_inst_full);
+end
+always @(*) begin
+	axi_read_data_inst_transaction_done_ready = ~(axi_master_scale_updown_bilinear_orig_entry_read_t_0_inst_full);
+end
+always @(posedge clk) begin
+	if ((reset | axi_read_data_inst_start)) begin
+		axi_read_data_inst_finish_reg <= 1'd0;
+	end
+	if (axi_read_data_inst_finish) begin
+		axi_read_data_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input_inst_reset = reset;
+end
+assign axi_master_scale_updown_bilinear_orig_entry_input_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input_inst_write_en = axi_read_data_inst_fifo_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input_inst_write_data = axi_read_data_inst_fifo;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input_inst_read_en = scale_updown_bilinear_inst_input_fifo_ready;
+end
+always @(*) begin
+	scale_updown_bilinear_inst_clk = clk;
+end
+always @(*) begin
+	scale_updown_bilinear_inst_reset = reset;
+end
+always @(*) begin
+	scale_updown_bilinear_inst_start = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID == 16'd0)) begin
+		scale_updown_bilinear_inst_start = axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_start;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_inst_in_width = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID == 16'd0)) begin
+		scale_updown_bilinear_inst_in_width = axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_in_width;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_inst_in_height = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID == 16'd0)) begin
+		scale_updown_bilinear_inst_in_height = axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_in_height;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_inst_out_width = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID == 16'd0)) begin
+		scale_updown_bilinear_inst_out_width = axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_out_width;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_inst_out_height = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID == 16'd0)) begin
+		scale_updown_bilinear_inst_out_height = axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_out_height;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_inst_xratio = 19'd0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID == 16'd0)) begin
+		scale_updown_bilinear_inst_xratio = axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_xratio;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_inst_yratio = 19'd0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_threadID == 16'd0)) begin
+		scale_updown_bilinear_inst_yratio = axi_master_scale_updown_bilinear_orig_inst_scale_updown_bilinear_yratio;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_inst_input_fifo = axi_master_scale_updown_bilinear_orig_entry_input_inst_read_data;
+end
+always @(*) begin
+	scale_updown_bilinear_inst_input_fifo_valid = ~(axi_master_scale_updown_bilinear_orig_entry_input_inst_empty);
+end
+always @(*) begin
+	scale_updown_bilinear_inst_output_red_fifo_ready = ~(axi_master_scale_updown_bilinear_orig_entry_output_inst_full);
+end
+always @(*) begin
+	scale_updown_bilinear_inst_output_green_fifo_ready = ~(axi_master_scale_updown_bilinear_orig_entry_output_1_inst_full);
+end
+always @(*) begin
+	scale_updown_bilinear_inst_output_blue_fifo_ready = ~(axi_master_scale_updown_bilinear_orig_entry_output_2_inst_full);
+end
+always @(*) begin
+	scale_updown_bilinear_inst_burst_ready_ready = ~(axi_master_scale_updown_bilinear_orig_entry_burst_inst_full);
+end
+always @(posedge clk) begin
+	if ((reset | scale_updown_bilinear_inst_start)) begin
+		scale_updown_bilinear_inst_finish_reg <= 1'd0;
+	end
+	if (scale_updown_bilinear_inst_finish) begin
+		scale_updown_bilinear_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_inst_reset = reset;
+end
+assign axi_master_scale_updown_bilinear_orig_entry_output_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_inst_write_en = scale_updown_bilinear_inst_output_red_fifo_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_inst_write_data = scale_updown_bilinear_inst_output_red_fifo;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_inst_read_en = axi_rgb_write_inst_fifo_r_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst_reset = reset;
+end
+assign axi_master_scale_updown_bilinear_orig_entry_output_1_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst_write_en = scale_updown_bilinear_inst_output_green_fifo_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst_write_data = scale_updown_bilinear_inst_output_green_fifo;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_inst_read_en = axi_rgb_write_inst_fifo_g_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst_reset = reset;
+end
+assign axi_master_scale_updown_bilinear_orig_entry_output_2_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst_write_en = scale_updown_bilinear_inst_output_blue_fifo_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst_write_data = scale_updown_bilinear_inst_output_blue_fifo;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_inst_read_en = axi_rgb_write_inst_fifo_b_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst_clk = clk;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst_reset = reset;
+end
+assign axi_master_scale_updown_bilinear_orig_entry_burst_inst_clken = 1'd1;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst_write_en = scale_updown_bilinear_inst_burst_ready_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst_write_data = scale_updown_bilinear_inst_burst_ready;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst_inst_read_en = axi_rgb_write_inst_burst_ready_ready;
+end
+always @(*) begin
+	axi_rgb_write_inst_clk = clk;
+end
+always @(*) begin
+	axi_rgb_write_inst_reset = reset;
+end
+always @(*) begin
+	axi_rgb_write_inst_start = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID == 16'd0)) begin
+		axi_rgb_write_inst_start = axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_start;
+	end
+end
+always @(*) begin
+	axi_rgb_write_inst_addr_r_val = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID == 16'd0)) begin
+		axi_rgb_write_inst_addr_r_val = axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_r_val;
+	end
+end
+always @(*) begin
+	axi_rgb_write_inst_addr_g_val = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID == 16'd0)) begin
+		axi_rgb_write_inst_addr_g_val = axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_g_val;
+	end
+end
+always @(*) begin
+	axi_rgb_write_inst_addr_b_val = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID == 16'd0)) begin
+		axi_rgb_write_inst_addr_b_val = axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_addr_b_val;
+	end
+end
+always @(*) begin
+	axi_rgb_write_inst_width = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID == 16'd0)) begin
+		axi_rgb_write_inst_width = axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_width;
+	end
+end
+always @(*) begin
+	axi_rgb_write_inst_height = 0;
+	if ((axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_threadID == 16'd0)) begin
+		axi_rgb_write_inst_height = axi_master_scale_updown_bilinear_orig_inst_axi_rgb_write_height;
+	end
+end
+always @(*) begin
+	axi_rgb_write_inst_burst_ready = axi_master_scale_updown_bilinear_orig_entry_burst_inst_read_data;
+end
+always @(*) begin
+	axi_rgb_write_inst_burst_ready_valid = ~(axi_master_scale_updown_bilinear_orig_entry_burst_inst_empty);
+end
+always @(*) begin
+	axi_rgb_write_inst_master_aw_ready = master_aw_ready;
+end
+always @(*) begin
+	axi_rgb_write_inst_fifo_r = axi_master_scale_updown_bilinear_orig_entry_output_inst_read_data;
+end
+always @(*) begin
+	axi_rgb_write_inst_fifo_r_valid = ~(axi_master_scale_updown_bilinear_orig_entry_output_inst_empty);
+end
+always @(*) begin
+	axi_rgb_write_inst_master_w_ready = master_w_ready;
+end
+always @(*) begin
+	axi_rgb_write_inst_master_b_resp = master_b_resp;
+end
+always @(*) begin
+	axi_rgb_write_inst_master_b_resp_valid = master_b_resp_valid;
+end
+always @(*) begin
+	axi_rgb_write_inst_fifo_g = axi_master_scale_updown_bilinear_orig_entry_output_1_inst_read_data;
+end
+always @(*) begin
+	axi_rgb_write_inst_fifo_g_valid = ~(axi_master_scale_updown_bilinear_orig_entry_output_1_inst_empty);
+end
+always @(*) begin
+	axi_rgb_write_inst_fifo_b = axi_master_scale_updown_bilinear_orig_entry_output_2_inst_read_data;
+end
+always @(*) begin
+	axi_rgb_write_inst_fifo_b_valid = ~(axi_master_scale_updown_bilinear_orig_entry_output_2_inst_empty);
+end
+always @(posedge clk) begin
+	if ((reset | axi_rgb_write_inst_start)) begin
+		axi_rgb_write_inst_finish_reg <= 1'd0;
+	end
+	if (axi_rgb_write_inst_finish) begin
+		axi_rgb_write_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_start = axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_read_start;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_s_ar_addr = axi_s_ar_addr;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_axi_s_ar_valid = axi_s_ar_valid;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_s_ar_burst = axi_s_ar_burst;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_s_ar_size = axi_s_ar_size;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_s_ar_len = axi_s_ar_len;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_addr_read_data = bilinear_scale_control_memory_out_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_addr_read_data = bilinear_scale_control_memory_in_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_yratio_read_data = bilinear_scale_control_memory_yratio_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_xratio_read_data = bilinear_scale_control_memory_xratio_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_width_read_data = bilinear_scale_control_memory_in_width_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_stride_read_data = bilinear_scale_control_memory_in_stride_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_width_read_data = bilinear_scale_control_memory_out_width_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_in_height_read_data = bilinear_scale_control_memory_in_height_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_out_height_read_data = bilinear_scale_control_memory_out_height_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_bilinear_scale_control_memory_ctrl_read_data = bilinear_scale_control_memory_ctrl_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_inst_axi_s_r_ready = axi_s_r_ready;
+end
+always @(posedge clk) begin
+	if ((reset | bilinear_scale_control_memory_read_inst_start)) begin
+		bilinear_scale_control_memory_read_inst_finish_reg <= 1'd0;
+	end
+	if (bilinear_scale_control_memory_read_inst_finish) begin
+		bilinear_scale_control_memory_read_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_ctrl_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_ctrl_inst_reset = ((reset | bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_ctrl_write_en) | start);
+end
+always @(*) begin
+	bilinear_scale_control_memory_ctrl_inst_write_en = axi_master_scale_updown_bilinear_orig_inst_finish;
+end
+assign bilinear_scale_control_memory_ctrl_inst_write_data = 1'd1;
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_clk = clk;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_reset = reset;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_start = axi_master_scale_updown_bilinear_inst_bilinear_scale_control_memory_write_start;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_aw_addr = axi_s_aw_addr;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_axi_s_aw_valid = axi_s_aw_valid;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_w_data = axi_s_w_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_axi_s_w_valid = axi_s_w_valid;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_aw_burst = axi_s_aw_burst;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_aw_size = axi_s_aw_size;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_aw_len = axi_s_aw_len;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_w_strb = axi_s_w_strb;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_w_last = axi_s_w_last;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_addr_read_data = bilinear_scale_control_memory_in_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_xratio_read_data = bilinear_scale_control_memory_xratio_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_stride_read_data = bilinear_scale_control_memory_in_stride_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_height_read_data = bilinear_scale_control_memory_in_height_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_height_read_data = bilinear_scale_control_memory_out_height_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_addr_read_data = bilinear_scale_control_memory_out_addr_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_yratio_read_data = bilinear_scale_control_memory_yratio_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_in_width_read_data = bilinear_scale_control_memory_in_width_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_bilinear_scale_control_memory_out_width_read_data = bilinear_scale_control_memory_out_width_inst_read_data;
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_inst_s_b_resp_ready = axi_s_b_resp_ready;
+end
+always @(posedge clk) begin
+	if ((reset | bilinear_scale_control_memory_write_inst_start)) begin
+		bilinear_scale_control_memory_write_inst_finish_reg <= 1'd0;
+	end
+	if (bilinear_scale_control_memory_write_inst_finish) begin
+		bilinear_scale_control_memory_write_inst_finish_reg <= 1'd1;
+	end
+end
+always @(*) begin
+	muxOutput_for_axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish = 1'd0;
+	if (((axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_functionID == 16'd1) == (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_threadID == 16'd0))) begin
+		muxOutput_for_axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish = (~(axi_read_inst_start) & axi_read_inst_finish_reg);
+	end
+	if (((axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_functionID == 16'd2) == (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_threadID == 16'd0))) begin
+		muxOutput_for_axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish = (~(axi_read_data_inst_start) & axi_read_data_inst_finish_reg);
+	end
+	if (((axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_functionID == 16'd0) == (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_threadID == 16'd0))) begin
+		muxOutput_for_axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish = (~(scale_updown_bilinear_inst_start) & scale_updown_bilinear_inst_finish_reg);
+	end
+	if (((axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_functionID == 16'd3) == (axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_threadID == 16'd0))) begin
+		muxOutput_for_axi_master_scale_updown_bilinear_orig_inst_legup_pthreadpoll_finish = (~(axi_rgb_write_inst_start) & axi_rgb_write_inst_finish_reg);
+	end
+end
+always @(*) begin
+	ready = axi_master_scale_updown_bilinear_inst_ready;
+end
+always @(*) begin
+	finish = axi_master_scale_updown_bilinear_inst_finish;
+end
+always @(*) begin
+	axi_s_aw_ready = bilinear_scale_control_memory_write_inst_axi_s_aw_ready;
+end
+always @(*) begin
+	axi_s_w_ready = bilinear_scale_control_memory_write_inst_axi_s_w_ready;
+end
+always @(*) begin
+	axi_s_b_resp = bilinear_scale_control_memory_write_inst_s_b_resp;
+end
+always @(*) begin
+	axi_s_b_resp_valid = bilinear_scale_control_memory_write_inst_s_b_resp_valid;
+end
+always @(*) begin
+	axi_s_ar_ready = bilinear_scale_control_memory_read_inst_axi_s_ar_ready;
+end
+always @(*) begin
+	axi_s_r_data = bilinear_scale_control_memory_read_inst_s_r_data;
+end
+always @(*) begin
+	axi_s_r_valid = bilinear_scale_control_memory_read_inst_axi_s_r_valid;
+end
+always @(*) begin
+	axi_s_r_resp = bilinear_scale_control_memory_read_inst_s_r_resp;
+end
+always @(*) begin
+	axi_s_r_last = bilinear_scale_control_memory_read_inst_s_r_last;
+end
+always @(*) begin
+	master_ar_addr = axi_read_inst_master_ar_addr;
+end
+always @(*) begin
+	master_ar_valid = axi_read_inst_master_ar_valid;
+end
+always @(*) begin
+	master_ar_burst = axi_read_inst_master_ar_burst;
+end
+always @(*) begin
+	master_ar_size = axi_read_inst_master_ar_size;
+end
+always @(*) begin
+	master_ar_len = axi_read_inst_master_ar_len;
+end
+always @(*) begin
+	master_r_ready = axi_read_data_inst_master_r_ready;
+end
+always @(*) begin
+	master_aw_addr = axi_rgb_write_inst_master_aw_addr;
+end
+always @(*) begin
+	master_aw_valid = axi_rgb_write_inst_master_aw_valid;
+end
+always @(*) begin
+	master_aw_burst = axi_rgb_write_inst_master_aw_burst;
+end
+always @(*) begin
+	master_aw_size = axi_rgb_write_inst_master_aw_size;
+end
+always @(*) begin
+	master_aw_len = axi_rgb_write_inst_master_aw_len;
+end
+always @(*) begin
+	master_w_data = axi_rgb_write_inst_master_w_data;
+end
+always @(*) begin
+	master_w_valid = axi_rgb_write_inst_master_w_valid;
+end
+always @(*) begin
+	master_w_strb = axi_rgb_write_inst_master_w_strb;
+end
+always @(*) begin
+	master_w_last = axi_rgb_write_inst_master_w_last;
+end
+always @(*) begin
+	master_b_resp_ready = axi_rgb_write_inst_master_b_resp_ready;
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_axi_master_scale_updown_bilinear
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	axi_master_scale_updown_bilinear_orig_start,
+	axi_master_scale_updown_bilinear_orig_finish,
+	axi_master_scale_updown_bilinear_orig_ready,
+	bilinear_scale_control_memory_read_start,
+	bilinear_scale_control_memory_read_finish,
+	bilinear_scale_control_memory_read_ready,
+	bilinear_scale_control_memory_write_start,
+	bilinear_scale_control_memory_write_finish,
+	bilinear_scale_control_memory_write_ready
+);
+
+parameter [2:0] LEGUP_0 = 3'd0;
+parameter [2:0] LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_1 = 3'd1;
+parameter [2:0] LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_3 = 3'd3;
+parameter [2:0] LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_5 = 3'd5;
+parameter [2:0] LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_7 = 3'd7;
+parameter [2:0] LEGUP_function_call_2 = 3'd2;
+parameter [2:0] LEGUP_function_call_4 = 3'd4;
+parameter [2:0] LEGUP_function_call_6 = 3'd6;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+output reg  axi_master_scale_updown_bilinear_orig_start;
+input  axi_master_scale_updown_bilinear_orig_finish;
+input  axi_master_scale_updown_bilinear_orig_ready;
+output reg  bilinear_scale_control_memory_read_start;
+input  bilinear_scale_control_memory_read_finish;
+input  bilinear_scale_control_memory_read_ready;
+output reg  bilinear_scale_control_memory_write_start;
+input  bilinear_scale_control_memory_write_finish;
+input  bilinear_scale_control_memory_write_ready;
+reg [2:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [2:0] next_state;
+wire  fsm_stall;
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_1;
+LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_1:
+		next_state = LEGUP_function_call_2;
+LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_3:
+		next_state = LEGUP_function_call_4;
+LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_5:
+		next_state = LEGUP_function_call_6;
+LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_7:
+		next_state = LEGUP_0;
+LEGUP_function_call_2:
+	if ((fsm_stall == 1'd0) && (axi_master_scale_updown_bilinear_orig_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_3;
+LEGUP_function_call_4:
+	if ((fsm_stall == 1'd0) && (bilinear_scale_control_memory_read_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_5;
+LEGUP_function_call_6:
+	if ((fsm_stall == 1'd0) && (bilinear_scale_control_memory_write_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_7;
+default:
+	next_state = cur_state;
+endcase
+
+end
+assign fsm_stall = 1'd0;
+always @(*) begin
+	ready = axi_master_scale_updown_bilinear_orig_ready;
+end
+always @(posedge clk) begin
+	finish <= axi_master_scale_updown_bilinear_orig_finish;
+end
+always @(*) begin
+	if (reset) begin
+		axi_master_scale_updown_bilinear_orig_start = 1'd0;
+	end
+	else if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_start = (fsm_stall == 1'd0);
+	end
+	else /* if ((cur_state == LEGUP_function_call_2)) */ begin
+		axi_master_scale_updown_bilinear_orig_start = 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_start = 1'd1;
+	if (reset) begin
+		bilinear_scale_control_memory_read_start = 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_start = 1'd1;
+	if (reset) begin
+		bilinear_scale_control_memory_write_start = 1'd0;
+	end
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_axi_master_scale_updown_bilinear_orig
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	axi_read_start,
+	axi_read_ready,
+	axi_read_addr_val,
+	axi_read_stride,
+	axi_read_width,
+	axi_read_height,
+	axi_read_threadID,
+	axi_read_data_start,
+	axi_read_data_ready,
+	axi_read_data_threadID,
+	scale_updown_bilinear_start,
+	scale_updown_bilinear_ready,
+	scale_updown_bilinear_in_width,
+	scale_updown_bilinear_in_height,
+	scale_updown_bilinear_out_width,
+	scale_updown_bilinear_out_height,
+	scale_updown_bilinear_xratio,
+	scale_updown_bilinear_yratio,
+	scale_updown_bilinear_threadID,
+	axi_rgb_write_start,
+	axi_rgb_write_ready,
+	axi_rgb_write_addr_r_val,
+	axi_rgb_write_addr_g_val,
+	axi_rgb_write_addr_b_val,
+	axi_rgb_write_width,
+	axi_rgb_write_height,
+	axi_rgb_write_threadID,
+	legup_pthreadpoll_threadID,
+	legup_pthreadpoll_functionID,
+	legup_pthreadpoll_finish,
+	legup_pthreadpoll_return_val,
+	bilinear_scale_control_memory_in_stride_write_en,
+	bilinear_scale_control_memory_in_stride_write_data,
+	bilinear_scale_control_memory_in_stride_read_data,
+	bilinear_scale_control_memory_in_width_write_en,
+	bilinear_scale_control_memory_in_width_write_data,
+	bilinear_scale_control_memory_in_width_read_data,
+	bilinear_scale_control_memory_in_height_write_en,
+	bilinear_scale_control_memory_in_height_write_data,
+	bilinear_scale_control_memory_in_height_read_data,
+	bilinear_scale_control_memory_out_width_write_en,
+	bilinear_scale_control_memory_out_width_write_data,
+	bilinear_scale_control_memory_out_width_read_data,
+	bilinear_scale_control_memory_out_height_write_en,
+	bilinear_scale_control_memory_out_height_write_data,
+	bilinear_scale_control_memory_out_height_read_data,
+	bilinear_scale_control_memory_in_addr_write_en,
+	bilinear_scale_control_memory_in_addr_write_data,
+	bilinear_scale_control_memory_in_addr_read_data,
+	bilinear_scale_control_memory_out_addr_write_en,
+	bilinear_scale_control_memory_out_addr_write_data,
+	bilinear_scale_control_memory_out_addr_read_data,
+	bilinear_scale_control_memory_xratio_write_en,
+	bilinear_scale_control_memory_xratio_write_data,
+	bilinear_scale_control_memory_xratio_read_data,
+	bilinear_scale_control_memory_yratio_write_en,
+	bilinear_scale_control_memory_yratio_write_data,
+	bilinear_scale_control_memory_yratio_read_data
+);
+
+parameter [4:0] LEGUP_0 = 5'd0;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1 = 5'd1;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_3 = 5'd3;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5 = 5'd5;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7 = 5'd7;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_9 = 5'd9;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_11 = 5'd11;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_13 = 5'd13;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_15 = 5'd15;
+parameter [4:0] LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_17 = 5'd17;
+parameter [4:0] LEGUP_function_call_2 = 5'd2;
+parameter [4:0] LEGUP_function_call_4 = 5'd4;
+parameter [4:0] LEGUP_function_call_6 = 5'd6;
+parameter [4:0] LEGUP_function_call_8 = 5'd8;
+parameter [4:0] LEGUP_function_call_10 = 5'd10;
+parameter [4:0] LEGUP_function_call_12 = 5'd12;
+parameter [4:0] LEGUP_function_call_14 = 5'd14;
+parameter [4:0] LEGUP_function_call_16 = 5'd16;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+output reg  axi_read_start;
+input  axi_read_ready;
+output reg [31:0] axi_read_addr_val;
+output reg [31:0] axi_read_stride;
+output reg [31:0] axi_read_width;
+output reg [31:0] axi_read_height;
+output reg [15:0] axi_read_threadID;
+output reg  axi_read_data_start;
+input  axi_read_data_ready;
+output reg [15:0] axi_read_data_threadID;
+output reg  scale_updown_bilinear_start;
+input  scale_updown_bilinear_ready;
+output reg [31:0] scale_updown_bilinear_in_width;
+output reg [31:0] scale_updown_bilinear_in_height;
+output reg [31:0] scale_updown_bilinear_out_width;
+output reg [31:0] scale_updown_bilinear_out_height;
+output reg [18:0] scale_updown_bilinear_xratio;
+output reg [18:0] scale_updown_bilinear_yratio;
+output reg [15:0] scale_updown_bilinear_threadID;
+output reg  axi_rgb_write_start;
+input  axi_rgb_write_ready;
+output reg [31:0] axi_rgb_write_addr_r_val;
+output reg [31:0] axi_rgb_write_addr_g_val;
+output reg [31:0] axi_rgb_write_addr_b_val;
+output reg [31:0] axi_rgb_write_width;
+output reg [31:0] axi_rgb_write_height;
+output reg [15:0] axi_rgb_write_threadID;
+output reg [15:0] legup_pthreadpoll_threadID;
+output reg [15:0] legup_pthreadpoll_functionID;
+input  legup_pthreadpoll_finish;
+input [63:0] legup_pthreadpoll_return_val;
+output  bilinear_scale_control_memory_in_stride_write_en;
+output [31:0] bilinear_scale_control_memory_in_stride_write_data;
+input [31:0] bilinear_scale_control_memory_in_stride_read_data;
+output  bilinear_scale_control_memory_in_width_write_en;
+output [31:0] bilinear_scale_control_memory_in_width_write_data;
+input [31:0] bilinear_scale_control_memory_in_width_read_data;
+output  bilinear_scale_control_memory_in_height_write_en;
+output [31:0] bilinear_scale_control_memory_in_height_write_data;
+input [31:0] bilinear_scale_control_memory_in_height_read_data;
+output  bilinear_scale_control_memory_out_width_write_en;
+output [31:0] bilinear_scale_control_memory_out_width_write_data;
+input [31:0] bilinear_scale_control_memory_out_width_read_data;
+output  bilinear_scale_control_memory_out_height_write_en;
+output [31:0] bilinear_scale_control_memory_out_height_write_data;
+input [31:0] bilinear_scale_control_memory_out_height_read_data;
+output  bilinear_scale_control_memory_in_addr_write_en;
+output [31:0] bilinear_scale_control_memory_in_addr_write_data;
+input [31:0] bilinear_scale_control_memory_in_addr_read_data;
+output  bilinear_scale_control_memory_out_addr_write_en;
+output [31:0] bilinear_scale_control_memory_out_addr_write_data;
+input [31:0] bilinear_scale_control_memory_out_addr_read_data;
+output  bilinear_scale_control_memory_xratio_write_en;
+output [31:0] bilinear_scale_control_memory_xratio_write_data;
+input [31:0] bilinear_scale_control_memory_xratio_read_data;
+output  bilinear_scale_control_memory_yratio_write_en;
+output [31:0] bilinear_scale_control_memory_yratio_write_data;
+input [31:0] bilinear_scale_control_memory_yratio_read_data;
+reg [4:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [4:0] next_state;
+wire  fsm_stall;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_0;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_1;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_1_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_2;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_2_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_3;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_3_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_4;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_4_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_5;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_6;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_6_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_7;
+reg [18:0] axi_master_scale_updown_bilinear_orig_entry_bit_se;
+reg [18:0] axi_master_scale_updown_bilinear_orig_entry_bit_se_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_8;
+reg [18:0] axi_master_scale_updown_bilinear_orig_entry_bit_se_0;
+reg [18:0] axi_master_scale_updown_bilinear_orig_entry_bit_se_0_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_mul;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_mul_reg;
+reg [30:0] axi_master_scale_updown_bilinear_orig_entry_bit_se_1;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_9;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_9_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_bit_co;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_bit_co_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_10;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_10_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t1_0_t;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t1_0_t_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t2_0_t;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t2_0_t_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t3_0_t;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t3_0_t_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t4_0_t;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t4_0_t_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t1_inferred_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t2_inferred_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t3_inferred_reg;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_t4_inferred_reg;
+reg  legup_mult_unsigned_32_32_0_0_clock;
+reg  legup_mult_unsigned_32_32_0_0_aclr;
+reg  legup_mult_unsigned_32_32_0_0_clken;
+reg [31:0] legup_mult_unsigned_32_32_0_0_dataa;
+reg [31:0] legup_mult_unsigned_32_32_0_0_datab;
+wire [31:0] legup_mult_unsigned_32_32_0_0_result;
+reg [31:0] legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_out_actual;
+reg [31:0] legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_out;
+reg  legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en;
+wire  legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en_not_in_pipeline;
+reg  legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en_sequential_cond;
+wire  axi_master_scale_updown_bilinear_orig_entry_bit_co_bit_select_operand_2;
+
+/*   %mul = mul i32 %height, %width, !dbg !26496, !MSB !26497, !LSB !26498, !ExtendFrom !26497*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_unsigned_32_32_0_0 (
+	.clock (legup_mult_unsigned_32_32_0_0_clock),
+	.aclr (legup_mult_unsigned_32_32_0_0_aclr),
+	.clken (legup_mult_unsigned_32_32_0_0_clken),
+	.dataa (legup_mult_unsigned_32_32_0_0_dataa),
+	.datab (legup_mult_unsigned_32_32_0_0_datab),
+	.result (legup_mult_unsigned_32_32_0_0_result)
+);
+
+defparam
+	legup_mult_unsigned_32_32_0_0.widtha = 32,
+	legup_mult_unsigned_32_32_0_0.widthb = 32,
+	legup_mult_unsigned_32_32_0_0.widthp = 32,
+	legup_mult_unsigned_32_32_0_0.pipeline = 0,
+	legup_mult_unsigned_32_32_0_0.representation = "UNSIGNED";
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1:
+		next_state = LEGUP_function_call_2;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_11:
+		next_state = LEGUP_function_call_12;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_13:
+		next_state = LEGUP_function_call_14;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_15:
+		next_state = LEGUP_function_call_16;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_17:
+		next_state = LEGUP_0;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_3:
+		next_state = LEGUP_function_call_4;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5:
+		next_state = LEGUP_function_call_6;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7:
+		next_state = LEGUP_function_call_8;
+LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_9:
+		next_state = LEGUP_function_call_10;
+LEGUP_function_call_10:
+	if ((fsm_stall == 1'd0) && (legup_pthreadpoll_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_11;
+LEGUP_function_call_12:
+	if ((fsm_stall == 1'd0) && (legup_pthreadpoll_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_13;
+LEGUP_function_call_14:
+	if ((fsm_stall == 1'd0) && (legup_pthreadpoll_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_15;
+LEGUP_function_call_16:
+	if ((fsm_stall == 1'd0) && (legup_pthreadpoll_finish == 1'd1))
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_17;
+LEGUP_function_call_2:
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_3;
+LEGUP_function_call_4:
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5;
+LEGUP_function_call_6:
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7;
+LEGUP_function_call_8:
+		next_state = LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_9;
+default:
+	next_state = cur_state;
+endcase
+
+end
+assign fsm_stall = 1'd0;
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_0 = bilinear_scale_control_memory_in_stride_read_data;
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_1 = bilinear_scale_control_memory_in_width_read_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_1_reg <= axi_master_scale_updown_bilinear_orig_entry_1;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_2 = bilinear_scale_control_memory_in_height_read_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_2_reg <= axi_master_scale_updown_bilinear_orig_entry_2;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_3 = bilinear_scale_control_memory_out_width_read_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_3_reg <= axi_master_scale_updown_bilinear_orig_entry_3;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_4 = bilinear_scale_control_memory_out_height_read_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_4_reg <= axi_master_scale_updown_bilinear_orig_entry_4;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_5 = bilinear_scale_control_memory_in_addr_read_data;
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_6 = bilinear_scale_control_memory_out_addr_read_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_6_reg <= axi_master_scale_updown_bilinear_orig_entry_6;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_7 = bilinear_scale_control_memory_xratio_read_data;
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_bit_se = axi_master_scale_updown_bilinear_orig_entry_7[19:1];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_bit_se_reg <= axi_master_scale_updown_bilinear_orig_entry_bit_se;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_8 = bilinear_scale_control_memory_yratio_read_data;
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_bit_se_0 = axi_master_scale_updown_bilinear_orig_entry_8[19:1];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_bit_se_0_reg <= axi_master_scale_updown_bilinear_orig_entry_bit_se_0;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_mul = legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_out;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_mul_reg <= axi_master_scale_updown_bilinear_orig_entry_mul;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_bit_se_1 = axi_master_scale_updown_bilinear_orig_entry_mul[30:0];
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_9 = (axi_master_scale_updown_bilinear_orig_entry_6_reg + axi_master_scale_updown_bilinear_orig_entry_mul_reg);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_3)) begin
+		axi_master_scale_updown_bilinear_orig_entry_9_reg <= axi_master_scale_updown_bilinear_orig_entry_9;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_bit_co = {axi_master_scale_updown_bilinear_orig_entry_bit_se_1[30:0], axi_master_scale_updown_bilinear_orig_entry_bit_co_bit_select_operand_2};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_bit_co_reg <= axi_master_scale_updown_bilinear_orig_entry_bit_co;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_10 = (axi_master_scale_updown_bilinear_orig_entry_6_reg + axi_master_scale_updown_bilinear_orig_entry_bit_co_reg);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_3)) begin
+		axi_master_scale_updown_bilinear_orig_entry_10_reg <= axi_master_scale_updown_bilinear_orig_entry_10;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_t1_0_t = axi_master_scale_updown_bilinear_orig_entry_t1_inferred_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_9)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t1_0_t_reg <= axi_master_scale_updown_bilinear_orig_entry_t1_0_t;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_t2_0_t = axi_master_scale_updown_bilinear_orig_entry_t2_inferred_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_11)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t2_0_t_reg <= axi_master_scale_updown_bilinear_orig_entry_t2_0_t;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_t3_0_t = axi_master_scale_updown_bilinear_orig_entry_t3_inferred_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_13)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t3_0_t_reg <= axi_master_scale_updown_bilinear_orig_entry_t3_0_t;
+	end
+end
+always @(*) begin
+		axi_master_scale_updown_bilinear_orig_entry_t4_0_t = axi_master_scale_updown_bilinear_orig_entry_t4_inferred_reg;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_15)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t4_0_t_reg <= axi_master_scale_updown_bilinear_orig_entry_t4_0_t;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_master_scale_updown_bilinear_orig_entry_t1_inferred_reg <= 32'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t1_inferred_reg <= 32'd65536;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_master_scale_updown_bilinear_orig_entry_t2_inferred_reg <= 32'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t2_inferred_reg <= 32'd131072;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_master_scale_updown_bilinear_orig_entry_t3_inferred_reg <= 32'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t3_inferred_reg <= 32'd0;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_master_scale_updown_bilinear_orig_entry_t4_inferred_reg <= 32'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_t4_inferred_reg <= 32'd196608;
+	end
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_clock = clk;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_aclr = reset;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_clken = legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_dataa = axi_master_scale_updown_bilinear_orig_entry_4;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_datab = axi_master_scale_updown_bilinear_orig_entry_3;
+end
+always @(*) begin
+	legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_out_actual = legup_mult_unsigned_32_32_0_0_result;
+end
+always @(*) begin
+	legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_out = legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_out_actual[31:0];
+end
+always @(*) begin
+	legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en = legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en_sequential_cond;
+end
+assign legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en_not_in_pipeline = 1'd1;
+always @(*) begin
+	legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en_sequential_cond = ((((((((((legup_mult_axi_master_scale_updown_bilinear_orig_entry_mul_en_not_in_pipeline & (cur_state != LEGUP_0)) & (cur_state != LEGUP_function_call_2)) & (cur_state != LEGUP_function_call_4)) & (cur_state != LEGUP_function_call_6)) & (cur_state != LEGUP_function_call_8)) & (cur_state != LEGUP_function_call_10)) & (cur_state != LEGUP_function_call_12)) & (cur_state != LEGUP_function_call_14)) & (cur_state != LEGUP_function_call_16)) & ~(fsm_stall));
+end
+assign axi_master_scale_updown_bilinear_orig_entry_bit_co_bit_select_operand_2 = 1'd0;
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_17)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_read_start <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_read_start <= (fsm_stall == 1'd0);
+	end
+	if ((cur_state == LEGUP_function_call_2)) begin
+		axi_read_start <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	axi_read_addr_val <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_read_addr_val <= axi_master_scale_updown_bilinear_orig_entry_5;
+	end
+end
+always @(posedge clk) begin
+	axi_read_stride <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_read_stride <= axi_master_scale_updown_bilinear_orig_entry_0;
+	end
+end
+always @(posedge clk) begin
+	axi_read_width <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_read_width <= axi_master_scale_updown_bilinear_orig_entry_1;
+	end
+end
+always @(posedge clk) begin
+	axi_read_height <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_read_height <= axi_master_scale_updown_bilinear_orig_entry_2;
+	end
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_1)) begin
+		axi_read_threadID <= 32'd65536;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_read_data_start <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_3)) begin
+		axi_read_data_start <= (fsm_stall == 1'd0);
+	end
+	if ((cur_state == LEGUP_function_call_4)) begin
+		axi_read_data_start <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_3)) begin
+		axi_read_data_threadID <= 32'd131072;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		scale_updown_bilinear_start <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_start <= (fsm_stall == 1'd0);
+	end
+	if ((cur_state == LEGUP_function_call_6)) begin
+		scale_updown_bilinear_start <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	scale_updown_bilinear_in_width <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_in_width <= axi_master_scale_updown_bilinear_orig_entry_1_reg;
+	end
+end
+always @(posedge clk) begin
+	scale_updown_bilinear_in_height <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_in_height <= axi_master_scale_updown_bilinear_orig_entry_2_reg;
+	end
+end
+always @(posedge clk) begin
+	scale_updown_bilinear_out_width <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_out_width <= axi_master_scale_updown_bilinear_orig_entry_3_reg;
+	end
+end
+always @(posedge clk) begin
+	scale_updown_bilinear_out_height <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_out_height <= axi_master_scale_updown_bilinear_orig_entry_4_reg;
+	end
+end
+always @(posedge clk) begin
+	scale_updown_bilinear_xratio <= 19'd0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_xratio <= axi_master_scale_updown_bilinear_orig_entry_bit_se_reg;
+	end
+end
+always @(posedge clk) begin
+	scale_updown_bilinear_yratio <= 19'd0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_yratio <= axi_master_scale_updown_bilinear_orig_entry_bit_se_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_5)) begin
+		scale_updown_bilinear_threadID <= 32'd0;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_rgb_write_start <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7)) begin
+		axi_rgb_write_start <= (fsm_stall == 1'd0);
+	end
+	if ((cur_state == LEGUP_function_call_8)) begin
+		axi_rgb_write_start <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	axi_rgb_write_addr_r_val <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7)) begin
+		axi_rgb_write_addr_r_val <= axi_master_scale_updown_bilinear_orig_entry_10_reg;
+	end
+end
+always @(posedge clk) begin
+	axi_rgb_write_addr_g_val <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7)) begin
+		axi_rgb_write_addr_g_val <= axi_master_scale_updown_bilinear_orig_entry_9_reg;
+	end
+end
+always @(posedge clk) begin
+	axi_rgb_write_addr_b_val <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7)) begin
+		axi_rgb_write_addr_b_val <= axi_master_scale_updown_bilinear_orig_entry_6_reg;
+	end
+end
+always @(posedge clk) begin
+	axi_rgb_write_width <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7)) begin
+		axi_rgb_write_width <= axi_master_scale_updown_bilinear_orig_entry_3_reg;
+	end
+end
+always @(posedge clk) begin
+	axi_rgb_write_height <= 0;
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7)) begin
+		axi_rgb_write_height <= axi_master_scale_updown_bilinear_orig_entry_4_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_master_scale_updown_bilinear_orig_BB_entry_7)) begin
+		axi_rgb_write_threadID <= 32'd196608;
+	end
+end
+always @(*) begin
+	if ((cur_state == LEGUP_function_call_10)) begin
+		legup_pthreadpoll_threadID = axi_master_scale_updown_bilinear_orig_entry_t1_0_t_reg[15:0];
+	end
+	else if ((cur_state == LEGUP_function_call_12)) begin
+		legup_pthreadpoll_threadID = axi_master_scale_updown_bilinear_orig_entry_t2_0_t_reg[15:0];
+	end
+	else if ((cur_state == LEGUP_function_call_14)) begin
+		legup_pthreadpoll_threadID = axi_master_scale_updown_bilinear_orig_entry_t3_0_t_reg[15:0];
+	end
+	else /* if ((cur_state == LEGUP_function_call_16)) */ begin
+		legup_pthreadpoll_threadID = axi_master_scale_updown_bilinear_orig_entry_t4_0_t_reg[15:0];
+	end
+end
+always @(*) begin
+	if ((cur_state == LEGUP_function_call_10)) begin
+		legup_pthreadpoll_functionID = axi_master_scale_updown_bilinear_orig_entry_t1_0_t_reg[31:16];
+	end
+	else if ((cur_state == LEGUP_function_call_12)) begin
+		legup_pthreadpoll_functionID = axi_master_scale_updown_bilinear_orig_entry_t2_0_t_reg[31:16];
+	end
+	else if ((cur_state == LEGUP_function_call_14)) begin
+		legup_pthreadpoll_functionID = axi_master_scale_updown_bilinear_orig_entry_t3_0_t_reg[31:16];
+	end
+	else /* if ((cur_state == LEGUP_function_call_16)) */ begin
+		legup_pthreadpoll_functionID = axi_master_scale_updown_bilinear_orig_entry_t4_0_t_reg[31:16];
+	end
+end
+assign bilinear_scale_control_memory_in_stride_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_stride_write_data = 1'd0;
+assign bilinear_scale_control_memory_in_width_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_width_write_data = 1'd0;
+assign bilinear_scale_control_memory_in_height_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_height_write_data = 1'd0;
+assign bilinear_scale_control_memory_out_width_write_en = 1'd0;
+assign bilinear_scale_control_memory_out_width_write_data = 1'd0;
+assign bilinear_scale_control_memory_out_height_write_en = 1'd0;
+assign bilinear_scale_control_memory_out_height_write_data = 1'd0;
+assign bilinear_scale_control_memory_in_addr_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_addr_write_data = 1'd0;
+assign bilinear_scale_control_memory_out_addr_write_en = 1'd0;
+assign bilinear_scale_control_memory_out_addr_write_data = 1'd0;
+assign bilinear_scale_control_memory_xratio_write_en = 1'd0;
+assign bilinear_scale_control_memory_xratio_write_data = 1'd0;
+assign bilinear_scale_control_memory_yratio_write_en = 1'd0;
+assign bilinear_scale_control_memory_yratio_write_data = 1'd0;
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_axi_read
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	addr_val,
+	stride,
+	width,
+	height,
+	master_ar_addr,
+	master_ar_ready,
+	master_ar_valid,
+	master_ar_burst,
+	master_ar_size,
+	master_ar_len,
+	transaction_started,
+	transaction_started_ready,
+	transaction_started_valid,
+	transaction_done,
+	transaction_done_ready,
+	transaction_done_valid
+);
+
+parameter [3:0] LEGUP_0 = 4'd0;
+parameter [3:0] LEGUP_F_axi_read_BB_entry_1 = 4'd1;
+parameter [3:0] LEGUP_F_axi_read_BB_while_body_preheader_2 = 4'd2;
+parameter [3:0] LEGUP_F_axi_read_BB_while_cond64_preheader_3 = 4'd3;
+parameter [3:0] LEGUP_F_axi_read_BB_while_body67_preheader_4 = 4'd4;
+parameter [3:0] LEGUP_pipeline_wait_AXI_READ_L1_5 = 4'd5;
+parameter [3:0] LEGUP_pipeline_wait_AXI_READ_L2_6 = 4'd6;
+parameter [3:0] LEGUP_F_axi_read_BB_while_end73_loopexit_7 = 4'd7;
+parameter [3:0] LEGUP_F_axi_read_BB_while_end73_8 = 4'd8;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] addr_val;
+input [31:0] stride;
+input [31:0] width;
+input [31:0] height;
+output reg [31:0] master_ar_addr;
+input  master_ar_ready;
+output reg  master_ar_valid;
+output [1:0] master_ar_burst;
+output [2:0] master_ar_size;
+output reg [7:0] master_ar_len;
+output reg [7:0] transaction_started;
+input  transaction_started_ready;
+output reg  transaction_started_valid;
+input [7:0] transaction_done;
+output reg  transaction_done_ready;
+input  transaction_done_valid;
+reg [3:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [3:0] next_state;
+reg [31:0] addr_val_reg;
+reg [31:0] stride_reg;
+reg [31:0] width_reg;
+reg [31:0] height_reg;
+reg  fsm_stall;
+reg  axi_read_entry_cmp20;
+reg  axi_read_ond64_preheader_0;
+reg [1:0] axi_read_while_body_outstanding_transactions_1;
+reg [1:0] axi_read_while_body_outstanding_transactions_1_reg;
+reg [31:0] axi_read_while_body_row_addr_0;
+reg [31:0] axi_read_while_body_row_addr_0_reg;
+reg [31:0] axi_read_while_body_r_addr_0;
+reg [31:0] axi_read_while_body_r_addr_0_reg;
+reg [15:0] axi_read_while_body_col_022;
+reg [15:0] axi_read_while_body_col_022_reg;
+reg [15:0] axi_read_while_body_row_021;
+reg [15:0] axi_read_while_body_row_021_reg;
+reg  axi_read_while_body_1;
+reg  axi_read_while_body_NotCondition;
+reg [15:0] axi_read_while_body_conv1;
+reg [16:0] axi_read_while_body_add;
+reg  axi_read_while_body_NotCondition2;
+reg  axi_read_while_body_exitMask_F3;
+reg [31:0] axi_read_while_body_sub;
+reg [7:0] axi_read_while_body_bit_select;
+reg [7:0] axi_read_while_body_select;
+reg [7:0] axi_read_while_body_2;
+reg [1:0] axi_read_while_body_3;
+reg [31:0] axi_read_while_body_4;
+reg [7:0] axi_read_while_body_bit_concat1;
+reg [15:0] axi_read_while_body_add49;
+reg [15:0] axi_read_while_body_conv51;
+reg  axi_read_while_body_cmp52;
+reg  axi_read_while_body_exitMask_T4;
+reg  axi_read_while_body_NotCondition5;
+reg  axi_read_while_body_exitMask_F6;
+reg [31:0] axi_read_while_body_5;
+reg [15:0] axi_read_while_body_select23;
+reg [15:0] axi_read_while_body_select25;
+reg  axi_read_while_body_ORCondM19;
+reg  axi_read_while_body_bit_concat;
+reg  axi_read_while_body_inc;
+reg [15:0] axi_read_while_body_select21;
+reg [31:0] axi_read_while_body_select16;
+reg [31:0] axi_read_while_body_select18;
+reg [31:0] axi_read_while_body_select14;
+reg [1:0] axi_read_while_body_select11;
+wire  axi_read_while_body_6;
+reg  axi_read_while_body_NotCondition8;
+reg [1:0] axi_read_while_body_8;
+reg [1:0] axi_read_while_body_select30;
+reg [1:0] axi_read_while_body_select30_reg;
+reg [15:0] axi_read_while_body_conv;
+reg  axi_read_while_body_cmp;
+reg [1:0] axi_read_while_body67_outstanding_transactions_4;
+reg [1:0] axi_read_while_body67_outstanding_transactions_4_reg;
+wire  axi_read_while_body67_9;
+reg  axi_read_while_body67_NotCondition33;
+reg [1:0] axi_read_while_body67_11;
+reg [1:0] axi_read_while_body67_select39;
+reg  axi_read_while_body67_12;
+reg  AXI_READ_L1_valid_bit_0;
+reg  AXI_READ_L1_state_stall_0;
+reg  AXI_READ_L1_state_enable_0;
+reg  AXI_READ_L1_II_counter;
+reg  AXI_READ_L1_start;
+reg  AXI_READ_L1_activate_pipeline;
+reg [15:0] axi_read_while_body_select25_reg_stage1;
+reg [15:0] axi_read_while_body_select21_reg_stage1;
+reg [31:0] axi_read_while_body_select18_reg_stage1;
+reg [31:0] axi_read_while_body_select14_reg_stage1;
+reg [1:0] axi_read_while_body_select30_reg_stage1;
+reg  AXI_READ_L1_pipeline_exit_cond;
+reg  AXI_READ_L1_active;
+reg  AXI_READ_L1_begin_pipeline;
+reg  AXI_READ_L1_epilogue;
+reg  AXI_READ_L1_pipeline_finish;
+reg  AXI_READ_L1_pipeline_finishing;
+reg  AXI_READ_L1_only_last_stage_enabled;
+reg  AXI_READ_L1_pipeline_finish_reg;
+reg  AXI_READ_L1_in_first_iteration_stage0;
+reg  AXI_READ_L2_valid_bit_0;
+reg  AXI_READ_L2_state_stall_0;
+reg  AXI_READ_L2_state_enable_0;
+reg  AXI_READ_L2_II_counter;
+reg  AXI_READ_L2_start;
+reg  AXI_READ_L2_activate_pipeline;
+reg [1:0] axi_read_while_body67_select39_reg_stage1;
+reg  AXI_READ_L2_pipeline_exit_cond;
+reg  AXI_READ_L2_active;
+reg  AXI_READ_L2_begin_pipeline;
+reg  AXI_READ_L2_epilogue;
+reg  AXI_READ_L2_pipeline_finish;
+reg  AXI_READ_L2_pipeline_finishing;
+reg  AXI_READ_L2_only_last_stage_enabled;
+reg  AXI_READ_L2_pipeline_finish_reg;
+reg  AXI_READ_L2_in_first_iteration_stage0;
+reg  master_ar_addr_AXI_READ_L1_state_0_not_accessed_due_to_stall_a;
+reg  master_ar_addr_AXI_READ_L1_state_0_stalln_reg;
+reg  master_ar_addr_AXI_READ_L1_state_0_enable_cond_a;
+reg  master_ar_burst_AXI_READ_L1_state_0_not_accessed_due_to_stall_a;
+reg  master_ar_burst_AXI_READ_L1_state_0_stalln_reg;
+reg  master_ar_burst_AXI_READ_L1_state_0_enable_cond_a;
+reg  master_ar_size_AXI_READ_L1_state_0_not_accessed_due_to_stall_a;
+reg  master_ar_size_AXI_READ_L1_state_0_stalln_reg;
+reg  master_ar_size_AXI_READ_L1_state_0_enable_cond_a;
+reg  master_ar_len_AXI_READ_L1_state_0_not_accessed_due_to_stall_a;
+reg  master_ar_len_AXI_READ_L1_state_0_stalln_reg;
+reg  master_ar_len_AXI_READ_L1_state_0_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_enable_cond_a;
+wire [7:0] axi_read_while_body_bit_concat1_bit_select_operand_0;
+wire [14:0] axi_read_while_body_bit_concat_bit_select_operand_0;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_valid;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_taken;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_enable_cond_a;
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_read_BB_entry_1;
+LEGUP_F_axi_read_BB_entry_1:
+	if ((fsm_stall == 1'd0) && (axi_read_entry_cmp20 == 1'd1))
+		next_state = LEGUP_F_axi_read_BB_while_end73_8;
+	else if ((fsm_stall == 1'd0) && (axi_read_entry_cmp20 == 1'd0))
+		next_state = LEGUP_F_axi_read_BB_while_body_preheader_2;
+LEGUP_F_axi_read_BB_while_body67_preheader_4:
+		next_state = LEGUP_pipeline_wait_AXI_READ_L2_6;
+LEGUP_F_axi_read_BB_while_body_preheader_2:
+		next_state = LEGUP_pipeline_wait_AXI_READ_L1_5;
+LEGUP_F_axi_read_BB_while_cond64_preheader_3:
+	if ((fsm_stall == 1'd0) && (axi_read_ond64_preheader_0 == 1'd1))
+		next_state = LEGUP_F_axi_read_BB_while_end73_8;
+	else if ((fsm_stall == 1'd0) && (axi_read_ond64_preheader_0 == 1'd0))
+		next_state = LEGUP_F_axi_read_BB_while_body67_preheader_4;
+LEGUP_F_axi_read_BB_while_end73_8:
+		next_state = LEGUP_0;
+LEGUP_F_axi_read_BB_while_end73_loopexit_7:
+		next_state = LEGUP_F_axi_read_BB_while_end73_8;
+LEGUP_pipeline_wait_AXI_READ_L1_5:
+	if ((fsm_stall == 1'd0) && (AXI_READ_L1_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_read_BB_while_cond64_preheader_3;
+	else if ((fsm_stall == 1'd0) && (AXI_READ_L1_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_read_BB_while_cond64_preheader_3;
+LEGUP_pipeline_wait_AXI_READ_L2_6:
+	if ((fsm_stall == 1'd0) && (AXI_READ_L2_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_read_BB_while_end73_loopexit_7;
+	else if ((fsm_stall == 1'd0) && (AXI_READ_L2_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_read_BB_while_end73_loopexit_7;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		addr_val_reg <= addr_val;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		stride_reg <= stride;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		width_reg <= width;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		height_reg <= height;
+	end
+end
+always @(*) begin
+	fsm_stall = 1'd0;
+	if ((((cur_state == LEGUP_F_axi_read_BB_while_end73_8) & ~(transaction_started_ready)) & (axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+		axi_read_entry_cmp20 = (height_reg == 32'd0);
+end
+always @(*) begin
+		axi_read_ond64_preheader_0 = (axi_read_while_body_select30_reg == 2'd0);
+end
+always @(*) begin
+	if ((AXI_READ_L1_valid_bit_0 & AXI_READ_L1_in_first_iteration_stage0)) begin
+		axi_read_while_body_outstanding_transactions_1 = axi_read_while_body_outstanding_transactions_1_reg;
+	end
+	else if ((AXI_READ_L1_valid_bit_0 & ~(AXI_READ_L1_in_first_iteration_stage0))) begin
+		axi_read_while_body_outstanding_transactions_1 = axi_read_while_body_select30_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) */ begin
+		axi_read_while_body_outstanding_transactions_1 = 2'd0;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_outstanding_transactions_1_reg <= axi_read_while_body_outstanding_transactions_1;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		axi_read_while_body_outstanding_transactions_1_reg <= axi_read_while_body_outstanding_transactions_1;
+	end
+end
+always @(*) begin
+	if ((AXI_READ_L1_valid_bit_0 & AXI_READ_L1_in_first_iteration_stage0)) begin
+		axi_read_while_body_row_addr_0 = axi_read_while_body_row_addr_0_reg;
+	end
+	else if ((AXI_READ_L1_valid_bit_0 & ~(AXI_READ_L1_in_first_iteration_stage0))) begin
+		axi_read_while_body_row_addr_0 = axi_read_while_body_select14_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) */ begin
+		axi_read_while_body_row_addr_0 = addr_val_reg;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_row_addr_0_reg <= axi_read_while_body_row_addr_0;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		axi_read_while_body_row_addr_0_reg <= axi_read_while_body_row_addr_0;
+	end
+end
+always @(*) begin
+	if ((AXI_READ_L1_valid_bit_0 & AXI_READ_L1_in_first_iteration_stage0)) begin
+		axi_read_while_body_r_addr_0 = axi_read_while_body_r_addr_0_reg;
+	end
+	else if ((AXI_READ_L1_valid_bit_0 & ~(AXI_READ_L1_in_first_iteration_stage0))) begin
+		axi_read_while_body_r_addr_0 = axi_read_while_body_select18_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) */ begin
+		axi_read_while_body_r_addr_0 = addr_val_reg;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_r_addr_0_reg <= axi_read_while_body_r_addr_0;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		axi_read_while_body_r_addr_0_reg <= axi_read_while_body_r_addr_0;
+	end
+end
+always @(*) begin
+	if ((AXI_READ_L1_valid_bit_0 & AXI_READ_L1_in_first_iteration_stage0)) begin
+		axi_read_while_body_col_022 = axi_read_while_body_col_022_reg;
+	end
+	else if ((AXI_READ_L1_valid_bit_0 & ~(AXI_READ_L1_in_first_iteration_stage0))) begin
+		axi_read_while_body_col_022 = axi_read_while_body_select25_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) */ begin
+		axi_read_while_body_col_022 = 16'd0;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_col_022_reg <= axi_read_while_body_col_022;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		axi_read_while_body_col_022_reg <= axi_read_while_body_col_022;
+	end
+end
+always @(*) begin
+	if ((AXI_READ_L1_valid_bit_0 & AXI_READ_L1_in_first_iteration_stage0)) begin
+		axi_read_while_body_row_021 = axi_read_while_body_row_021_reg;
+	end
+	else if ((AXI_READ_L1_valid_bit_0 & ~(AXI_READ_L1_in_first_iteration_stage0))) begin
+		axi_read_while_body_row_021 = axi_read_while_body_select21_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) */ begin
+		axi_read_while_body_row_021 = 16'd0;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_row_021_reg <= axi_read_while_body_row_021;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		axi_read_while_body_row_021_reg <= axi_read_while_body_row_021;
+	end
+end
+always @(*) begin
+		axi_read_while_body_1 = (axi_read_while_body_outstanding_transactions_1 == -2'd1);
+end
+always @(*) begin
+		axi_read_while_body_NotCondition = (axi_read_while_body_1 ^ 1'd1);
+end
+always @(*) begin
+		axi_read_while_body_conv1 = $signed(axi_read_while_body_col_022);
+end
+always @(*) begin
+		axi_read_while_body_add = ($signed({{1{axi_read_while_body_conv1[15]}},axi_read_while_body_conv1}) + 32'd128);
+end
+always @(*) begin
+		axi_read_while_body_NotCondition2 = ({{15{axi_read_while_body_add[16]}},axi_read_while_body_add} <= width_reg);
+end
+always @(*) begin
+		axi_read_while_body_exitMask_F3 = (axi_read_while_body_NotCondition2 & axi_read_while_body_NotCondition);
+end
+always @(*) begin
+		axi_read_while_body_sub = (width_reg - $signed({{16{axi_read_while_body_conv1[15]}},axi_read_while_body_conv1}));
+end
+always @(*) begin
+		axi_read_while_body_bit_select = axi_read_while_body_sub[7:0];
+end
+always @(*) begin
+		axi_read_while_body_select = (axi_read_while_body_exitMask_F3 ? -8'd128 : axi_read_while_body_bit_select);
+end
+always @(*) begin
+		axi_read_while_body_2 = (axi_read_while_body_select + $signed(-8'd1));
+end
+always @(*) begin
+		axi_read_while_body_3 = (axi_read_while_body_outstanding_transactions_1 + 2'd1);
+end
+always @(*) begin
+		axi_read_while_body_4 = (axi_read_while_body_r_addr_0 + 32'd512);
+end
+always @(*) begin
+		axi_read_while_body_bit_concat1 = {axi_read_while_body_bit_concat1_bit_select_operand_0[7:0], axi_read_while_body_select[7:0]};
+end
+always @(*) begin
+		axi_read_while_body_add49 = ({8'd0,axi_read_while_body_bit_concat1} + axi_read_while_body_col_022);
+end
+always @(*) begin
+		axi_read_while_body_conv51 = $signed(axi_read_while_body_add49);
+end
+always @(*) begin
+		axi_read_while_body_cmp52 = ({{16{axi_read_while_body_conv51[15]}},axi_read_while_body_conv51} == width_reg);
+end
+always @(*) begin
+		axi_read_while_body_exitMask_T4 = (axi_read_while_body_cmp52 & axi_read_while_body_NotCondition);
+end
+always @(*) begin
+		axi_read_while_body_NotCondition5 = (axi_read_while_body_cmp52 ^ 1'd1);
+end
+always @(*) begin
+		axi_read_while_body_exitMask_F6 = (axi_read_while_body_NotCondition & axi_read_while_body_NotCondition5);
+end
+always @(*) begin
+		axi_read_while_body_5 = (axi_read_while_body_row_addr_0 + stride_reg);
+end
+always @(*) begin
+		axi_read_while_body_select23 = (axi_read_while_body_exitMask_T4 ? 16'd0 : axi_read_while_body_col_022);
+end
+always @(*) begin
+		axi_read_while_body_select25 = (axi_read_while_body_exitMask_F6 ? axi_read_while_body_add49 : axi_read_while_body_select23);
+end
+always @(*) begin
+		axi_read_while_body_ORCondM19 = (axi_read_while_body_exitMask_F6 | axi_read_while_body_1);
+end
+always @(*) begin
+		axi_read_while_body_bit_concat = {axi_read_while_body_bit_concat_bit_select_operand_0[14:0], axi_read_while_body_ORCondM19};
+end
+always @(*) begin
+		axi_read_while_body_inc = (axi_read_while_body_bit_concat ^ 16'd1);
+end
+always @(*) begin
+		axi_read_while_body_select21 = (axi_read_while_body_row_021 + axi_read_while_body_inc);
+end
+always @(*) begin
+		axi_read_while_body_select16 = (axi_read_while_body_1 ? axi_read_while_body_r_addr_0 : axi_read_while_body_4);
+end
+always @(*) begin
+		axi_read_while_body_select18 = (axi_read_while_body_exitMask_T4 ? axi_read_while_body_5 : axi_read_while_body_select16);
+end
+always @(*) begin
+		axi_read_while_body_select14 = (axi_read_while_body_ORCondM19 ? axi_read_while_body_row_addr_0 : axi_read_while_body_5);
+end
+always @(*) begin
+		axi_read_while_body_select11 = (axi_read_while_body_1 ? -2'd1 : axi_read_while_body_3);
+end
+assign axi_read_while_body_6 = ~(axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_valid);
+always @(*) begin
+		axi_read_while_body_NotCondition8 = (axi_read_while_body_6 ^ 1'd1);
+end
+always @(*) begin
+		axi_read_while_body_8 = $signed(axi_read_while_body_NotCondition8);
+end
+always @(*) begin
+		axi_read_while_body_select30 = (axi_read_while_body_select11 + $signed(axi_read_while_body_8));
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_select30_reg <= axi_read_while_body_select30;
+	end
+end
+always @(*) begin
+		axi_read_while_body_conv = $signed(axi_read_while_body_select21);
+end
+always @(*) begin
+		axi_read_while_body_cmp = ({{16{axi_read_while_body_conv[15]}},axi_read_while_body_conv} < height_reg);
+end
+always @(*) begin
+	if ((AXI_READ_L2_valid_bit_0 & AXI_READ_L2_in_first_iteration_stage0)) begin
+		axi_read_while_body67_outstanding_transactions_4 = axi_read_while_body67_outstanding_transactions_4_reg;
+	end
+	else if ((AXI_READ_L2_valid_bit_0 & ~(AXI_READ_L2_in_first_iteration_stage0))) begin
+		axi_read_while_body67_outstanding_transactions_4 = axi_read_while_body67_select39_reg_stage1;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_read_BB_while_body67_preheader_4) & (fsm_stall == 1'd0))) */ begin
+		axi_read_while_body67_outstanding_transactions_4 = axi_read_while_body_select30_reg;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L2_state_enable_0) begin
+		axi_read_while_body67_outstanding_transactions_4_reg <= axi_read_while_body67_outstanding_transactions_4;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body67_preheader_4) & (fsm_stall == 1'd0))) begin
+		axi_read_while_body67_outstanding_transactions_4_reg <= axi_read_while_body67_outstanding_transactions_4;
+	end
+end
+assign axi_read_while_body67_9 = ~(axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_valid);
+always @(*) begin
+		axi_read_while_body67_NotCondition33 = (axi_read_while_body67_9 ^ 1'd1);
+end
+always @(*) begin
+		axi_read_while_body67_11 = $signed(axi_read_while_body67_NotCondition33);
+end
+always @(*) begin
+		axi_read_while_body67_select39 = (axi_read_while_body67_outstanding_transactions_4 + $signed(axi_read_while_body67_11));
+end
+always @(*) begin
+		axi_read_while_body67_12 = (axi_read_while_body67_select39 == 2'd0);
+end
+always @(posedge clk) begin
+	if (~(AXI_READ_L1_state_stall_0)) begin
+		AXI_READ_L1_valid_bit_0 <= (AXI_READ_L1_II_counter & AXI_READ_L1_start);
+	end
+	if (reset) begin
+		AXI_READ_L1_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L1_state_stall_0 = 1'd0;
+	if ((((AXI_READ_L1_valid_bit_0 & master_ar_valid) & ~(master_ar_ready)) & (master_ar_addr_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_addr_AXI_READ_L1_state_0_stalln_reg))) begin
+		AXI_READ_L1_state_stall_0 = 1'd1;
+	end
+	if ((((AXI_READ_L1_valid_bit_0 & master_ar_valid) & ~(master_ar_ready)) & (master_ar_burst_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_burst_AXI_READ_L1_state_0_stalln_reg))) begin
+		AXI_READ_L1_state_stall_0 = 1'd1;
+	end
+	if ((((AXI_READ_L1_valid_bit_0 & master_ar_valid) & ~(master_ar_ready)) & (master_ar_size_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_size_AXI_READ_L1_state_0_stalln_reg))) begin
+		AXI_READ_L1_state_stall_0 = 1'd1;
+	end
+	if ((((AXI_READ_L1_valid_bit_0 & master_ar_valid) & ~(master_ar_ready)) & (master_ar_len_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_len_AXI_READ_L1_state_0_stalln_reg))) begin
+		AXI_READ_L1_state_stall_0 = 1'd1;
+	end
+	if ((((AXI_READ_L1_valid_bit_0 & transaction_started_valid) & ~(transaction_started_ready)) & (axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_stalln_reg))) begin
+		AXI_READ_L1_state_stall_0 = 1'd1;
+	end
+	if (((AXI_READ_L1_valid_bit_0 & axi_read_while_body_NotCondition8) & ~(axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_valid))) begin
+		AXI_READ_L1_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	AXI_READ_L1_state_enable_0 = (AXI_READ_L1_valid_bit_0 & ~(AXI_READ_L1_state_stall_0));
+end
+always @(posedge clk) begin
+	AXI_READ_L1_II_counter <= 1'd1;
+end
+always @(*) begin
+	AXI_READ_L1_start = (AXI_READ_L1_activate_pipeline | ((AXI_READ_L1_active & ~(AXI_READ_L1_epilogue)) & ~(AXI_READ_L1_pipeline_exit_cond)));
+	if (reset) begin
+		AXI_READ_L1_start = 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L1_activate_pipeline = ((((fsm_stall == 1'd0) & AXI_READ_L1_begin_pipeline) & ~(AXI_READ_L1_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_select25_reg_stage1 <= axi_read_while_body_select25;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_select21_reg_stage1 <= axi_read_while_body_select21;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_select18_reg_stage1 <= axi_read_while_body_select18;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_select14_reg_stage1 <= axi_read_while_body_select14;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_state_enable_0) begin
+		axi_read_while_body_select30_reg_stage1 <= axi_read_while_body_select30;
+	end
+end
+always @(*) begin
+	AXI_READ_L1_pipeline_exit_cond = (AXI_READ_L1_state_enable_0 & ~(axi_read_while_body_cmp));
+end
+always @(posedge clk) begin
+	if (reset) begin
+		AXI_READ_L1_active <= 1'd0;
+	end
+	if (AXI_READ_L1_activate_pipeline) begin
+		AXI_READ_L1_active <= 1'd1;
+	end
+	if (AXI_READ_L1_pipeline_finishing) begin
+		AXI_READ_L1_active <= 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L1_begin_pipeline = 1'd0;
+	if (reset) begin
+		AXI_READ_L1_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		AXI_READ_L1_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		AXI_READ_L1_epilogue <= 1'd0;
+	end
+	if ((AXI_READ_L1_pipeline_exit_cond & AXI_READ_L1_active)) begin
+		AXI_READ_L1_epilogue <= 1'd1;
+	end
+	if (AXI_READ_L1_pipeline_finishing) begin
+		AXI_READ_L1_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L1_pipeline_finish = (AXI_READ_L1_pipeline_finishing | AXI_READ_L1_pipeline_finish_reg);
+end
+always @(*) begin
+	AXI_READ_L1_pipeline_finishing = ((AXI_READ_L1_epilogue | AXI_READ_L1_pipeline_exit_cond) & AXI_READ_L1_only_last_stage_enabled);
+end
+always @(*) begin
+	AXI_READ_L1_only_last_stage_enabled = ~(AXI_READ_L1_state_enable_0);
+end
+always @(posedge clk) begin
+	AXI_READ_L1_pipeline_finish_reg <= AXI_READ_L1_pipeline_finish;
+	if (reset) begin
+		AXI_READ_L1_pipeline_finish_reg <= 1'd0;
+	end
+	if (AXI_READ_L1_activate_pipeline) begin
+		AXI_READ_L1_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L1_activate_pipeline) begin
+		AXI_READ_L1_in_first_iteration_stage0 <= 1'd1;
+	end
+	if (AXI_READ_L1_state_enable_0) begin
+		AXI_READ_L1_in_first_iteration_stage0 <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (~(AXI_READ_L2_state_stall_0)) begin
+		AXI_READ_L2_valid_bit_0 <= (AXI_READ_L2_II_counter & AXI_READ_L2_start);
+	end
+	if (reset) begin
+		AXI_READ_L2_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L2_state_stall_0 = 1'd0;
+	if (((AXI_READ_L2_valid_bit_0 & axi_read_while_body67_NotCondition33) & ~(axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_valid))) begin
+		AXI_READ_L2_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	AXI_READ_L2_state_enable_0 = (AXI_READ_L2_valid_bit_0 & ~(AXI_READ_L2_state_stall_0));
+end
+always @(posedge clk) begin
+	AXI_READ_L2_II_counter <= 1'd1;
+end
+always @(*) begin
+	AXI_READ_L2_start = (AXI_READ_L2_activate_pipeline | ((AXI_READ_L2_active & ~(AXI_READ_L2_epilogue)) & ~(AXI_READ_L2_pipeline_exit_cond)));
+	if (reset) begin
+		AXI_READ_L2_start = 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L2_activate_pipeline = ((((fsm_stall == 1'd0) & AXI_READ_L2_begin_pipeline) & ~(AXI_READ_L2_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (AXI_READ_L2_state_enable_0) begin
+		axi_read_while_body67_select39_reg_stage1 <= axi_read_while_body67_select39;
+	end
+end
+always @(*) begin
+	AXI_READ_L2_pipeline_exit_cond = (AXI_READ_L2_state_enable_0 & axi_read_while_body67_12);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		AXI_READ_L2_active <= 1'd0;
+	end
+	if (AXI_READ_L2_activate_pipeline) begin
+		AXI_READ_L2_active <= 1'd1;
+	end
+	if (AXI_READ_L2_pipeline_finishing) begin
+		AXI_READ_L2_active <= 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L2_begin_pipeline = 1'd0;
+	if (reset) begin
+		AXI_READ_L2_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_axi_read_BB_while_body67_preheader_4) & (fsm_stall == 1'd0))) begin
+		AXI_READ_L2_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		AXI_READ_L2_epilogue <= 1'd0;
+	end
+	if ((AXI_READ_L2_pipeline_exit_cond & AXI_READ_L2_active)) begin
+		AXI_READ_L2_epilogue <= 1'd1;
+	end
+	if (AXI_READ_L2_pipeline_finishing) begin
+		AXI_READ_L2_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	AXI_READ_L2_pipeline_finish = (AXI_READ_L2_pipeline_finishing | AXI_READ_L2_pipeline_finish_reg);
+end
+always @(*) begin
+	AXI_READ_L2_pipeline_finishing = ((AXI_READ_L2_epilogue | AXI_READ_L2_pipeline_exit_cond) & AXI_READ_L2_only_last_stage_enabled);
+end
+always @(*) begin
+	AXI_READ_L2_only_last_stage_enabled = ~(AXI_READ_L2_state_enable_0);
+end
+always @(posedge clk) begin
+	AXI_READ_L2_pipeline_finish_reg <= AXI_READ_L2_pipeline_finish;
+	if (reset) begin
+		AXI_READ_L2_pipeline_finish_reg <= 1'd0;
+	end
+	if (AXI_READ_L2_activate_pipeline) begin
+		AXI_READ_L2_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (AXI_READ_L2_activate_pipeline) begin
+		AXI_READ_L2_in_first_iteration_stage0 <= 1'd1;
+	end
+	if (AXI_READ_L2_state_enable_0) begin
+		AXI_READ_L2_in_first_iteration_stage0 <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	master_ar_addr_AXI_READ_L1_state_0_not_accessed_due_to_stall_a <= ((AXI_READ_L1_state_stall_0 & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_addr_AXI_READ_L1_state_0_stalln_reg <= ~(AXI_READ_L1_state_stall_0);
+end
+always @(*) begin
+	master_ar_addr_AXI_READ_L1_state_0_enable_cond_a = (AXI_READ_L1_valid_bit_0 & (master_ar_addr_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_addr_AXI_READ_L1_state_0_stalln_reg));
+end
+always @(posedge clk) begin
+	master_ar_burst_AXI_READ_L1_state_0_not_accessed_due_to_stall_a <= ((AXI_READ_L1_state_stall_0 & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_burst_AXI_READ_L1_state_0_stalln_reg <= ~(AXI_READ_L1_state_stall_0);
+end
+always @(*) begin
+	master_ar_burst_AXI_READ_L1_state_0_enable_cond_a = (AXI_READ_L1_valid_bit_0 & (master_ar_burst_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_burst_AXI_READ_L1_state_0_stalln_reg));
+end
+always @(posedge clk) begin
+	master_ar_size_AXI_READ_L1_state_0_not_accessed_due_to_stall_a <= ((AXI_READ_L1_state_stall_0 & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_size_AXI_READ_L1_state_0_stalln_reg <= ~(AXI_READ_L1_state_stall_0);
+end
+always @(*) begin
+	master_ar_size_AXI_READ_L1_state_0_enable_cond_a = (AXI_READ_L1_valid_bit_0 & (master_ar_size_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_size_AXI_READ_L1_state_0_stalln_reg));
+end
+always @(posedge clk) begin
+	master_ar_len_AXI_READ_L1_state_0_not_accessed_due_to_stall_a <= ((AXI_READ_L1_state_stall_0 & master_ar_valid) & ~(master_ar_ready));
+end
+always @(posedge clk) begin
+	master_ar_len_AXI_READ_L1_state_0_stalln_reg <= ~(AXI_READ_L1_state_stall_0);
+end
+always @(*) begin
+	master_ar_len_AXI_READ_L1_state_0_enable_cond_a = (AXI_READ_L1_valid_bit_0 & (master_ar_len_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | master_ar_len_AXI_READ_L1_state_0_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_not_accessed_due_to_stall_a <= ((AXI_READ_L1_state_stall_0 & transaction_started_valid) & ~(transaction_started_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_stalln_reg <= ~(AXI_READ_L1_state_stall_0);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_enable_cond_a = (AXI_READ_L1_valid_bit_0 & (axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_stalln_reg));
+end
+assign axi_read_while_body_bit_concat1_bit_select_operand_0 = 8'd0;
+assign axi_read_while_body_bit_concat_bit_select_operand_0 = 15'd0;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_valid = transaction_done_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_taken = 1'd0;
+	if ((AXI_READ_L1_valid_bit_0 & axi_read_while_body_NotCondition8)) begin
+		axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_taken = ~(AXI_READ_L1_state_stall_0);
+	end
+	if ((AXI_READ_L2_valid_bit_0 & axi_read_while_body67_NotCondition33)) begin
+		axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_taken = ~(AXI_READ_L2_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_not_accessed_due_to_stall_a <= ((fsm_stall & transaction_started_valid) & ~(transaction_started_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_enable_cond_a = ((cur_state == LEGUP_F_axi_read_BB_while_end73_8) & (axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_stalln_reg));
+end
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_read_BB_while_end73_8)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+always @(*) begin
+		master_ar_addr = axi_read_while_body_r_addr_0;
+end
+always @(*) begin
+	master_ar_valid = 1'd0;
+	if ((master_ar_addr_AXI_READ_L1_state_0_enable_cond_a & axi_read_while_body_NotCondition)) begin
+		master_ar_valid = 1'd1;
+	end
+	if ((master_ar_burst_AXI_READ_L1_state_0_enable_cond_a & axi_read_while_body_NotCondition)) begin
+		master_ar_valid = 1'd1;
+	end
+	if ((master_ar_size_AXI_READ_L1_state_0_enable_cond_a & axi_read_while_body_NotCondition)) begin
+		master_ar_valid = 1'd1;
+	end
+	if ((master_ar_len_AXI_READ_L1_state_0_enable_cond_a & axi_read_while_body_NotCondition)) begin
+		master_ar_valid = 1'd1;
+	end
+end
+assign master_ar_burst = 2'd1;
+assign master_ar_size = 3'd2;
+always @(*) begin
+		master_ar_len = axi_read_while_body_2;
+end
+always @(*) begin
+	transaction_started = 8'd0;
+	if ((AXI_READ_L1_valid_bit_0 & axi_read_while_body_NotCondition)) begin
+		transaction_started = axi_read_while_body_select;
+	end
+	if ((cur_state == LEGUP_F_axi_read_BB_while_end73_8)) begin
+		transaction_started = 8'd0;
+	end
+end
+always @(*) begin
+	transaction_started_valid = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_entry_read_t_AXI_READ_L1_state_0_enable_cond_a & axi_read_while_body_NotCondition)) begin
+		transaction_started_valid = 1'd1;
+	end
+	if (axi_master_scale_updown_bilinear_orig_entry_read_t_LEGUP_F_axi_read_BB_while_end73_8_enable_cond_a) begin
+		transaction_started_valid = 1'd1;
+	end
+end
+always @(*) begin
+	transaction_done_ready = axi_master_scale_updown_bilinear_orig_entry_read_t_0_consumed_taken;
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_axi_read_data
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	transaction_started,
+	transaction_started_ready,
+	transaction_started_valid,
+	master_r_data,
+	master_r_ready,
+	master_r_valid,
+	master_r_resp,
+	master_r_last,
+	fifo,
+	fifo_ready,
+	fifo_valid,
+	transaction_done,
+	transaction_done_ready,
+	transaction_done_valid
+);
+
+parameter [3:0] LEGUP_0 = 4'd0;
+parameter [3:0] LEGUP_F_axi_read_data_BB_entry_1 = 4'd1;
+parameter [3:0] LEGUP_F_axi_read_data_BB_for_cond_preheader_preheader_2 = 4'd2;
+parameter [3:0] LEGUP_F_axi_read_data_BB_for_cond_preheader_3 = 4'd3;
+parameter [3:0] LEGUP_F_axi_read_data_BB_for_body_preheader_4 = 4'd4;
+parameter [3:0] LEGUP_pipeline_wait_for_loop_scale_cpp_388_5_5 = 4'd5;
+parameter [3:0] LEGUP_F_axi_read_data_BB_for_end_loopexit_6 = 4'd6;
+parameter [3:0] LEGUP_F_axi_read_data_BB_for_end_7 = 4'd7;
+parameter [3:0] LEGUP_F_axi_read_data_BB_while_end_loopexit_8 = 4'd8;
+parameter [3:0] LEGUP_F_axi_read_data_BB_while_end_9 = 4'd9;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [7:0] transaction_started;
+output reg  transaction_started_ready;
+input  transaction_started_valid;
+input [31:0] master_r_data;
+output reg  master_r_ready;
+input  master_r_valid;
+input [1:0] master_r_resp;
+input  master_r_last;
+output reg [31:0] fifo;
+input  fifo_ready;
+output reg  fifo_valid;
+output reg [7:0] transaction_done;
+input  transaction_done_ready;
+output reg  transaction_done_valid;
+reg [3:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [3:0] next_state;
+reg  fsm_stall;
+reg [7:0] axi_read_data_entry_0;
+reg [7:0] axi_read_data_entry_0_reg;
+reg  axi_read_data_entry_cmp4;
+reg [7:0] axi_read_data_cond_preheader_1;
+reg [7:0] axi_read_data_cond_preheader_1_reg;
+reg  axi_read_data_cond_preheader_cmp32;
+reg [31:0] axi_read_data_for_body_2;
+reg [7:0] axi_read_data_for_body_5;
+reg  axi_read_data_for_body_exitcond;
+reg [7:0] axi_read_data_for_end_6;
+reg  axi_read_data_for_end_cmp;
+reg  for_loop_scale_cpp_388_5_valid_bit_0;
+reg  for_loop_scale_cpp_388_5_state_stall_0;
+reg  for_loop_scale_cpp_388_5_state_enable_0;
+reg  for_loop_scale_cpp_388_5_valid_bit_1;
+reg  for_loop_scale_cpp_388_5_state_stall_1;
+reg  for_loop_scale_cpp_388_5_state_enable_1;
+reg  for_loop_scale_cpp_388_5_II_counter;
+reg  for_loop_scale_cpp_388_5_start;
+reg  for_loop_scale_cpp_388_5_activate_pipeline;
+reg [31:0] axi_read_data_for_body_2_reg_stage1;
+reg [7:0] for_loop_scale_cpp_388_5_inductionVar_stage0;
+reg  for_loop_scale_cpp_388_5_pipeline_exit_cond;
+reg  for_loop_scale_cpp_388_5_active;
+reg  for_loop_scale_cpp_388_5_begin_pipeline;
+reg  for_loop_scale_cpp_388_5_epilogue;
+reg  for_loop_scale_cpp_388_5_pipeline_finish;
+reg  for_loop_scale_cpp_388_5_pipeline_finishing;
+reg  for_loop_scale_cpp_388_5_only_last_stage_enabled;
+reg [1:0] for_loop_scale_cpp_388_5_num_active_iterations;
+reg  for_loop_scale_cpp_388_5_inserting_new_iteration;
+reg  for_loop_scale_cpp_388_5_pipeline_finish_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_valid;
+reg [7:0] axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_taken;
+reg  master_r_data_consumed_valid;
+reg [31:0] master_r_data_consumed_data;
+reg  master_r_data_consumed_taken;
+reg  master_r_resp_consumed_valid;
+reg  master_r_resp_consumed_taken;
+reg  master_r_last_consumed_valid;
+reg  master_r_last_consumed_taken;
+reg  axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_enable_cond_a;
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_read_data_BB_entry_1;
+LEGUP_F_axi_read_data_BB_entry_1:
+	if ((fsm_stall == 1'd0) && (axi_read_data_entry_cmp4 == 1'd1))
+		next_state = LEGUP_F_axi_read_data_BB_while_end_9;
+	else if ((fsm_stall == 1'd0) && (axi_read_data_entry_cmp4 == 1'd0))
+		next_state = LEGUP_F_axi_read_data_BB_for_cond_preheader_preheader_2;
+LEGUP_F_axi_read_data_BB_for_body_preheader_4:
+		next_state = LEGUP_pipeline_wait_for_loop_scale_cpp_388_5_5;
+LEGUP_F_axi_read_data_BB_for_cond_preheader_3:
+	if ((fsm_stall == 1'd0) && (axi_read_data_cond_preheader_cmp32 == 1'd1))
+		next_state = LEGUP_F_axi_read_data_BB_for_end_7;
+	else if ((fsm_stall == 1'd0) && (axi_read_data_cond_preheader_cmp32 == 1'd0))
+		next_state = LEGUP_F_axi_read_data_BB_for_body_preheader_4;
+LEGUP_F_axi_read_data_BB_for_cond_preheader_preheader_2:
+		next_state = LEGUP_F_axi_read_data_BB_for_cond_preheader_3;
+LEGUP_F_axi_read_data_BB_for_end_7:
+	if ((fsm_stall == 1'd0) && (axi_read_data_for_end_cmp == 1'd1))
+		next_state = LEGUP_F_axi_read_data_BB_while_end_loopexit_8;
+	else if ((fsm_stall == 1'd0) && (axi_read_data_for_end_cmp == 1'd0))
+		next_state = LEGUP_F_axi_read_data_BB_for_cond_preheader_3;
+LEGUP_F_axi_read_data_BB_for_end_loopexit_6:
+		next_state = LEGUP_F_axi_read_data_BB_for_end_7;
+LEGUP_F_axi_read_data_BB_while_end_9:
+		next_state = LEGUP_0;
+LEGUP_F_axi_read_data_BB_while_end_loopexit_8:
+		next_state = LEGUP_F_axi_read_data_BB_while_end_9;
+LEGUP_pipeline_wait_for_loop_scale_cpp_388_5_5:
+	if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_388_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_read_data_BB_for_end_loopexit_6;
+	else if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_388_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_read_data_BB_for_end_loopexit_6;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(*) begin
+	fsm_stall = 1'd0;
+	if (((cur_state == LEGUP_F_axi_read_data_BB_entry_1) & ~(axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_read_data_BB_for_end_7) & ~(transaction_done_ready)) & (axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state == LEGUP_F_axi_read_data_BB_for_end_7) & ~(axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+	axi_read_data_entry_0 = axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_data;
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_read_data_BB_entry_1)) begin
+		axi_read_data_entry_0_reg <= axi_read_data_entry_0;
+	end
+end
+always @(*) begin
+		axi_read_data_entry_cmp4 = (axi_read_data_entry_0 == 8'd0);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_read_data_BB_for_cond_preheader_preheader_2) & (fsm_stall == 1'd0))) begin
+		axi_read_data_cond_preheader_1 = axi_read_data_entry_0_reg;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_read_data_BB_for_end_7) & (fsm_stall == 1'd0)) & (axi_read_data_for_end_cmp == 1'd0))) */ begin
+		axi_read_data_cond_preheader_1 = axi_read_data_for_end_6;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_read_data_BB_for_cond_preheader_preheader_2) & (fsm_stall == 1'd0))) begin
+		axi_read_data_cond_preheader_1_reg <= axi_read_data_cond_preheader_1;
+	end
+	if ((((cur_state == LEGUP_F_axi_read_data_BB_for_end_7) & (fsm_stall == 1'd0)) & (axi_read_data_for_end_cmp == 1'd0))) begin
+		axi_read_data_cond_preheader_1_reg <= axi_read_data_cond_preheader_1;
+	end
+end
+always @(*) begin
+		axi_read_data_cond_preheader_cmp32 = (axi_read_data_cond_preheader_1_reg == 8'd0);
+end
+always @(*) begin
+	axi_read_data_for_body_2 = master_r_data_consumed_data;
+end
+always @(*) begin
+		axi_read_data_for_body_5 = (for_loop_scale_cpp_388_5_inductionVar_stage0 + 8'd1);
+end
+always @(*) begin
+		axi_read_data_for_body_exitcond = (axi_read_data_for_body_5 == axi_read_data_cond_preheader_1_reg);
+end
+always @(*) begin
+	axi_read_data_for_end_6 = axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_data;
+end
+always @(*) begin
+		axi_read_data_for_end_cmp = (axi_read_data_for_end_6 == 8'd0);
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_388_5_state_stall_0)) begin
+		for_loop_scale_cpp_388_5_valid_bit_0 <= (for_loop_scale_cpp_388_5_II_counter & for_loop_scale_cpp_388_5_start);
+	end
+	if (reset) begin
+		for_loop_scale_cpp_388_5_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_state_stall_0 = 1'd0;
+	if (for_loop_scale_cpp_388_5_state_stall_1) begin
+		for_loop_scale_cpp_388_5_state_stall_0 = 1'd1;
+	end
+	if ((for_loop_scale_cpp_388_5_valid_bit_0 & ~(master_r_data_consumed_valid))) begin
+		for_loop_scale_cpp_388_5_state_stall_0 = 1'd1;
+	end
+	if ((for_loop_scale_cpp_388_5_valid_bit_0 & ~(master_r_resp_consumed_valid))) begin
+		for_loop_scale_cpp_388_5_state_stall_0 = 1'd1;
+	end
+	if ((for_loop_scale_cpp_388_5_valid_bit_0 & ~(master_r_last_consumed_valid))) begin
+		for_loop_scale_cpp_388_5_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_state_enable_0 = (for_loop_scale_cpp_388_5_valid_bit_0 & ~(for_loop_scale_cpp_388_5_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_388_5_state_stall_1)) begin
+		for_loop_scale_cpp_388_5_valid_bit_1 <= for_loop_scale_cpp_388_5_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_388_5_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_state_stall_1 = 1'd0;
+	if ((((for_loop_scale_cpp_388_5_valid_bit_1 & fifo_valid) & ~(fifo_ready)) & (axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_388_5_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_state_enable_1 = (for_loop_scale_cpp_388_5_valid_bit_1 & ~(for_loop_scale_cpp_388_5_state_stall_1));
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_388_5_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_start = (for_loop_scale_cpp_388_5_activate_pipeline | ((for_loop_scale_cpp_388_5_active & ~(for_loop_scale_cpp_388_5_epilogue)) & ~(for_loop_scale_cpp_388_5_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_scale_cpp_388_5_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_scale_cpp_388_5_begin_pipeline) & ~(for_loop_scale_cpp_388_5_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_388_5_state_enable_0) begin
+		axi_read_data_for_body_2_reg_stage1 <= axi_read_data_for_body_2;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_388_5_inductionVar_stage0 <= 8'd0;
+	end
+	if (for_loop_scale_cpp_388_5_activate_pipeline) begin
+		for_loop_scale_cpp_388_5_inductionVar_stage0 <= 8'd0;
+	end
+	if ((for_loop_scale_cpp_388_5_II_counter & for_loop_scale_cpp_388_5_state_enable_0)) begin
+		for_loop_scale_cpp_388_5_inductionVar_stage0 <= (for_loop_scale_cpp_388_5_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_pipeline_exit_cond = (for_loop_scale_cpp_388_5_state_enable_0 & axi_read_data_for_body_exitcond);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_388_5_active <= 1'd0;
+	end
+	if (for_loop_scale_cpp_388_5_activate_pipeline) begin
+		for_loop_scale_cpp_388_5_active <= 1'd1;
+	end
+	if (for_loop_scale_cpp_388_5_pipeline_finishing) begin
+		for_loop_scale_cpp_388_5_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_scale_cpp_388_5_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_axi_read_data_BB_for_body_preheader_4) & (fsm_stall == 1'd0))) begin
+		for_loop_scale_cpp_388_5_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_388_5_epilogue <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_388_5_pipeline_exit_cond & for_loop_scale_cpp_388_5_active)) begin
+		for_loop_scale_cpp_388_5_epilogue <= 1'd1;
+	end
+	if (for_loop_scale_cpp_388_5_pipeline_finishing) begin
+		for_loop_scale_cpp_388_5_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_pipeline_finish = (for_loop_scale_cpp_388_5_pipeline_finishing | for_loop_scale_cpp_388_5_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_pipeline_finishing = ((for_loop_scale_cpp_388_5_epilogue | for_loop_scale_cpp_388_5_pipeline_exit_cond) & for_loop_scale_cpp_388_5_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_only_last_stage_enabled = ((for_loop_scale_cpp_388_5_num_active_iterations == 1'd1) & for_loop_scale_cpp_388_5_state_enable_1);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_388_5_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_388_5_inserting_new_iteration & ~(for_loop_scale_cpp_388_5_state_enable_1))) begin
+		for_loop_scale_cpp_388_5_num_active_iterations <= (for_loop_scale_cpp_388_5_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_scale_cpp_388_5_inserting_new_iteration) & for_loop_scale_cpp_388_5_state_enable_1)) begin
+		for_loop_scale_cpp_388_5_num_active_iterations <= (for_loop_scale_cpp_388_5_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_388_5_inserting_new_iteration = ((~(for_loop_scale_cpp_388_5_state_stall_0) & for_loop_scale_cpp_388_5_II_counter) & for_loop_scale_cpp_388_5_start);
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_388_5_pipeline_finish_reg <= for_loop_scale_cpp_388_5_pipeline_finish;
+	if (reset) begin
+		for_loop_scale_cpp_388_5_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_scale_cpp_388_5_activate_pipeline) begin
+		for_loop_scale_cpp_388_5_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_valid = transaction_started_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_data = transaction_started;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_taken = 1'd0;
+	if ((cur_state == LEGUP_F_axi_read_data_BB_entry_1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_taken = ~(fsm_stall);
+	end
+	if ((cur_state == LEGUP_F_axi_read_data_BB_for_end_7)) begin
+		axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_taken = ~(fsm_stall);
+	end
+end
+always @(posedge clk) begin
+	if (master_r_data_consumed_taken) begin
+		master_r_data_consumed_valid <= 1'd0;
+	end
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_data_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_r_data_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_data_consumed_data <= master_r_data;
+	end
+end
+always @(*) begin
+	master_r_data_consumed_taken = 1'd0;
+	if (for_loop_scale_cpp_388_5_valid_bit_0) begin
+		master_r_data_consumed_taken = ~(for_loop_scale_cpp_388_5_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (master_r_resp_consumed_taken) begin
+		master_r_resp_consumed_valid <= 1'd0;
+	end
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_resp_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_r_resp_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	master_r_resp_consumed_taken = 1'd0;
+	if (for_loop_scale_cpp_388_5_valid_bit_0) begin
+		master_r_resp_consumed_taken = ~(for_loop_scale_cpp_388_5_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (master_r_last_consumed_taken) begin
+		master_r_last_consumed_valid <= 1'd0;
+	end
+	if ((master_r_ready & master_r_valid)) begin
+		master_r_last_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_r_last_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	master_r_last_consumed_taken = 1'd0;
+	if (for_loop_scale_cpp_388_5_valid_bit_0) begin
+		master_r_last_consumed_taken = ~(for_loop_scale_cpp_388_5_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_388_5_state_stall_1 & fifo_valid) & ~(fifo_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_388_5_state_stall_1);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_enable_cond_a = (for_loop_scale_cpp_388_5_valid_bit_1 & (axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_not_accessed_due_to_stall_a <= ((fsm_stall & transaction_done_valid) & ~(transaction_done_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_enable_cond_a = ((cur_state == LEGUP_F_axi_read_data_BB_for_end_7) & (axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_stalln_reg));
+end
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_read_data_BB_while_end_9)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+always @(*) begin
+	transaction_started_ready = axi_master_scale_updown_bilinear_orig_entry_read_t_consumed_taken;
+end
+always @(*) begin
+	master_r_ready = (~(master_r_last_consumed_valid) | master_r_last_consumed_taken);
+	if (reset) begin
+		master_r_ready = 1'd0;
+	end
+	if (reset) begin
+		master_r_ready = 1'd0;
+	end
+	if (reset) begin
+		master_r_ready = 1'd0;
+	end
+end
+always @(*) begin
+		fifo = axi_read_data_for_body_2_reg_stage1;
+end
+always @(*) begin
+	fifo_valid = 1'd0;
+	if (axi_master_scale_updown_bilinear_orig_entry_input__for_loop_scale_cpp_388_5_state_1_enable_cond_a) begin
+		fifo_valid = 1'd1;
+	end
+end
+always @(*) begin
+	transaction_done = 8'd0;
+	if ((cur_state == LEGUP_F_axi_read_data_BB_for_end_7)) begin
+		transaction_done = 8'd1;
+	end
+end
+always @(*) begin
+	transaction_done_valid = 1'd0;
+	if (axi_master_scale_updown_bilinear_orig_entry_read_t_0_LEGUP_F_axi_read_data_BB_for_end_7_enable_cond_a) begin
+		transaction_done_valid = 1'd1;
+	end
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_scale_updown_bilinear
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	in_width,
+	in_height,
+	out_width,
+	out_height,
+	xratio,
+	yratio,
+	input_fifo,
+	input_fifo_ready,
+	input_fifo_valid,
+	output_red_fifo,
+	output_red_fifo_ready,
+	output_red_fifo_valid,
+	output_green_fifo,
+	output_green_fifo_ready,
+	output_green_fifo_valid,
+	output_blue_fifo,
+	output_blue_fifo_ready,
+	output_blue_fifo_valid,
+	burst_ready,
+	burst_ready_ready,
+	burst_ready_valid
+);
+
+parameter [3:0] LEGUP_0 = 4'd0;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_entry_1 = 4'd1;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_body_preheader_2 = 4'd2;
+parameter [3:0] LEGUP_pipeline_wait_for_loop_scale_cpp_174_3_3 = 4'd3;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_end_loopexit_4 = 4'd4;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_end_5 = 4'd5;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6 = 4'd6;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup_7 = 4'd7;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_body35_8 = 4'd8;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9 = 4'd9;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10 = 4'd10;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11 = 4'd11;
+parameter [3:0] LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12 = 4'd12;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_if_then248_13 = 4'd13;
+parameter [3:0] LEGUP_F_scale_updown_bilinear_BB_if_end250_14 = 4'd14;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] in_width;
+input [31:0] in_height;
+input [31:0] out_width;
+input [31:0] out_height;
+input [18:0] xratio;
+input [18:0] yratio;
+input [31:0] input_fifo;
+output reg  input_fifo_ready;
+input  input_fifo_valid;
+output reg [31:0] output_red_fifo;
+input  output_red_fifo_ready;
+output reg  output_red_fifo_valid;
+output reg [31:0] output_green_fifo;
+input  output_green_fifo_ready;
+output reg  output_green_fifo_valid;
+output reg [31:0] output_blue_fifo;
+input  output_blue_fifo_ready;
+output reg  output_blue_fifo_valid;
+output reg [7:0] burst_ready;
+input  burst_ready_ready;
+output reg  burst_ready_valid;
+reg [3:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [3:0] next_state;
+reg [31:0] in_width_reg;
+reg [31:0] in_height_reg;
+reg [31:0] out_width_reg;
+reg [31:0] out_height_reg;
+reg [18:0] xratio_reg;
+reg [18:0] yratio_reg;
+reg  fsm_stall;
+reg  scale_updown_bilinear_entry_cmp;
+reg [31:0] scale_updown_bilinear_entry_add;
+reg [31:0] scale_updown_bilinear_entry_cond;
+reg [11:0] scale_updown_bilinear_entry_bit_select110;
+reg [11:0] scale_updown_bilinear_entry_bit_select110_reg;
+reg  scale_updown_bilinear_entry_cmp23;
+reg [31:0] scale_updown_bilinear_entry_sub;
+reg [31:0] scale_updown_bilinear_entry_cond27;
+reg [11:0] scale_updown_bilinear_entry_bit_select114;
+reg [11:0] scale_updown_bilinear_entry_bit_select114_reg;
+reg  scale_updown_bilinear_entry_cmp29112;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body_mem_flat_gep;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body_mem_flat_gep8;
+reg [31:0] scale_updown_bilinear_for_body_0;
+reg [31:0] scale_updown_bilinear_for_body_1;
+reg  scale_updown_bilinear_for_body_exitcond;
+reg  scale_updown_bilinear_for_end_2;
+reg [31:0] scale_updown_bilinear_or_body35_lr_ph_sub75;
+reg [31:0] scale_updown_bilinear_or_body35_lr_ph_sub75_reg;
+reg  scale_updown_bilinear_or_body35_lr_ph_3;
+reg  scale_updown_bilinear_or_body35_lr_ph_3_reg;
+reg [18:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11;
+reg [18:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_reg;
+reg [18:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0;
+reg [18:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0_reg;
+reg [11:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1;
+reg [11:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1_reg;
+reg  scale_updown_bilinear_or_cond_cleanup_cmp247;
+reg [11:0] scale_updown_bilinear_for_body35_i_0;
+reg [11:0] scale_updown_bilinear_for_body35_i_0_reg;
+reg [31:0] scale_updown_bilinear_for_body35_blue_beat_0;
+reg [31:0] scale_updown_bilinear_for_body35_blue_beat_0_reg;
+reg [31:0] scale_updown_bilinear_for_body35_green_beat_0;
+reg [31:0] scale_updown_bilinear_for_body35_green_beat_0_reg;
+reg [31:0] scale_updown_bilinear_for_body35_red_beat_0;
+reg [31:0] scale_updown_bilinear_for_body35_red_beat_0_reg;
+reg [11:0] scale_updown_bilinear_for_body35_in_y_idx_0;
+reg [11:0] scale_updown_bilinear_for_body35_in_y_idx_0_reg;
+reg [11:0] scale_updown_bilinear_for_body35_in_x_idx_0;
+reg [11:0] scale_updown_bilinear_for_body35_in_x_idx_0_reg;
+reg [11:0] scale_updown_bilinear_for_body35_out_y_idx_0;
+reg [11:0] scale_updown_bilinear_for_body35_out_y_idx_0_reg;
+reg [11:0] scale_updown_bilinear_for_body35_out_x_idx_0;
+reg [11:0] scale_updown_bilinear_for_body35_out_x_idx_0_reg;
+reg [7:0] scale_updown_bilinear_for_body35_burst_count_0110;
+reg [7:0] scale_updown_bilinear_for_body35_burst_count_0110_reg;
+reg [7:0] scale_updown_bilinear_for_body35_write_count_mod4_;
+reg [7:0] scale_updown_bilinear_for_body35_write_count_mod4__reg;
+reg  scale_updown_bilinear_for_body35_in_row_flag_0108;
+reg  scale_updown_bilinear_for_body35_in_row_flag_0108_reg;
+reg [31:0] scale_updown_bilinear_cond_cleanup38_blue_beat_1;
+reg [31:0] scale_updown_bilinear_cond_cleanup38_blue_beat_1_reg;
+reg [31:0] scale_updown_bilinear_cond_cleanup38_green_beat_1;
+reg [31:0] scale_updown_bilinear_cond_cleanup38_green_beat_1_reg;
+reg [31:0] scale_updown_bilinear_cond_cleanup38_red_beat_1;
+reg [31:0] scale_updown_bilinear_cond_cleanup38_red_beat_1_reg;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_in_y_idx_1;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_in_y_idx_1_reg;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_in_x_idx_1;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_in_x_idx_1_reg;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_out_y_idx_1;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_out_y_idx_1_reg;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_out_x_idx_1;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_out_x_idx_1_reg;
+reg [7:0] scale_updown_bilinear_cond_cleanup38_burst_count_1;
+reg [7:0] scale_updown_bilinear_cond_cleanup38_burst_count_1_reg;
+reg [7:0] scale_updown_bilinear_cond_cleanup38_write_count_m;
+reg [7:0] scale_updown_bilinear_cond_cleanup38_write_count_m_reg;
+reg  scale_updown_bilinear_cond_cleanup38_in_row_flag_1;
+reg  scale_updown_bilinear_cond_cleanup38_in_row_flag_1_reg;
+reg [11:0] scale_updown_bilinear_cond_cleanup38_4;
+reg  scale_updown_bilinear_cond_cleanup38_exitcond2;
+reg [31:0] scale_updown_bilinear_for_body39_blue_beat_2;
+reg [31:0] scale_updown_bilinear_for_body39_blue_beat_2_reg;
+reg [31:0] scale_updown_bilinear_for_body39_green_beat_2;
+reg [31:0] scale_updown_bilinear_for_body39_green_beat_2_reg;
+reg [31:0] scale_updown_bilinear_for_body39_red_beat_2;
+reg [31:0] scale_updown_bilinear_for_body39_red_beat_2_reg;
+reg [11:0] scale_updown_bilinear_for_body39_in_y_idx_2;
+reg [11:0] scale_updown_bilinear_for_body39_in_y_idx_2_reg;
+reg [11:0] scale_updown_bilinear_for_body39_in_x_idx_2;
+reg [11:0] scale_updown_bilinear_for_body39_in_x_idx_2_reg;
+reg [11:0] scale_updown_bilinear_for_body39_out_y_idx_2;
+reg [11:0] scale_updown_bilinear_for_body39_out_y_idx_2_reg;
+reg [11:0] scale_updown_bilinear_for_body39_out_x_idx_2;
+reg [11:0] scale_updown_bilinear_for_body39_out_x_idx_2_reg;
+reg [7:0] scale_updown_bilinear_for_body39_burst_count_1104;
+reg [7:0] scale_updown_bilinear_for_body39_burst_count_1104_reg;
+reg [7:0] scale_updown_bilinear_for_body39_write_count_mod4_;
+reg [7:0] scale_updown_bilinear_for_body39_write_count_mod4__reg;
+reg  scale_updown_bilinear_for_body39_in_row_flag_1102;
+reg  scale_updown_bilinear_for_body39_in_row_flag_1102_reg;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat109;
+reg [30:0] scale_updown_bilinear_for_body39_6;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select108;
+reg [1:0] scale_updown_bilinear_for_body39_bit_select106;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select105;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat107;
+reg [11:0] scale_updown_bilinear_for_body39_sub_i1;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat104;
+reg [30:0] scale_updown_bilinear_for_body39_7;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select103;
+reg [1:0] scale_updown_bilinear_for_body39_bit_select101;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select94;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat102;
+reg [11:0] scale_updown_bilinear_for_body39_sub_i2;
+reg [11:0] scale_updown_bilinear_for_body39_8;
+reg [11:0] scale_updown_bilinear_for_body39_9;
+reg  scale_updown_bilinear_for_body39_10;
+reg  scale_updown_bilinear_for_body39_lnot_i;
+reg  scale_updown_bilinear_for_body39_11;
+reg  scale_updown_bilinear_for_body39_or6420;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat100;
+reg  scale_updown_bilinear_for_body39_12;
+reg  scale_updown_bilinear_for_body39_and21;
+reg  scale_updown_bilinear_for_body39_notlhs;
+reg  scale_updown_bilinear_for_body39_notrhs;
+reg  scale_updown_bilinear_for_body39_not_or_cond591;
+reg  scale_updown_bilinear_for_body39_596;
+reg  scale_updown_bilinear_for_body39_13;
+reg  scale_updown_bilinear_for_body39_lnot_i171;
+reg  scale_updown_bilinear_for_body39_newEarly_1;
+reg  scale_updown_bilinear_for_body39_newCurOp_1;
+reg  scale_updown_bilinear_for_body39_NotCondition3;
+reg  scale_updown_bilinear_for_body39_14;
+reg  scale_updown_bilinear_for_body39_exitMask_T5;
+reg  scale_updown_bilinear_for_body39_15;
+reg  scale_updown_bilinear_for_body39_or_cond;
+reg  scale_updown_bilinear_for_body39_595;
+reg  scale_updown_bilinear_for_body39_exitMask_T8;
+reg  scale_updown_bilinear_for_body39_NotCondition9;
+reg  scale_updown_bilinear_for_body39_exitMask_F10;
+reg  scale_updown_bilinear_for_body39_lnot;
+reg  scale_updown_bilinear_for_body39_bit_concat99;
+reg [11:0] scale_updown_bilinear_for_body39_17;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat98;
+reg  scale_updown_bilinear_for_body39_18;
+reg  scale_updown_bilinear_for_body39_bit_concat97;
+reg [11:0] scale_updown_bilinear_for_body39_593;
+reg  scale_updown_bilinear_for_body39_select;
+reg [31:0] scale_updown_bilinear_for_body39_19;
+reg  scale_updown_bilinear_for_body39_cmp114;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat96;
+reg  scale_updown_bilinear_for_body39_exitMask_T11;
+reg  scale_updown_bilinear_for_body39_NotCondition12;
+reg  scale_updown_bilinear_for_body39_exitMask_F13;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep26;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep32;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep38;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep44;
+reg  scale_updown_bilinear_for_body39_select26;
+reg  scale_updown_bilinear_for_body39_select26_reg;
+reg [11:0] scale_updown_bilinear_for_body39_select22;
+reg [11:0] scale_updown_bilinear_for_body39_select24;
+reg [11:0] scale_updown_bilinear_for_body39_select24_reg;
+reg  scale_updown_bilinear_for_body39_in_y_idx_2_2;
+reg  scale_updown_bilinear_for_body39_select20_v;
+reg [11:0] scale_updown_bilinear_for_body39_select20;
+reg [11:0] scale_updown_bilinear_for_body39_select20_reg;
+reg  scale_updown_bilinear_for_body39_cmp158;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat95;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep50;
+reg [31:0] scale_updown_bilinear_for_body39_20;
+reg  scale_updown_bilinear_for_body39_exitMask_T27;
+reg  scale_updown_bilinear_for_body39_NotCondition28;
+reg  scale_updown_bilinear_for_body39_exitMask_F29;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat93;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep56;
+reg [31:0] scale_updown_bilinear_for_body39_21;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep62;
+reg [31:0] scale_updown_bilinear_for_body39_22;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep68;
+reg [31:0] scale_updown_bilinear_for_body39_23;
+reg [31:0] scale_updown_bilinear_for_body39_24;
+reg [31:0] scale_updown_bilinear_for_body39_25;
+reg [31:0] scale_updown_bilinear_for_body39_26;
+reg [31:0] scale_updown_bilinear_for_body39_select40;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select89;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select79;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select73;
+reg [15:0] scale_updown_bilinear_for_body39_bit_select66;
+reg [21:0] scale_updown_bilinear_for_body39_bit_select47;
+reg [21:0] scale_updown_bilinear_for_body39_bit_select28;
+reg [31:0] scale_updown_bilinear_for_body39_select38;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select87;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select77;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select71;
+reg [31:0] scale_updown_bilinear_for_body39_select36;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select54;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select35;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select16;
+reg [31:0] scale_updown_bilinear_for_body39_select34;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select85;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select75;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select69;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat92;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat91;
+reg [23:0] scale_updown_bilinear_for_body39_27;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select83;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat90;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat88;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat86;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat84;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat82;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat81;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat80;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat78;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat76;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat74;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat72;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat70;
+reg [10:0] scale_updown_bilinear_for_body39_bit_concat68;
+reg  scale_updown_bilinear_for_body39_cmp_i_i_i;
+reg  scale_updown_bilinear_for_body39_exitMask_T30;
+reg [25:0] scale_updown_bilinear_for_body39_bit_concat67;
+reg [8:0] scale_updown_bilinear_for_body39_sub155_i;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select65;
+reg [8:0] scale_updown_bilinear_for_body39_28;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select63;
+reg [18:0] scale_updown_bilinear_for_body39_bit_concat64;
+reg [18:0] scale_updown_bilinear_for_body39_29;
+reg [30:0] scale_updown_bilinear_for_body39_30;
+reg [20:0] scale_updown_bilinear_for_body39_bit_select61;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat62;
+reg [8:0] scale_updown_bilinear_for_body39_sub150_i;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select60;
+reg [8:0] scale_updown_bilinear_for_body39_31;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select58;
+reg [18:0] scale_updown_bilinear_for_body39_bit_concat59;
+reg [18:0] scale_updown_bilinear_for_body39_32;
+reg [30:0] scale_updown_bilinear_for_body39_33;
+reg [20:0] scale_updown_bilinear_for_body39_bit_select56;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat57;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat55;
+reg [8:0] scale_updown_bilinear_for_body39_add144_neg_i;
+reg [9:0] scale_updown_bilinear_for_body39_add141_i;
+reg [10:0] scale_updown_bilinear_for_body39_sub145_i;
+reg [9:0] scale_updown_bilinear_for_body39_bit_select53;
+reg [9:0] scale_updown_bilinear_for_body39_34;
+reg [9:0] scale_updown_bilinear_for_body39_bit_select51;
+reg [19:0] scale_updown_bilinear_for_body39_bit_concat52;
+reg [19:0] scale_updown_bilinear_for_body39_35;
+reg [31:0] scale_updown_bilinear_for_body39_36;
+reg [21:0] scale_updown_bilinear_for_body39_bit_select49;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat50;
+reg [26:0] scale_updown_bilinear_for_body39_37;
+reg [24:0] scale_updown_bilinear_for_body39_newEarly_1_3;
+reg [27:0] scale_updown_bilinear_for_body39_newCurOp_2;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select9;
+reg [31:0] scale_updown_bilinear_for_body39_bit_concat48;
+reg [8:0] scale_updown_bilinear_for_body39_sub93_i;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select46;
+reg [8:0] scale_updown_bilinear_for_body39_38;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select44;
+reg [18:0] scale_updown_bilinear_for_body39_bit_concat45;
+reg [18:0] scale_updown_bilinear_for_body39_39;
+reg [30:0] scale_updown_bilinear_for_body39_40;
+reg [20:0] scale_updown_bilinear_for_body39_bit_select42;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat43;
+reg [8:0] scale_updown_bilinear_for_body39_sub88_i;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select41;
+reg [8:0] scale_updown_bilinear_for_body39_41;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select39;
+reg [18:0] scale_updown_bilinear_for_body39_bit_concat40;
+reg [18:0] scale_updown_bilinear_for_body39_42;
+reg [30:0] scale_updown_bilinear_for_body39_43;
+reg [20:0] scale_updown_bilinear_for_body39_bit_select37;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat38;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat36;
+reg [8:0] scale_updown_bilinear_for_body39_add82_neg_i;
+reg [9:0] scale_updown_bilinear_for_body39_add79_i;
+reg [10:0] scale_updown_bilinear_for_body39_sub83_i;
+reg [9:0] scale_updown_bilinear_for_body39_bit_select34;
+reg [9:0] scale_updown_bilinear_for_body39_44;
+reg [9:0] scale_updown_bilinear_for_body39_bit_select32;
+reg [19:0] scale_updown_bilinear_for_body39_bit_concat33;
+reg [19:0] scale_updown_bilinear_for_body39_45;
+reg [31:0] scale_updown_bilinear_for_body39_46;
+reg [21:0] scale_updown_bilinear_for_body39_bit_select30;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat31;
+reg [31:0] scale_updown_bilinear_for_body39_47;
+reg [24:0] scale_updown_bilinear_for_body39_newEarly_3;
+reg [31:0] scale_updown_bilinear_for_body39_newCurOp_4;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select5;
+reg [31:0] scale_updown_bilinear_for_body39_bit_concat29;
+reg [8:0] scale_updown_bilinear_for_body39_sub31_i;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select27;
+reg [8:0] scale_updown_bilinear_for_body39_48;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select25;
+reg [18:0] scale_updown_bilinear_for_body39_bit_concat26;
+reg [18:0] scale_updown_bilinear_for_body39_49;
+reg [30:0] scale_updown_bilinear_for_body39_50;
+reg [20:0] scale_updown_bilinear_for_body39_bit_select23;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat24;
+reg [8:0] scale_updown_bilinear_for_body39_sub26_i;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select22;
+reg [8:0] scale_updown_bilinear_for_body39_51;
+reg [8:0] scale_updown_bilinear_for_body39_bit_select20;
+reg [18:0] scale_updown_bilinear_for_body39_bit_concat21;
+reg [18:0] scale_updown_bilinear_for_body39_52;
+reg [30:0] scale_updown_bilinear_for_body39_53;
+reg [20:0] scale_updown_bilinear_for_body39_bit_select18;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat19;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat17;
+reg [8:0] scale_updown_bilinear_for_body39_add21_neg_i;
+reg [9:0] scale_updown_bilinear_for_body39_add_i;
+reg [10:0] scale_updown_bilinear_for_body39_sub_i;
+reg [9:0] scale_updown_bilinear_for_body39_bit_select15;
+reg [9:0] scale_updown_bilinear_for_body39_54;
+reg [9:0] scale_updown_bilinear_for_body39_bit_select13;
+reg [19:0] scale_updown_bilinear_for_body39_bit_concat14;
+reg [19:0] scale_updown_bilinear_for_body39_55;
+reg [31:0] scale_updown_bilinear_for_body39_56;
+reg [21:0] scale_updown_bilinear_for_body39_bit_select11;
+reg [23:0] scale_updown_bilinear_for_body39_bit_concat12;
+reg [31:0] scale_updown_bilinear_for_body39_57;
+reg [24:0] scale_updown_bilinear_for_body39_newEarly_5;
+reg [31:0] scale_updown_bilinear_for_body39_newCurOp_6;
+reg [7:0] scale_updown_bilinear_for_body39_bit_select2;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat10;
+reg [10:0] scale_updown_bilinear_for_body39_bit_concat8;
+reg [63:0] scale_updown_bilinear_for_body39_58;
+reg [31:0] scale_updown_bilinear_for_body39_bit_select7;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat6;
+reg [63:0] scale_updown_bilinear_for_body39_59;
+reg [31:0] scale_updown_bilinear_for_body39_bit_select4;
+reg [7:0] scale_updown_bilinear_for_body39_bit_concat3;
+reg [63:0] scale_updown_bilinear_for_body39_60;
+reg [31:0] scale_updown_bilinear_for_body39_bit_select;
+reg [31:0] scale_updown_bilinear_for_body39_select49;
+reg [31:0] scale_updown_bilinear_for_body39_61;
+reg [31:0] scale_updown_bilinear_for_body39_select47;
+reg [31:0] scale_updown_bilinear_for_body39_62;
+reg [31:0] scale_updown_bilinear_for_body39_select45;
+reg [31:0] scale_updown_bilinear_for_body39_63;
+reg  scale_updown_bilinear_for_body39_cmp215;
+reg  scale_updown_bilinear_for_body39_exitMask_T41;
+reg [7:0] scale_updown_bilinear_for_body39_inc223;
+reg  scale_updown_bilinear_for_body39_cmp225;
+reg  scale_updown_bilinear_for_body39_exitMask_T50;
+reg  scale_updown_bilinear_for_body39_NotCondition51;
+reg  scale_updown_bilinear_for_body39_exitMask_F52;
+reg [7:0] scale_updown_bilinear_for_body39_inc230;
+reg [7:0] scale_updown_bilinear_for_body39_select66;
+reg [7:0] scale_updown_bilinear_for_body39_select68;
+reg [7:0] scale_updown_bilinear_for_body39_select64;
+reg [31:0] scale_updown_bilinear_for_body39_select61;
+reg [31:0] scale_updown_bilinear_for_body39_select58;
+reg [31:0] scale_updown_bilinear_for_body39_select55;
+reg [11:0] scale_updown_bilinear_for_body39_64;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat1;
+reg  scale_updown_bilinear_for_body39_65;
+reg  scale_updown_bilinear_for_body39_bit_concat;
+reg [11:0] scale_updown_bilinear_for_body39_594;
+reg [7:0] scale_updown_bilinear_for_body39_select85;
+reg [7:0] scale_updown_bilinear_for_body39_select85_reg;
+reg [7:0] scale_updown_bilinear_for_body39_select83;
+reg [7:0] scale_updown_bilinear_for_body39_select83_reg;
+reg [11:0] scale_updown_bilinear_for_body39_select81;
+reg [11:0] scale_updown_bilinear_for_body39_select81_reg;
+reg  scale_updown_bilinear_for_body39_out_y_idx_2_7;
+reg [11:0] scale_updown_bilinear_for_body39_select79;
+reg [11:0] scale_updown_bilinear_for_body39_select79_reg;
+reg [31:0] scale_updown_bilinear_for_body39_select77;
+reg [31:0] scale_updown_bilinear_for_body39_select77_reg;
+reg [31:0] scale_updown_bilinear_for_body39_select75;
+reg [31:0] scale_updown_bilinear_for_body39_select75_reg;
+reg [31:0] scale_updown_bilinear_for_body39_select73;
+reg [31:0] scale_updown_bilinear_for_body39_select73_reg;
+reg [31:0] scale_updown_bilinear_for_body39_66;
+reg  scale_updown_bilinear_for_body39_exitcond1;
+reg  scale_updown_bilinear_entry_in_row_1a_clken;
+reg [10:0] scale_updown_bilinear_entry_in_row_1a_address_a;
+reg  scale_updown_bilinear_entry_in_row_1a_write_en_a;
+reg [31:0] scale_updown_bilinear_entry_in_row_1a_write_data_a;
+wire [31:0] scale_updown_bilinear_entry_in_row_1a_read_data_a;
+wire  scale_updown_bilinear_entry_in_row_1a_read_en_a;
+reg [10:0] scale_updown_bilinear_entry_in_row_1a_address_b;
+wire  scale_updown_bilinear_entry_in_row_1a_write_en_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_1a_write_data_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_1a_read_data_b;
+reg  scale_updown_bilinear_entry_in_row_1a_read_en_b;
+reg  scale_updown_bilinear_entry_in_row_1b_clken;
+reg [10:0] scale_updown_bilinear_entry_in_row_1b_address_a;
+reg  scale_updown_bilinear_entry_in_row_1b_write_en_a;
+reg [31:0] scale_updown_bilinear_entry_in_row_1b_write_data_a;
+wire [31:0] scale_updown_bilinear_entry_in_row_1b_read_data_a;
+wire  scale_updown_bilinear_entry_in_row_1b_read_en_a;
+reg [10:0] scale_updown_bilinear_entry_in_row_1b_address_b;
+wire  scale_updown_bilinear_entry_in_row_1b_write_en_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_1b_write_data_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_1b_read_data_b;
+reg  scale_updown_bilinear_entry_in_row_1b_read_en_b;
+reg  scale_updown_bilinear_entry_in_row_2a_clken;
+reg [10:0] scale_updown_bilinear_entry_in_row_2a_address_a;
+reg  scale_updown_bilinear_entry_in_row_2a_write_en_a;
+reg [31:0] scale_updown_bilinear_entry_in_row_2a_write_data_a;
+wire [31:0] scale_updown_bilinear_entry_in_row_2a_read_data_a;
+wire  scale_updown_bilinear_entry_in_row_2a_read_en_a;
+reg [10:0] scale_updown_bilinear_entry_in_row_2a_address_b;
+wire  scale_updown_bilinear_entry_in_row_2a_write_en_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_2a_write_data_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_2a_read_data_b;
+reg  scale_updown_bilinear_entry_in_row_2a_read_en_b;
+reg  scale_updown_bilinear_entry_in_row_2b_clken;
+reg [10:0] scale_updown_bilinear_entry_in_row_2b_address_a;
+reg  scale_updown_bilinear_entry_in_row_2b_write_en_a;
+reg [31:0] scale_updown_bilinear_entry_in_row_2b_write_data_a;
+wire [31:0] scale_updown_bilinear_entry_in_row_2b_read_data_a;
+wire  scale_updown_bilinear_entry_in_row_2b_read_en_a;
+reg [10:0] scale_updown_bilinear_entry_in_row_2b_address_b;
+wire  scale_updown_bilinear_entry_in_row_2b_write_en_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_2b_write_data_b;
+wire [31:0] scale_updown_bilinear_entry_in_row_2b_read_data_b;
+reg  scale_updown_bilinear_entry_in_row_2b_read_en_b;
+reg  for_loop_scale_cpp_174_3_valid_bit_0;
+reg  for_loop_scale_cpp_174_3_state_stall_0;
+reg  for_loop_scale_cpp_174_3_state_enable_0;
+reg  for_loop_scale_cpp_174_3_valid_bit_1;
+wire  for_loop_scale_cpp_174_3_state_stall_1;
+reg  for_loop_scale_cpp_174_3_state_enable_1;
+reg  for_loop_scale_cpp_174_3_II_counter;
+reg  for_loop_scale_cpp_174_3_start;
+reg  for_loop_scale_cpp_174_3_activate_pipeline;
+reg [31:0] for_loop_scale_cpp_174_3_inductionVar_stage0;
+reg  for_loop_scale_cpp_174_3_pipeline_exit_cond;
+reg  for_loop_scale_cpp_174_3_active;
+reg  for_loop_scale_cpp_174_3_begin_pipeline;
+reg  for_loop_scale_cpp_174_3_epilogue;
+reg  for_loop_scale_cpp_174_3_pipeline_finish;
+reg  for_loop_scale_cpp_174_3_pipeline_finishing;
+reg  for_loop_scale_cpp_174_3_only_last_stage_enabled;
+reg [1:0] for_loop_scale_cpp_174_3_num_active_iterations;
+reg  for_loop_scale_cpp_174_3_inserting_new_iteration;
+reg  for_loop_scale_cpp_174_3_pipeline_finish_reg;
+reg  for_loop_scale_cpp_196_5_valid_bit_0;
+reg  for_loop_scale_cpp_196_5_state_stall_0;
+reg  for_loop_scale_cpp_196_5_state_enable_0;
+reg  for_loop_scale_cpp_196_5_valid_bit_1;
+reg  for_loop_scale_cpp_196_5_state_stall_1;
+reg  for_loop_scale_cpp_196_5_state_enable_1;
+reg  for_loop_scale_cpp_196_5_valid_bit_2;
+reg  for_loop_scale_cpp_196_5_state_stall_2;
+reg  for_loop_scale_cpp_196_5_state_enable_2;
+reg  for_loop_scale_cpp_196_5_valid_bit_3;
+reg  for_loop_scale_cpp_196_5_state_stall_3;
+reg  for_loop_scale_cpp_196_5_state_enable_3;
+reg  for_loop_scale_cpp_196_5_valid_bit_4;
+reg  for_loop_scale_cpp_196_5_state_stall_4;
+reg  for_loop_scale_cpp_196_5_state_enable_4;
+reg  for_loop_scale_cpp_196_5_valid_bit_5;
+reg  for_loop_scale_cpp_196_5_state_stall_5;
+reg  for_loop_scale_cpp_196_5_state_enable_5;
+reg  for_loop_scale_cpp_196_5_valid_bit_6;
+reg  for_loop_scale_cpp_196_5_state_stall_6;
+reg  for_loop_scale_cpp_196_5_state_enable_6;
+reg  for_loop_scale_cpp_196_5_II_counter;
+reg  for_loop_scale_cpp_196_5_start;
+reg  for_loop_scale_cpp_196_5_activate_pipeline;
+reg [31:0] scale_updown_bilinear_for_body39_blue_beat_2_reg_stage6;
+reg [31:0] scale_updown_bilinear_for_body39_green_beat_2_reg_stage6;
+reg [31:0] scale_updown_bilinear_for_body39_red_beat_2_reg_stage6;
+reg [11:0] scale_updown_bilinear_for_body39_in_y_idx_2_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_in_x_idx_2_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_out_y_idx_2_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_out_x_idx_2_reg_stage1;
+reg [7:0] scale_updown_bilinear_for_body39_burst_count_1104_reg_stage2;
+reg [7:0] scale_updown_bilinear_for_body39_write_count_mod4__reg_stage1;
+reg  scale_updown_bilinear_for_body39_in_row_flag_1102_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_8_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_9_reg_stage1;
+reg  scale_updown_bilinear_for_body39_11_reg_stage1;
+reg  scale_updown_bilinear_for_body39_12_reg_stage1;
+reg  scale_updown_bilinear_for_body39_newEarly_1_reg_stage1;
+reg  scale_updown_bilinear_for_body39_newCurOp_1_reg_stage2;
+reg  scale_updown_bilinear_for_body39_newCurOp_1_reg_stage3;
+reg  scale_updown_bilinear_for_body39_newCurOp_1_reg_stage4;
+reg  scale_updown_bilinear_for_body39_newCurOp_1_reg_stage5;
+reg  scale_updown_bilinear_for_body39_newCurOp_1_reg_stage6;
+reg  scale_updown_bilinear_for_body39_14_reg_stage1;
+reg  scale_updown_bilinear_for_body39_15_reg_stage1;
+reg  scale_updown_bilinear_for_body39_bit_concat99_reg_stage1;
+reg  scale_updown_bilinear_for_body39_bit_concat97_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_593_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep26_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep32_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep38_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep44_reg_stage1;
+reg  scale_updown_bilinear_for_body39_select26_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_select24_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_select20_reg_stage2;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep50_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep50_reg_stage2;
+reg  scale_updown_bilinear_for_body39_exitMask_T27_reg_stage2;
+reg  scale_updown_bilinear_for_body39_exitMask_T27_reg_stage3;
+reg  scale_updown_bilinear_for_body39_NotCondition28_reg_stage2;
+reg  scale_updown_bilinear_for_body39_exitMask_F29_reg_stage3;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep56_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep56_reg_stage2;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep62_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep62_reg_stage2;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep68_reg_stage1;
+reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0] scale_updown_bilinear_for_body39_mem_flat_gep68_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat92_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat91_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat84_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat84_reg_stage3;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat84_reg_stage4;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat82_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat82_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat82_reg_stage3;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat82_reg_stage4;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat81_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat81_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat81_reg_stage3;
+reg [11:0] scale_updown_bilinear_for_body39_bit_concat81_reg_stage4;
+reg  scale_updown_bilinear_for_body39_cmp_i_i_i_reg_stage1;
+reg  scale_updown_bilinear_for_body39_exitMask_T30_reg_stage2;
+reg  scale_updown_bilinear_for_body39_exitMask_T30_reg_stage3;
+reg  scale_updown_bilinear_for_body39_exitMask_T30_reg_stage4;
+reg  scale_updown_bilinear_for_body39_exitMask_T30_reg_stage5;
+reg [25:0] scale_updown_bilinear_for_body39_bit_concat67_reg_stage4;
+reg [18:0] scale_updown_bilinear_for_body39_29_reg_stage4;
+reg [18:0] scale_updown_bilinear_for_body39_32_reg_stage4;
+reg [19:0] scale_updown_bilinear_for_body39_35_reg_stage4;
+reg [26:0] scale_updown_bilinear_for_body39_37_reg_stage5;
+reg [24:0] scale_updown_bilinear_for_body39_newEarly_1_3_reg_stage5;
+reg [31:0] scale_updown_bilinear_for_body39_bit_concat48_reg_stage4;
+reg [18:0] scale_updown_bilinear_for_body39_39_reg_stage4;
+reg [18:0] scale_updown_bilinear_for_body39_42_reg_stage4;
+reg [19:0] scale_updown_bilinear_for_body39_45_reg_stage4;
+reg [31:0] scale_updown_bilinear_for_body39_47_reg_stage5;
+reg [24:0] scale_updown_bilinear_for_body39_newEarly_3_reg_stage5;
+reg [31:0] scale_updown_bilinear_for_body39_bit_concat29_reg_stage4;
+reg [18:0] scale_updown_bilinear_for_body39_49_reg_stage4;
+reg [18:0] scale_updown_bilinear_for_body39_52_reg_stage4;
+reg [19:0] scale_updown_bilinear_for_body39_55_reg_stage4;
+reg [31:0] scale_updown_bilinear_for_body39_57_reg_stage5;
+reg [24:0] scale_updown_bilinear_for_body39_newEarly_5_reg_stage5;
+reg [10:0] scale_updown_bilinear_for_body39_bit_concat8_reg_stage1;
+reg [10:0] scale_updown_bilinear_for_body39_bit_concat8_reg_stage2;
+reg [10:0] scale_updown_bilinear_for_body39_bit_concat8_reg_stage3;
+reg [10:0] scale_updown_bilinear_for_body39_bit_concat8_reg_stage4;
+reg [10:0] scale_updown_bilinear_for_body39_bit_concat8_reg_stage5;
+reg [31:0] scale_updown_bilinear_for_body39_select49_reg_stage6;
+reg [31:0] scale_updown_bilinear_for_body39_61_reg_stage6;
+reg [31:0] scale_updown_bilinear_for_body39_62_reg_stage6;
+reg  scale_updown_bilinear_for_body39_cmp215_reg_stage1;
+reg  scale_updown_bilinear_for_body39_exitMask_T41_reg_stage2;
+reg  scale_updown_bilinear_for_body39_exitMask_T41_reg_stage3;
+reg  scale_updown_bilinear_for_body39_exitMask_T41_reg_stage4;
+reg  scale_updown_bilinear_for_body39_exitMask_T41_reg_stage5;
+reg  scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6;
+reg [7:0] scale_updown_bilinear_for_body39_inc230_reg_stage1;
+reg [7:0] scale_updown_bilinear_for_body39_select68_reg_stage2;
+reg  scale_updown_bilinear_for_body39_bit_concat_reg_stage1;
+reg [11:0] scale_updown_bilinear_for_body39_594_reg_stage1;
+reg [7:0] scale_updown_bilinear_for_body39_select85_reg_stage3;
+reg [7:0] scale_updown_bilinear_for_body39_select83_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_select81_reg_stage2;
+reg [11:0] scale_updown_bilinear_for_body39_select79_reg_stage2;
+reg [31:0] scale_updown_bilinear_for_body39_select77_reg_stage7;
+reg [31:0] scale_updown_bilinear_for_body39_select75_reg_stage7;
+reg [31:0] scale_updown_bilinear_for_body39_select73_reg_stage7;
+reg [31:0] for_loop_scale_cpp_196_5_inductionVar_stage0;
+reg  for_loop_scale_cpp_196_5_pipeline_exit_cond;
+reg  for_loop_scale_cpp_196_5_active;
+reg  for_loop_scale_cpp_196_5_begin_pipeline;
+reg  for_loop_scale_cpp_196_5_epilogue;
+reg  for_loop_scale_cpp_196_5_pipeline_finish;
+reg  for_loop_scale_cpp_196_5_pipeline_finishing;
+reg  for_loop_scale_cpp_196_5_only_last_stage_enabled;
+reg [2:0] for_loop_scale_cpp_196_5_num_active_iterations;
+reg  for_loop_scale_cpp_196_5_inserting_new_iteration;
+reg  for_loop_scale_cpp_196_5_pipeline_finish_reg;
+reg  for_loop_scale_cpp_196_5_in_first_iteration_stage0;
+reg  for_loop_scale_cpp_196_5_in_first_iteration_stage1;
+reg  for_loop_scale_cpp_196_5_in_first_iteration_stage2;
+reg  for_loop_scale_cpp_196_5_in_first_iteration_stage3;
+reg  for_loop_scale_cpp_196_5_in_first_iteration_stage4;
+reg  for_loop_scale_cpp_196_5_in_first_iteration_stage5;
+reg  axi_master_scale_updown_bilinear_orig_entry_input__consumed_valid;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_input__consumed_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_input__consumed_taken;
+reg  scale_updown_bilinear_entry_in_row_1a_clken_pipeline_cond;
+reg  scale_updown_bilinear_entry_in_row_1b_clken_pipeline_cond;
+wire [12:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_bit_select_operand_0;
+wire [12:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0_bit_select_operand_0;
+wire [19:0] scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1_bit_select_operand_0;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat109_bit_select_operand_0;
+reg  legup_mult_unsigned_19_12_0_0_clock;
+reg  legup_mult_unsigned_19_12_0_0_aclr;
+reg  legup_mult_unsigned_19_12_0_0_clken;
+reg [18:0] legup_mult_unsigned_19_12_0_0_dataa;
+reg [11:0] legup_mult_unsigned_19_12_0_0_datab;
+wire [30:0] legup_mult_unsigned_19_12_0_0_result;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_6_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_6_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_6_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_6_en_pipeline_cond;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat107_bit_select_operand_2;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat104_bit_select_operand_0;
+reg  legup_mult_unsigned_19_12_0_1_clock;
+reg  legup_mult_unsigned_19_12_0_1_aclr;
+reg  legup_mult_unsigned_19_12_0_1_clken;
+reg [18:0] legup_mult_unsigned_19_12_0_1_dataa;
+reg [11:0] legup_mult_unsigned_19_12_0_1_datab;
+wire [30:0] legup_mult_unsigned_19_12_0_1_result;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_7_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_7_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_7_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_7_en_pipeline_cond;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat102_bit_select_operand_2;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat100_bit_select_operand_0;
+wire [6:0] scale_updown_bilinear_for_body39_bit_concat99_bit_select_operand_0;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat98_bit_select_operand_0;
+wire [10:0] scale_updown_bilinear_for_body39_bit_concat97_bit_select_operand_0;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat96_bit_select_operand_0;
+reg  scale_updown_bilinear_entry_in_row_2a_clken_pipeline_cond;
+reg  scale_updown_bilinear_entry_in_row_2b_clken_pipeline_cond;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat95_bit_select_operand_0;
+reg [31:0] scale_updown_bilinear_entry_in_row_2a_read_data_wire_b;
+reg [10:0] scale_updown_bilinear_entry_in_row_2a_address_b_reg;
+reg  scale_updown_bilinear_entry_in_row_2a_address_b_reg_enable;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat93_bit_select_operand_0;
+reg [31:0] scale_updown_bilinear_entry_in_row_2b_read_data_wire_b;
+reg [10:0] scale_updown_bilinear_entry_in_row_2b_address_b_reg;
+reg  scale_updown_bilinear_entry_in_row_2b_address_b_reg_enable;
+reg [31:0] scale_updown_bilinear_entry_in_row_1a_read_data_wire_b;
+reg [10:0] scale_updown_bilinear_entry_in_row_1a_address_b_reg;
+reg  scale_updown_bilinear_entry_in_row_1a_address_b_reg_enable;
+reg [31:0] scale_updown_bilinear_entry_in_row_1b_read_data_wire_b;
+reg [10:0] scale_updown_bilinear_entry_in_row_1b_address_b_reg;
+reg  scale_updown_bilinear_entry_in_row_1b_address_b_reg_enable;
+wire [11:0] scale_updown_bilinear_for_body39_bit_concat92_bit_select_operand_0;
+wire [11:0] scale_updown_bilinear_for_body39_bit_concat91_bit_select_operand_0;
+reg  legup_mult_unsigned_12_12_0_2_clock;
+reg  legup_mult_unsigned_12_12_0_2_aclr;
+reg  legup_mult_unsigned_12_12_0_2_clken;
+reg [11:0] legup_mult_unsigned_12_12_0_2_dataa;
+reg [11:0] legup_mult_unsigned_12_12_0_2_datab;
+wire [23:0] legup_mult_unsigned_12_12_0_2_result;
+reg [23:0] legup_mult_scale_updown_bilinear_for_body39_27_out_actual;
+reg [23:0] legup_mult_scale_updown_bilinear_for_body39_27_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_27_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_27_en_pipeline_cond;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat90_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat88_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat86_bit_select_operand_0;
+wire [21:0] scale_updown_bilinear_for_body39_bit_concat84_bit_select_operand_0;
+wire [21:0] scale_updown_bilinear_for_body39_bit_concat82_bit_select_operand_0;
+wire [21:0] scale_updown_bilinear_for_body39_bit_concat81_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat80_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat78_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat76_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat74_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat72_bit_select_operand_0;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat70_bit_select_operand_0;
+wire [20:0] scale_updown_bilinear_for_body39_bit_concat68_bit_select_operand_0;
+wire [2:0] scale_updown_bilinear_for_body39_bit_concat68_bit_select_operand_4;
+wire [5:0] scale_updown_bilinear_for_body39_bit_concat67_bit_select_operand_0;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat67_bit_select_operand_4;
+reg [9:0] scale_updown_bilinear_for_body39_sub155_i_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_28_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select63_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat64_bit_select_operand_2;
+reg  legup_mult_signed_19_13_0_3_clock;
+reg  legup_mult_signed_19_13_0_3_aclr;
+reg  legup_mult_signed_19_13_0_3_clken;
+reg [18:0] legup_mult_signed_19_13_0_3_dataa;
+reg [12:0] legup_mult_signed_19_13_0_3_datab;
+wire [31:0] legup_mult_signed_19_13_0_3_result;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_30_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_30_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_30_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_30_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_30_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat62_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select61_width_extended;
+reg [9:0] scale_updown_bilinear_for_body39_sub150_i_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_31_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select58_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat59_bit_select_operand_2;
+reg  legup_mult_signed_19_13_0_4_clock;
+reg  legup_mult_signed_19_13_0_4_aclr;
+reg  legup_mult_signed_19_13_0_4_clken;
+reg [18:0] legup_mult_signed_19_13_0_4_dataa;
+reg [12:0] legup_mult_signed_19_13_0_4_datab;
+wire [31:0] legup_mult_signed_19_13_0_4_result;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_33_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_33_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_33_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_33_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_33_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat57_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select56_width_extended;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat55_bit_select_operand_0;
+reg [11:0] scale_updown_bilinear_for_body39_34_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select51_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat52_bit_select_operand_2;
+reg  legup_mult_signed_20_13_0_5_clock;
+reg  legup_mult_signed_20_13_0_5_aclr;
+reg  legup_mult_signed_20_13_0_5_clken;
+reg [19:0] legup_mult_signed_20_13_0_5_dataa;
+reg [12:0] legup_mult_signed_20_13_0_5_datab;
+wire [32:0] legup_mult_signed_20_13_0_5_result;
+reg [32:0] legup_mult_scale_updown_bilinear_for_body39_36_out_actual;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_36_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_36_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_36_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_36_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat50_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select49_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat48_bit_select_operand_2;
+reg [9:0] scale_updown_bilinear_for_body39_sub93_i_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_38_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select44_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat45_bit_select_operand_2;
+reg  legup_mult_signed_19_13_0_6_clock;
+reg  legup_mult_signed_19_13_0_6_aclr;
+reg  legup_mult_signed_19_13_0_6_clken;
+reg [18:0] legup_mult_signed_19_13_0_6_dataa;
+reg [12:0] legup_mult_signed_19_13_0_6_datab;
+wire [31:0] legup_mult_signed_19_13_0_6_result;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_40_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_40_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_40_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_40_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_40_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat43_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select42_width_extended;
+reg [9:0] scale_updown_bilinear_for_body39_sub88_i_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_41_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select39_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat40_bit_select_operand_2;
+reg  legup_mult_signed_19_13_0_7_clock;
+reg  legup_mult_signed_19_13_0_7_aclr;
+reg  legup_mult_signed_19_13_0_7_clken;
+reg [18:0] legup_mult_signed_19_13_0_7_dataa;
+reg [12:0] legup_mult_signed_19_13_0_7_datab;
+wire [31:0] legup_mult_signed_19_13_0_7_result;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_43_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_43_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_43_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_43_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_43_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat38_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select37_width_extended;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat36_bit_select_operand_0;
+reg [11:0] scale_updown_bilinear_for_body39_44_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select32_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat33_bit_select_operand_2;
+reg  legup_mult_signed_20_13_0_8_clock;
+reg  legup_mult_signed_20_13_0_8_aclr;
+reg  legup_mult_signed_20_13_0_8_clken;
+reg [19:0] legup_mult_signed_20_13_0_8_dataa;
+reg [12:0] legup_mult_signed_20_13_0_8_datab;
+wire [32:0] legup_mult_signed_20_13_0_8_result;
+reg [32:0] legup_mult_scale_updown_bilinear_for_body39_46_out_actual;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_46_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_46_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_46_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_46_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat31_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select30_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat29_bit_select_operand_2;
+reg [9:0] scale_updown_bilinear_for_body39_sub31_i_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_48_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select25_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat26_bit_select_operand_2;
+reg  legup_mult_signed_19_13_0_9_clock;
+reg  legup_mult_signed_19_13_0_9_aclr;
+reg  legup_mult_signed_19_13_0_9_clken;
+reg [18:0] legup_mult_signed_19_13_0_9_dataa;
+reg [12:0] legup_mult_signed_19_13_0_9_datab;
+wire [31:0] legup_mult_signed_19_13_0_9_result;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_50_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_50_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_50_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_50_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_50_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat24_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select23_width_extended;
+reg [9:0] scale_updown_bilinear_for_body39_sub26_i_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_51_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select20_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat21_bit_select_operand_2;
+reg  legup_mult_signed_19_13_0_10_clock;
+reg  legup_mult_signed_19_13_0_10_aclr;
+reg  legup_mult_signed_19_13_0_10_clken;
+reg [18:0] legup_mult_signed_19_13_0_10_dataa;
+reg [12:0] legup_mult_signed_19_13_0_10_datab;
+wire [31:0] legup_mult_signed_19_13_0_10_result;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_53_out_actual;
+reg [30:0] legup_mult_scale_updown_bilinear_for_body39_53_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_53_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_53_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_53_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat19_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select18_width_extended;
+wire [23:0] scale_updown_bilinear_for_body39_bit_concat17_bit_select_operand_0;
+reg [11:0] scale_updown_bilinear_for_body39_54_width_extended;
+reg [11:0] scale_updown_bilinear_for_body39_bit_select13_width_extended;
+wire [9:0] scale_updown_bilinear_for_body39_bit_concat14_bit_select_operand_2;
+reg  legup_mult_signed_20_13_0_11_clock;
+reg  legup_mult_signed_20_13_0_11_aclr;
+reg  legup_mult_signed_20_13_0_11_clken;
+reg [19:0] legup_mult_signed_20_13_0_11_dataa;
+reg [12:0] legup_mult_signed_20_13_0_11_datab;
+wire [32:0] legup_mult_signed_20_13_0_11_result;
+reg [32:0] legup_mult_scale_updown_bilinear_for_body39_56_out_actual;
+reg [31:0] legup_mult_scale_updown_bilinear_for_body39_56_out;
+reg  legup_mult_scale_updown_bilinear_for_body39_56_en;
+reg  legup_mult_scale_updown_bilinear_for_body39_56_en_pipeline_cond;
+reg [33:0] scale_updown_bilinear_for_body39_56_width_extended;
+wire [7:0] scale_updown_bilinear_for_body39_bit_concat12_bit_select_operand_0;
+reg [23:0] scale_updown_bilinear_for_body39_bit_select11_width_extended;
+wire [55:0] scale_updown_bilinear_for_body39_bit_concat10_bit_select_operand_0;
+wire [52:0] scale_updown_bilinear_for_body39_bit_concat8_bit_select_operand_0;
+wire [2:0] scale_updown_bilinear_for_body39_bit_concat8_bit_select_operand_4;
+wire [55:0] scale_updown_bilinear_for_body39_bit_concat6_bit_select_operand_0;
+wire [55:0] scale_updown_bilinear_for_body39_bit_concat3_bit_select_operand_0;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_enable_cond_a;
+wire [19:0] scale_updown_bilinear_for_body39_bit_concat1_bit_select_operand_0;
+wire [10:0] scale_updown_bilinear_for_body39_bit_concat_bit_select_operand_0;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_not_accessed_due_to_stall_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_stalln_reg;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_enable_cond_a;
+
+/*   %6 = mul i32 %bit_concat113, %bit_concat109, !dbg !26557, !MSB !26560, !LSB !26497, !ExtendFrom !26560, !legup.pipeline.start_time !26497, !legup.pipeline.avail_time !26497, !legup.pipeline.stage !26497*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_unsigned_19_12_0_0 (
+	.clock (legup_mult_unsigned_19_12_0_0_clock),
+	.aclr (legup_mult_unsigned_19_12_0_0_aclr),
+	.clken (legup_mult_unsigned_19_12_0_0_clken),
+	.dataa (legup_mult_unsigned_19_12_0_0_dataa),
+	.datab (legup_mult_unsigned_19_12_0_0_datab),
+	.result (legup_mult_unsigned_19_12_0_0_result)
+);
+
+defparam
+	legup_mult_unsigned_19_12_0_0.widtha = 19,
+	legup_mult_unsigned_19_12_0_0.widthb = 12,
+	legup_mult_unsigned_19_12_0_0.widthp = 31,
+	legup_mult_unsigned_19_12_0_0.pipeline = 0,
+	legup_mult_unsigned_19_12_0_0.representation = "UNSIGNED";
+
+/*   %7 = mul i32 %bit_concat112, %bit_concat104, !dbg !26567, !MSB !26560, !LSB !26497, !ExtendFrom !26560, !legup.pipeline.start_time !26497, !legup.pipeline.avail_time !26497, !legup.pipeline.stage !26497*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_unsigned_19_12_0_1 (
+	.clock (legup_mult_unsigned_19_12_0_1_clock),
+	.aclr (legup_mult_unsigned_19_12_0_1_aclr),
+	.clken (legup_mult_unsigned_19_12_0_1_clken),
+	.dataa (legup_mult_unsigned_19_12_0_1_dataa),
+	.datab (legup_mult_unsigned_19_12_0_1_datab),
+	.result (legup_mult_unsigned_19_12_0_1_result)
+);
+
+defparam
+	legup_mult_unsigned_19_12_0_1.widtha = 19,
+	legup_mult_unsigned_19_12_0_1.widthb = 12,
+	legup_mult_unsigned_19_12_0_1.widthp = 31,
+	legup_mult_unsigned_19_12_0_1.pipeline = 0,
+	legup_mult_unsigned_19_12_0_1.representation = "UNSIGNED";
+
+/*   %27 = mul i24 %bit_concat92, %bit_concat91, !dbg !26680, !MSB !26683, !LSB !26497, !ExtendFrom !26683, !legup.pipeline.start_time !26516, !legup.pipeline.avail_time !26516, !legup.pipeline.stage !26516*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_unsigned_12_12_0_2 (
+	.clock (legup_mult_unsigned_12_12_0_2_clock),
+	.aclr (legup_mult_unsigned_12_12_0_2_aclr),
+	.clken (legup_mult_unsigned_12_12_0_2_clken),
+	.dataa (legup_mult_unsigned_12_12_0_2_dataa),
+	.datab (legup_mult_unsigned_12_12_0_2_datab),
+	.result (legup_mult_unsigned_12_12_0_2_result)
+);
+
+defparam
+	legup_mult_unsigned_12_12_0_2.widtha = 12,
+	legup_mult_unsigned_12_12_0_2.widthb = 12,
+	legup_mult_unsigned_12_12_0_2.widthp = 24,
+	legup_mult_unsigned_12_12_0_2.pipeline = 0,
+	legup_mult_unsigned_12_12_0_2.representation = "UNSIGNED";
+
+/*   %30 = mul i34 %29, %bit_concat81, !dbg !26699, !MSB !26698, !LSB !26561, !ExtendFrom !26560, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_19_13_0_3 (
+	.clock (legup_mult_signed_19_13_0_3_clock),
+	.aclr (legup_mult_signed_19_13_0_3_aclr),
+	.clken (legup_mult_signed_19_13_0_3_clken),
+	.dataa (legup_mult_signed_19_13_0_3_dataa),
+	.datab (legup_mult_signed_19_13_0_3_datab),
+	.result (legup_mult_signed_19_13_0_3_result)
+);
+
+defparam
+	legup_mult_signed_19_13_0_3.widtha = 19,
+	legup_mult_signed_19_13_0_3.widthb = 13,
+	legup_mult_signed_19_13_0_3.widthp = 32,
+	legup_mult_signed_19_13_0_3.pipeline = 0,
+	legup_mult_signed_19_13_0_3.representation = "SIGNED";
+
+/*   %33 = mul i34 %32, %bit_concat82, !dbg !26709, !MSB !26698, !LSB !26561, !ExtendFrom !26560, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_19_13_0_4 (
+	.clock (legup_mult_signed_19_13_0_4_clock),
+	.aclr (legup_mult_signed_19_13_0_4_aclr),
+	.clken (legup_mult_signed_19_13_0_4_clken),
+	.dataa (legup_mult_signed_19_13_0_4_dataa),
+	.datab (legup_mult_signed_19_13_0_4_datab),
+	.result (legup_mult_signed_19_13_0_4_result)
+);
+
+defparam
+	legup_mult_signed_19_13_0_4.widtha = 19,
+	legup_mult_signed_19_13_0_4.widthb = 13,
+	legup_mult_signed_19_13_0_4.widthp = 32,
+	legup_mult_signed_19_13_0_4.pipeline = 0,
+	legup_mult_signed_19_13_0_4.representation = "SIGNED";
+
+/*   %36 = mul i34 %35, %bit_concat84, !dbg !26718, !MSB !26698, !LSB !26561, !ExtendFrom !26501, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_20_13_0_5 (
+	.clock (legup_mult_signed_20_13_0_5_clock),
+	.aclr (legup_mult_signed_20_13_0_5_aclr),
+	.clken (legup_mult_signed_20_13_0_5_clken),
+	.dataa (legup_mult_signed_20_13_0_5_dataa),
+	.datab (legup_mult_signed_20_13_0_5_datab),
+	.result (legup_mult_signed_20_13_0_5_result)
+);
+
+defparam
+	legup_mult_signed_20_13_0_5.widtha = 20,
+	legup_mult_signed_20_13_0_5.widthb = 13,
+	legup_mult_signed_20_13_0_5.widthp = 33,
+	legup_mult_signed_20_13_0_5.pipeline = 0,
+	legup_mult_signed_20_13_0_5.representation = "SIGNED";
+
+/*   %40 = mul i34 %39, %bit_concat81, !dbg !26733, !MSB !26698, !LSB !26561, !ExtendFrom !26560, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_19_13_0_6 (
+	.clock (legup_mult_signed_19_13_0_6_clock),
+	.aclr (legup_mult_signed_19_13_0_6_aclr),
+	.clken (legup_mult_signed_19_13_0_6_clken),
+	.dataa (legup_mult_signed_19_13_0_6_dataa),
+	.datab (legup_mult_signed_19_13_0_6_datab),
+	.result (legup_mult_signed_19_13_0_6_result)
+);
+
+defparam
+	legup_mult_signed_19_13_0_6.widtha = 19,
+	legup_mult_signed_19_13_0_6.widthb = 13,
+	legup_mult_signed_19_13_0_6.widthp = 32,
+	legup_mult_signed_19_13_0_6.pipeline = 0,
+	legup_mult_signed_19_13_0_6.representation = "SIGNED";
+
+/*   %43 = mul i34 %42, %bit_concat82, !dbg !26741, !MSB !26698, !LSB !26561, !ExtendFrom !26560, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_19_13_0_7 (
+	.clock (legup_mult_signed_19_13_0_7_clock),
+	.aclr (legup_mult_signed_19_13_0_7_aclr),
+	.clken (legup_mult_signed_19_13_0_7_clken),
+	.dataa (legup_mult_signed_19_13_0_7_dataa),
+	.datab (legup_mult_signed_19_13_0_7_datab),
+	.result (legup_mult_signed_19_13_0_7_result)
+);
+
+defparam
+	legup_mult_signed_19_13_0_7.widtha = 19,
+	legup_mult_signed_19_13_0_7.widthb = 13,
+	legup_mult_signed_19_13_0_7.widthp = 32,
+	legup_mult_signed_19_13_0_7.pipeline = 0,
+	legup_mult_signed_19_13_0_7.representation = "SIGNED";
+
+/*   %46 = mul i34 %45, %bit_concat84, !dbg !26749, !MSB !26698, !LSB !26561, !ExtendFrom !26501, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_20_13_0_8 (
+	.clock (legup_mult_signed_20_13_0_8_clock),
+	.aclr (legup_mult_signed_20_13_0_8_aclr),
+	.clken (legup_mult_signed_20_13_0_8_clken),
+	.dataa (legup_mult_signed_20_13_0_8_dataa),
+	.datab (legup_mult_signed_20_13_0_8_datab),
+	.result (legup_mult_signed_20_13_0_8_result)
+);
+
+defparam
+	legup_mult_signed_20_13_0_8.widtha = 20,
+	legup_mult_signed_20_13_0_8.widthb = 13,
+	legup_mult_signed_20_13_0_8.widthp = 33,
+	legup_mult_signed_20_13_0_8.pipeline = 0,
+	legup_mult_signed_20_13_0_8.representation = "SIGNED";
+
+/*   %50 = mul i34 %49, %bit_concat81, !dbg !26761, !MSB !26698, !LSB !26561, !ExtendFrom !26560, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_19_13_0_9 (
+	.clock (legup_mult_signed_19_13_0_9_clock),
+	.aclr (legup_mult_signed_19_13_0_9_aclr),
+	.clken (legup_mult_signed_19_13_0_9_clken),
+	.dataa (legup_mult_signed_19_13_0_9_dataa),
+	.datab (legup_mult_signed_19_13_0_9_datab),
+	.result (legup_mult_signed_19_13_0_9_result)
+);
+
+defparam
+	legup_mult_signed_19_13_0_9.widtha = 19,
+	legup_mult_signed_19_13_0_9.widthb = 13,
+	legup_mult_signed_19_13_0_9.widthp = 32,
+	legup_mult_signed_19_13_0_9.pipeline = 0,
+	legup_mult_signed_19_13_0_9.representation = "SIGNED";
+
+/*   %53 = mul i34 %52, %bit_concat82, !dbg !26769, !MSB !26698, !LSB !26561, !ExtendFrom !26560, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_19_13_0_10 (
+	.clock (legup_mult_signed_19_13_0_10_clock),
+	.aclr (legup_mult_signed_19_13_0_10_aclr),
+	.clken (legup_mult_signed_19_13_0_10_clken),
+	.dataa (legup_mult_signed_19_13_0_10_dataa),
+	.datab (legup_mult_signed_19_13_0_10_datab),
+	.result (legup_mult_signed_19_13_0_10_result)
+);
+
+defparam
+	legup_mult_signed_19_13_0_10.widtha = 19,
+	legup_mult_signed_19_13_0_10.widthb = 13,
+	legup_mult_signed_19_13_0_10.widthp = 32,
+	legup_mult_signed_19_13_0_10.pipeline = 0,
+	legup_mult_signed_19_13_0_10.representation = "SIGNED";
+
+/*   %56 = mul i34 %55, %bit_concat84, !dbg !26777, !MSB !26698, !LSB !26561, !ExtendFrom !26501, !legup.pipeline.start_time !26700, !legup.pipeline.avail_time !26700, !legup.pipeline.stage !26700*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_signed_20_13_0_11 (
+	.clock (legup_mult_signed_20_13_0_11_clock),
+	.aclr (legup_mult_signed_20_13_0_11_aclr),
+	.clken (legup_mult_signed_20_13_0_11_clken),
+	.dataa (legup_mult_signed_20_13_0_11_dataa),
+	.datab (legup_mult_signed_20_13_0_11_datab),
+	.result (legup_mult_signed_20_13_0_11_result)
+);
+
+defparam
+	legup_mult_signed_20_13_0_11.widtha = 20,
+	legup_mult_signed_20_13_0_11.widthb = 13,
+	legup_mult_signed_20_13_0_11.widthp = 33,
+	legup_mult_signed_20_13_0_11.pipeline = 0,
+	legup_mult_signed_20_13_0_11.representation = "SIGNED";
+
+
+
+//   %in_row_1a = alloca [1920 x i32], align 4, !MSB !26496, !LSB !26497, !ExtendFrom !26496
+axi_master_scale_updown_bilinear_ram_dual_port scale_updown_bilinear_entry_in_row_1a (
+	.clk( clk ),
+	.clken( scale_updown_bilinear_entry_in_row_1a_clken ),
+	.address_a( scale_updown_bilinear_entry_in_row_1a_address_a ),
+	.write_en_a( scale_updown_bilinear_entry_in_row_1a_write_en_a ),
+	.write_data_a( scale_updown_bilinear_entry_in_row_1a_write_data_a ),
+	.read_data_a( scale_updown_bilinear_entry_in_row_1a_read_data_a ),
+	.address_b( scale_updown_bilinear_entry_in_row_1a_address_b ),
+	.write_en_b( scale_updown_bilinear_entry_in_row_1a_write_en_b ),
+	.write_data_b( scale_updown_bilinear_entry_in_row_1a_write_data_b ),
+	.read_data_b( scale_updown_bilinear_entry_in_row_1a_read_data_b )
+);
+defparam scale_updown_bilinear_entry_in_row_1a.width_a = 32;
+defparam scale_updown_bilinear_entry_in_row_1a.widthad_a = 11;
+defparam scale_updown_bilinear_entry_in_row_1a.width_be_a = 4;
+defparam scale_updown_bilinear_entry_in_row_1a.numwords_a = 1920;
+defparam scale_updown_bilinear_entry_in_row_1a.width_b = 32;
+defparam scale_updown_bilinear_entry_in_row_1a.widthad_b = 11;
+defparam scale_updown_bilinear_entry_in_row_1a.width_be_b = 4;
+defparam scale_updown_bilinear_entry_in_row_1a.numwords_b = 1920;
+defparam scale_updown_bilinear_entry_in_row_1a.latency = 1;
+
+
+
+//   %in_row_1b = alloca [1920 x i32], align 4, !MSB !26496, !LSB !26497, !ExtendFrom !26496
+axi_master_scale_updown_bilinear_ram_dual_port scale_updown_bilinear_entry_in_row_1b (
+	.clk( clk ),
+	.clken( scale_updown_bilinear_entry_in_row_1b_clken ),
+	.address_a( scale_updown_bilinear_entry_in_row_1b_address_a ),
+	.write_en_a( scale_updown_bilinear_entry_in_row_1b_write_en_a ),
+	.write_data_a( scale_updown_bilinear_entry_in_row_1b_write_data_a ),
+	.read_data_a( scale_updown_bilinear_entry_in_row_1b_read_data_a ),
+	.address_b( scale_updown_bilinear_entry_in_row_1b_address_b ),
+	.write_en_b( scale_updown_bilinear_entry_in_row_1b_write_en_b ),
+	.write_data_b( scale_updown_bilinear_entry_in_row_1b_write_data_b ),
+	.read_data_b( scale_updown_bilinear_entry_in_row_1b_read_data_b )
+);
+defparam scale_updown_bilinear_entry_in_row_1b.width_a = 32;
+defparam scale_updown_bilinear_entry_in_row_1b.widthad_a = 11;
+defparam scale_updown_bilinear_entry_in_row_1b.width_be_a = 4;
+defparam scale_updown_bilinear_entry_in_row_1b.numwords_a = 1920;
+defparam scale_updown_bilinear_entry_in_row_1b.width_b = 32;
+defparam scale_updown_bilinear_entry_in_row_1b.widthad_b = 11;
+defparam scale_updown_bilinear_entry_in_row_1b.width_be_b = 4;
+defparam scale_updown_bilinear_entry_in_row_1b.numwords_b = 1920;
+defparam scale_updown_bilinear_entry_in_row_1b.latency = 1;
+
+
+
+//   %in_row_2a = alloca [1920 x i32], align 4, !MSB !26496, !LSB !26497, !ExtendFrom !26496
+axi_master_scale_updown_bilinear_ram_dual_port scale_updown_bilinear_entry_in_row_2a (
+	.clk( clk ),
+	.clken( scale_updown_bilinear_entry_in_row_2a_clken ),
+	.address_a( scale_updown_bilinear_entry_in_row_2a_address_a ),
+	.write_en_a( scale_updown_bilinear_entry_in_row_2a_write_en_a ),
+	.write_data_a( scale_updown_bilinear_entry_in_row_2a_write_data_a ),
+	.read_data_a( scale_updown_bilinear_entry_in_row_2a_read_data_a ),
+	.address_b( scale_updown_bilinear_entry_in_row_2a_address_b ),
+	.write_en_b( scale_updown_bilinear_entry_in_row_2a_write_en_b ),
+	.write_data_b( scale_updown_bilinear_entry_in_row_2a_write_data_b ),
+	.read_data_b( scale_updown_bilinear_entry_in_row_2a_read_data_b )
+);
+defparam scale_updown_bilinear_entry_in_row_2a.width_a = 32;
+defparam scale_updown_bilinear_entry_in_row_2a.widthad_a = 11;
+defparam scale_updown_bilinear_entry_in_row_2a.width_be_a = 4;
+defparam scale_updown_bilinear_entry_in_row_2a.numwords_a = 1920;
+defparam scale_updown_bilinear_entry_in_row_2a.width_b = 32;
+defparam scale_updown_bilinear_entry_in_row_2a.widthad_b = 11;
+defparam scale_updown_bilinear_entry_in_row_2a.width_be_b = 4;
+defparam scale_updown_bilinear_entry_in_row_2a.numwords_b = 1920;
+defparam scale_updown_bilinear_entry_in_row_2a.latency = 1;
+
+
+
+//   %in_row_2b = alloca [1920 x i32], align 4, !MSB !26496, !LSB !26497, !ExtendFrom !26496
+axi_master_scale_updown_bilinear_ram_dual_port scale_updown_bilinear_entry_in_row_2b (
+	.clk( clk ),
+	.clken( scale_updown_bilinear_entry_in_row_2b_clken ),
+	.address_a( scale_updown_bilinear_entry_in_row_2b_address_a ),
+	.write_en_a( scale_updown_bilinear_entry_in_row_2b_write_en_a ),
+	.write_data_a( scale_updown_bilinear_entry_in_row_2b_write_data_a ),
+	.read_data_a( scale_updown_bilinear_entry_in_row_2b_read_data_a ),
+	.address_b( scale_updown_bilinear_entry_in_row_2b_address_b ),
+	.write_en_b( scale_updown_bilinear_entry_in_row_2b_write_en_b ),
+	.write_data_b( scale_updown_bilinear_entry_in_row_2b_write_data_b ),
+	.read_data_b( scale_updown_bilinear_entry_in_row_2b_read_data_b )
+);
+defparam scale_updown_bilinear_entry_in_row_2b.width_a = 32;
+defparam scale_updown_bilinear_entry_in_row_2b.widthad_a = 11;
+defparam scale_updown_bilinear_entry_in_row_2b.width_be_a = 4;
+defparam scale_updown_bilinear_entry_in_row_2b.numwords_a = 1920;
+defparam scale_updown_bilinear_entry_in_row_2b.width_b = 32;
+defparam scale_updown_bilinear_entry_in_row_2b.widthad_b = 11;
+defparam scale_updown_bilinear_entry_in_row_2b.width_be_b = 4;
+defparam scale_updown_bilinear_entry_in_row_2b.numwords_b = 1920;
+defparam scale_updown_bilinear_entry_in_row_2b.latency = 1;
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_entry_1;
+LEGUP_F_scale_updown_bilinear_BB_entry_1:
+	if ((fsm_stall == 1'd0) && (scale_updown_bilinear_entry_cmp29112 == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_end_5;
+	else if ((fsm_stall == 1'd0) && (scale_updown_bilinear_entry_cmp29112 == 1'd0))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_body_preheader_2;
+LEGUP_F_scale_updown_bilinear_BB_for_body35_8:
+	if ((fsm_stall == 1'd0) && (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11;
+	else if ((fsm_stall == 1'd0) && (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd0))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9;
+LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6:
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_body35_8;
+LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9:
+		next_state = LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12;
+LEGUP_F_scale_updown_bilinear_BB_for_body_preheader_2:
+		next_state = LEGUP_pipeline_wait_for_loop_scale_cpp_174_3_3;
+LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11:
+	if ((fsm_stall == 1'd0) && (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup_7;
+	else if ((fsm_stall == 1'd0) && (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_body35_8;
+LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10:
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11;
+LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup_7:
+	if ((fsm_stall == 1'd0) && (scale_updown_bilinear_or_cond_cleanup_cmp247 == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_if_end250_14;
+	else if ((fsm_stall == 1'd0) && (scale_updown_bilinear_or_cond_cleanup_cmp247 == 1'd0))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_if_then248_13;
+LEGUP_F_scale_updown_bilinear_BB_for_end_5:
+	if ((fsm_stall == 1'd0) && (scale_updown_bilinear_for_end_2 == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_if_end250_14;
+	else if ((fsm_stall == 1'd0) && (scale_updown_bilinear_for_end_2 == 1'd0))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6;
+LEGUP_F_scale_updown_bilinear_BB_for_end_loopexit_4:
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_end_5;
+LEGUP_F_scale_updown_bilinear_BB_if_end250_14:
+		next_state = LEGUP_0;
+LEGUP_F_scale_updown_bilinear_BB_if_then248_13:
+		next_state = LEGUP_F_scale_updown_bilinear_BB_if_end250_14;
+LEGUP_pipeline_wait_for_loop_scale_cpp_174_3_3:
+	if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_174_3_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_end_loopexit_4;
+	else if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_174_3_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_end_loopexit_4;
+LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12:
+	if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_196_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10;
+	else if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_196_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		in_width_reg <= in_width;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		in_height_reg <= in_height;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		out_width_reg <= out_width;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		out_height_reg <= out_height;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		xratio_reg <= xratio;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		yratio_reg <= yratio;
+	end
+end
+always @(*) begin
+	fsm_stall = 1'd0;
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_if_then248_13) & ~(burst_ready_ready)) & (axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_entry_cmp = (in_width_reg > out_width_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_entry_add = (out_width_reg + 32'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_entry_cond = (scale_updown_bilinear_entry_cmp ? in_width_reg : scale_updown_bilinear_entry_add);
+end
+always @(*) begin
+		scale_updown_bilinear_entry_bit_select110 = scale_updown_bilinear_entry_cond[11:0];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_entry_1)) begin
+		scale_updown_bilinear_entry_bit_select110_reg <= scale_updown_bilinear_entry_bit_select110;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_entry_cmp23 = (in_height_reg > out_height_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_entry_sub = (in_height_reg + 32'd4095);
+end
+always @(*) begin
+		scale_updown_bilinear_entry_cond27 = (scale_updown_bilinear_entry_cmp23 ? scale_updown_bilinear_entry_sub : out_height_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_entry_bit_select114 = scale_updown_bilinear_entry_cond27[11:0];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_entry_1)) begin
+		scale_updown_bilinear_entry_bit_select114_reg <= scale_updown_bilinear_entry_bit_select114;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_entry_cmp29112 = (in_width_reg == 32'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body_mem_flat_gep = (1'd0 + (4 * for_loop_scale_cpp_174_3_inductionVar_stage0));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body_mem_flat_gep8 = (1'd0 + (4 * for_loop_scale_cpp_174_3_inductionVar_stage0));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body_0 = axi_master_scale_updown_bilinear_orig_entry_input__consumed_data;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body_1 = (for_loop_scale_cpp_174_3_inductionVar_stage0 + 32'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body_exitcond = (scale_updown_bilinear_for_body_1 == in_width_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_for_end_2 = (scale_updown_bilinear_entry_bit_select114_reg == 12'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_or_body35_lr_ph_sub75 = (out_height_reg + $signed(-32'd1));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6)) begin
+		scale_updown_bilinear_or_body35_lr_ph_sub75_reg <= scale_updown_bilinear_or_body35_lr_ph_sub75;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_or_body35_lr_ph_3 = (scale_updown_bilinear_entry_bit_select110_reg == 12'd0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6)) begin
+		scale_updown_bilinear_or_body35_lr_ph_3_reg <= scale_updown_bilinear_or_body35_lr_ph_3;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_or_body35_lr_ph_bit_concat11 = {scale_updown_bilinear_or_body35_lr_ph_bit_concat11_bit_select_operand_0[12:0], yratio_reg[18:0]};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6)) begin
+		scale_updown_bilinear_or_body35_lr_ph_bit_concat11_reg <= scale_updown_bilinear_or_body35_lr_ph_bit_concat11;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0 = {scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0_bit_select_operand_0[12:0], xratio_reg[18:0]};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6)) begin
+		scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0_reg <= scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1 = {scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1_bit_select_operand_0[19:0], scale_updown_bilinear_entry_bit_select110_reg[11:0]};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6)) begin
+		scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1_reg <= scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_or_cond_cleanup_cmp247 = (scale_updown_bilinear_cond_cleanup38_burst_count_1_reg == 8'd0);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_i_0 = 12'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_i_0 = scale_updown_bilinear_cond_cleanup38_4;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_i_0_reg <= scale_updown_bilinear_for_body35_i_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_i_0_reg <= scale_updown_bilinear_for_body35_i_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_blue_beat_0 = 32'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_blue_beat_0 = scale_updown_bilinear_cond_cleanup38_blue_beat_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_blue_beat_0_reg <= scale_updown_bilinear_for_body35_blue_beat_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_blue_beat_0_reg <= scale_updown_bilinear_for_body35_blue_beat_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_green_beat_0 = 32'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_green_beat_0 = scale_updown_bilinear_cond_cleanup38_green_beat_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_green_beat_0_reg <= scale_updown_bilinear_for_body35_green_beat_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_green_beat_0_reg <= scale_updown_bilinear_for_body35_green_beat_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_red_beat_0 = 32'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_red_beat_0 = scale_updown_bilinear_cond_cleanup38_red_beat_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_red_beat_0_reg <= scale_updown_bilinear_for_body35_red_beat_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_red_beat_0_reg <= scale_updown_bilinear_for_body35_red_beat_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_y_idx_0 = 12'd1;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_in_y_idx_0 = scale_updown_bilinear_cond_cleanup38_in_y_idx_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_y_idx_0_reg <= scale_updown_bilinear_for_body35_in_y_idx_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_y_idx_0_reg <= scale_updown_bilinear_for_body35_in_y_idx_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_x_idx_0 = 12'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_in_x_idx_0 = scale_updown_bilinear_cond_cleanup38_in_x_idx_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_x_idx_0_reg <= scale_updown_bilinear_for_body35_in_x_idx_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_x_idx_0_reg <= scale_updown_bilinear_for_body35_in_x_idx_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_out_y_idx_0 = 12'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_out_y_idx_0 = scale_updown_bilinear_cond_cleanup38_out_y_idx_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_out_y_idx_0_reg <= scale_updown_bilinear_for_body35_out_y_idx_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_out_y_idx_0_reg <= scale_updown_bilinear_for_body35_out_y_idx_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_out_x_idx_0 = 12'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_out_x_idx_0 = scale_updown_bilinear_cond_cleanup38_out_x_idx_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_out_x_idx_0_reg <= scale_updown_bilinear_for_body35_out_x_idx_0;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_out_x_idx_0_reg <= scale_updown_bilinear_for_body35_out_x_idx_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_burst_count_0110 = 8'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_burst_count_0110 = scale_updown_bilinear_cond_cleanup38_burst_count_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_burst_count_0110_reg <= scale_updown_bilinear_for_body35_burst_count_0110;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_burst_count_0110_reg <= scale_updown_bilinear_for_body35_burst_count_0110;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_write_count_mod4_ = 8'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_write_count_mod4_ = scale_updown_bilinear_cond_cleanup38_write_count_m_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_write_count_mod4__reg <= scale_updown_bilinear_for_body35_write_count_mod4_;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_write_count_mod4__reg <= scale_updown_bilinear_for_body35_write_count_mod4_;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_row_flag_0108 = 8'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) */ begin
+		scale_updown_bilinear_for_body35_in_row_flag_0108 = scale_updown_bilinear_cond_cleanup38_in_row_flag_1_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_lr_ph_6) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_row_flag_0108_reg <= scale_updown_bilinear_for_body35_in_row_flag_0108;
+	end
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_11) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_cond_cleanup38_exitcond2 == 1'd0))) begin
+		scale_updown_bilinear_for_body35_in_row_flag_0108_reg <= scale_updown_bilinear_for_body35_in_row_flag_0108;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_blue_beat_1 = scale_updown_bilinear_for_body35_blue_beat_0_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_blue_beat_1 = scale_updown_bilinear_for_body39_select73_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_blue_beat_1_reg <= scale_updown_bilinear_cond_cleanup38_blue_beat_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_blue_beat_1_reg <= scale_updown_bilinear_cond_cleanup38_blue_beat_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_green_beat_1 = scale_updown_bilinear_for_body35_green_beat_0_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_green_beat_1 = scale_updown_bilinear_for_body39_select75_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_green_beat_1_reg <= scale_updown_bilinear_cond_cleanup38_green_beat_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_green_beat_1_reg <= scale_updown_bilinear_cond_cleanup38_green_beat_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_red_beat_1 = scale_updown_bilinear_for_body35_red_beat_0_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_red_beat_1 = scale_updown_bilinear_for_body39_select77_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_red_beat_1_reg <= scale_updown_bilinear_cond_cleanup38_red_beat_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_red_beat_1_reg <= scale_updown_bilinear_cond_cleanup38_red_beat_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_in_y_idx_1 = scale_updown_bilinear_for_body35_in_y_idx_0_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_in_y_idx_1 = scale_updown_bilinear_for_body39_select20_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_in_y_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_in_y_idx_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_in_y_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_in_y_idx_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_in_x_idx_1 = scale_updown_bilinear_for_body35_in_x_idx_0_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_in_x_idx_1 = scale_updown_bilinear_for_body39_select24_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_in_x_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_in_x_idx_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_in_x_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_in_x_idx_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_out_y_idx_1 = scale_updown_bilinear_for_body35_out_y_idx_0_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_out_y_idx_1 = scale_updown_bilinear_for_body39_select79_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_out_y_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_out_y_idx_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_out_y_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_out_y_idx_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_out_x_idx_1 = scale_updown_bilinear_for_body35_out_x_idx_0_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_out_x_idx_1 = scale_updown_bilinear_for_body39_select81_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_out_x_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_out_x_idx_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_out_x_idx_1_reg <= scale_updown_bilinear_cond_cleanup38_out_x_idx_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_burst_count_1 = scale_updown_bilinear_for_body35_burst_count_0110_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_burst_count_1 = scale_updown_bilinear_for_body39_select85_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_burst_count_1_reg <= scale_updown_bilinear_cond_cleanup38_burst_count_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_burst_count_1_reg <= scale_updown_bilinear_cond_cleanup38_burst_count_1;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_write_count_m = scale_updown_bilinear_for_body35_write_count_mod4__reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_write_count_m = scale_updown_bilinear_for_body39_select83_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_write_count_m_reg <= scale_updown_bilinear_cond_cleanup38_write_count_m;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_write_count_m_reg <= scale_updown_bilinear_cond_cleanup38_write_count_m;
+	end
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_in_row_flag_1 = scale_updown_bilinear_for_body35_in_row_flag_0108_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_cond_cleanup38_in_row_flag_1 = scale_updown_bilinear_for_body39_select26_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body35_8) & (fsm_stall == 1'd0)) & (scale_updown_bilinear_or_body35_lr_ph_3_reg == 1'd1))) begin
+		scale_updown_bilinear_cond_cleanup38_in_row_flag_1_reg <= scale_updown_bilinear_cond_cleanup38_in_row_flag_1;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_cond_cleanup38_loopexit_10) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_cond_cleanup38_in_row_flag_1_reg <= scale_updown_bilinear_cond_cleanup38_in_row_flag_1;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_cond_cleanup38_4 = (scale_updown_bilinear_for_body35_i_0_reg + 12'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_cond_cleanup38_exitcond2 = (scale_updown_bilinear_cond_cleanup38_4 == scale_updown_bilinear_entry_bit_select114_reg);
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_5 & for_loop_scale_cpp_196_5_in_first_iteration_stage5)) begin
+		scale_updown_bilinear_for_body39_blue_beat_2 = scale_updown_bilinear_for_body39_blue_beat_2_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_5 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage5)) & for_loop_scale_cpp_196_5_valid_bit_6)) begin
+		scale_updown_bilinear_for_body39_blue_beat_2 = scale_updown_bilinear_for_body39_select73;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_5 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage5)) & ~(for_loop_scale_cpp_196_5_valid_bit_6))) begin
+		scale_updown_bilinear_for_body39_blue_beat_2 = scale_updown_bilinear_for_body39_select73_reg_stage7;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_blue_beat_2 = scale_updown_bilinear_for_body35_blue_beat_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_blue_beat_2_reg <= scale_updown_bilinear_for_body39_blue_beat_2;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_blue_beat_2_reg <= scale_updown_bilinear_for_body39_blue_beat_2;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_5 & for_loop_scale_cpp_196_5_in_first_iteration_stage5)) begin
+		scale_updown_bilinear_for_body39_green_beat_2 = scale_updown_bilinear_for_body39_green_beat_2_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_5 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage5)) & for_loop_scale_cpp_196_5_valid_bit_6)) begin
+		scale_updown_bilinear_for_body39_green_beat_2 = scale_updown_bilinear_for_body39_select75;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_5 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage5)) & ~(for_loop_scale_cpp_196_5_valid_bit_6))) begin
+		scale_updown_bilinear_for_body39_green_beat_2 = scale_updown_bilinear_for_body39_select75_reg_stage7;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_green_beat_2 = scale_updown_bilinear_for_body35_green_beat_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_green_beat_2_reg <= scale_updown_bilinear_for_body39_green_beat_2;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_green_beat_2_reg <= scale_updown_bilinear_for_body39_green_beat_2;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_5 & for_loop_scale_cpp_196_5_in_first_iteration_stage5)) begin
+		scale_updown_bilinear_for_body39_red_beat_2 = scale_updown_bilinear_for_body39_red_beat_2_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_5 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage5)) & for_loop_scale_cpp_196_5_valid_bit_6)) begin
+		scale_updown_bilinear_for_body39_red_beat_2 = scale_updown_bilinear_for_body39_select77;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_5 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage5)) & ~(for_loop_scale_cpp_196_5_valid_bit_6))) begin
+		scale_updown_bilinear_for_body39_red_beat_2 = scale_updown_bilinear_for_body39_select77_reg_stage7;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_red_beat_2 = scale_updown_bilinear_for_body35_red_beat_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_red_beat_2_reg <= scale_updown_bilinear_for_body39_red_beat_2;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_red_beat_2_reg <= scale_updown_bilinear_for_body39_red_beat_2;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_0 & for_loop_scale_cpp_196_5_in_first_iteration_stage0)) begin
+		scale_updown_bilinear_for_body39_in_y_idx_2 = scale_updown_bilinear_for_body39_in_y_idx_2_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & for_loop_scale_cpp_196_5_valid_bit_1)) begin
+		scale_updown_bilinear_for_body39_in_y_idx_2 = scale_updown_bilinear_for_body39_select20;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & ~(for_loop_scale_cpp_196_5_valid_bit_1))) begin
+		scale_updown_bilinear_for_body39_in_y_idx_2 = scale_updown_bilinear_for_body39_select20_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_in_y_idx_2 = scale_updown_bilinear_for_body35_in_y_idx_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_in_y_idx_2_reg <= scale_updown_bilinear_for_body39_in_y_idx_2;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_in_y_idx_2_reg <= scale_updown_bilinear_for_body39_in_y_idx_2;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_0 & for_loop_scale_cpp_196_5_in_first_iteration_stage0)) begin
+		scale_updown_bilinear_for_body39_in_x_idx_2 = scale_updown_bilinear_for_body39_in_x_idx_2_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & for_loop_scale_cpp_196_5_valid_bit_1)) begin
+		scale_updown_bilinear_for_body39_in_x_idx_2 = scale_updown_bilinear_for_body39_select24;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & ~(for_loop_scale_cpp_196_5_valid_bit_1))) begin
+		scale_updown_bilinear_for_body39_in_x_idx_2 = scale_updown_bilinear_for_body39_select24_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_in_x_idx_2 = scale_updown_bilinear_for_body35_in_x_idx_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_in_x_idx_2_reg <= scale_updown_bilinear_for_body39_in_x_idx_2;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_in_x_idx_2_reg <= scale_updown_bilinear_for_body39_in_x_idx_2;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_0 & for_loop_scale_cpp_196_5_in_first_iteration_stage0)) begin
+		scale_updown_bilinear_for_body39_out_y_idx_2 = scale_updown_bilinear_for_body39_out_y_idx_2_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & for_loop_scale_cpp_196_5_valid_bit_1)) begin
+		scale_updown_bilinear_for_body39_out_y_idx_2 = scale_updown_bilinear_for_body39_select79;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & ~(for_loop_scale_cpp_196_5_valid_bit_1))) begin
+		scale_updown_bilinear_for_body39_out_y_idx_2 = scale_updown_bilinear_for_body39_select79_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_out_y_idx_2 = scale_updown_bilinear_for_body35_out_y_idx_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_out_y_idx_2_reg <= scale_updown_bilinear_for_body39_out_y_idx_2;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_out_y_idx_2_reg <= scale_updown_bilinear_for_body39_out_y_idx_2;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_0 & for_loop_scale_cpp_196_5_in_first_iteration_stage0)) begin
+		scale_updown_bilinear_for_body39_out_x_idx_2 = scale_updown_bilinear_for_body39_out_x_idx_2_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & for_loop_scale_cpp_196_5_valid_bit_1)) begin
+		scale_updown_bilinear_for_body39_out_x_idx_2 = scale_updown_bilinear_for_body39_select81;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & ~(for_loop_scale_cpp_196_5_valid_bit_1))) begin
+		scale_updown_bilinear_for_body39_out_x_idx_2 = scale_updown_bilinear_for_body39_select81_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_out_x_idx_2 = scale_updown_bilinear_for_body35_out_x_idx_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_out_x_idx_2_reg <= scale_updown_bilinear_for_body39_out_x_idx_2;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_out_x_idx_2_reg <= scale_updown_bilinear_for_body39_out_x_idx_2;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & for_loop_scale_cpp_196_5_in_first_iteration_stage1)) begin
+		scale_updown_bilinear_for_body39_burst_count_1104 = scale_updown_bilinear_for_body39_burst_count_1104_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_1 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage1)) & for_loop_scale_cpp_196_5_valid_bit_2)) begin
+		scale_updown_bilinear_for_body39_burst_count_1104 = scale_updown_bilinear_for_body39_select85;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_1 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage1)) & ~(for_loop_scale_cpp_196_5_valid_bit_2))) begin
+		scale_updown_bilinear_for_body39_burst_count_1104 = scale_updown_bilinear_for_body39_select85_reg_stage3;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_burst_count_1104 = scale_updown_bilinear_for_body35_burst_count_0110_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_burst_count_1104_reg <= scale_updown_bilinear_for_body39_burst_count_1104;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_burst_count_1104_reg <= scale_updown_bilinear_for_body39_burst_count_1104;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_0 & for_loop_scale_cpp_196_5_in_first_iteration_stage0)) begin
+		scale_updown_bilinear_for_body39_write_count_mod4_ = scale_updown_bilinear_for_body39_write_count_mod4__reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & for_loop_scale_cpp_196_5_valid_bit_1)) begin
+		scale_updown_bilinear_for_body39_write_count_mod4_ = scale_updown_bilinear_for_body39_select83;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & ~(for_loop_scale_cpp_196_5_valid_bit_1))) begin
+		scale_updown_bilinear_for_body39_write_count_mod4_ = scale_updown_bilinear_for_body39_select83_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_write_count_mod4_ = scale_updown_bilinear_for_body35_write_count_mod4__reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_write_count_mod4__reg <= scale_updown_bilinear_for_body39_write_count_mod4_;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_write_count_mod4__reg <= scale_updown_bilinear_for_body39_write_count_mod4_;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_196_5_valid_bit_0 & for_loop_scale_cpp_196_5_in_first_iteration_stage0)) begin
+		scale_updown_bilinear_for_body39_in_row_flag_1102 = scale_updown_bilinear_for_body39_in_row_flag_1102_reg;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & for_loop_scale_cpp_196_5_valid_bit_1)) begin
+		scale_updown_bilinear_for_body39_in_row_flag_1102 = scale_updown_bilinear_for_body39_select26;
+	end
+	else if (((for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_in_first_iteration_stage0)) & ~(for_loop_scale_cpp_196_5_valid_bit_1))) begin
+		scale_updown_bilinear_for_body39_in_row_flag_1102 = scale_updown_bilinear_for_body39_select26_reg_stage2;
+	end
+	else /* if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) */ begin
+		scale_updown_bilinear_for_body39_in_row_flag_1102 = scale_updown_bilinear_for_body35_in_row_flag_0108_reg;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_in_row_flag_1102_reg <= scale_updown_bilinear_for_body39_in_row_flag_1102;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		scale_updown_bilinear_for_body39_in_row_flag_1102_reg <= scale_updown_bilinear_for_body39_in_row_flag_1102;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat109 = {scale_updown_bilinear_for_body39_bit_concat109_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_out_y_idx_2[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_6 = legup_mult_scale_updown_bilinear_for_body39_6_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select108 = scale_updown_bilinear_for_body39_6[16:5];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select106 = scale_updown_bilinear_for_body39_6[16:15];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select105 = scale_updown_bilinear_for_body39_6[26:15];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat107 = {scale_updown_bilinear_for_body39_bit_select106[1:0], scale_updown_bilinear_for_body39_bit_concat107_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub_i1 = (scale_updown_bilinear_for_body39_bit_select108 - scale_updown_bilinear_for_body39_bit_concat107);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat104 = {scale_updown_bilinear_for_body39_bit_concat104_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_out_x_idx_2[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_7 = legup_mult_scale_updown_bilinear_for_body39_7_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select103 = scale_updown_bilinear_for_body39_7[16:5];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select101 = scale_updown_bilinear_for_body39_7[16:15];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select94 = scale_updown_bilinear_for_body39_7[26:15];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat102 = {scale_updown_bilinear_for_body39_bit_select101[1:0], scale_updown_bilinear_for_body39_bit_concat102_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub_i2 = (scale_updown_bilinear_for_body39_bit_select103 - scale_updown_bilinear_for_body39_bit_concat102);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_8 = (scale_updown_bilinear_for_body39_bit_select94 + 12'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_9 = (scale_updown_bilinear_for_body39_bit_select105 + 12'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_10 = (scale_updown_bilinear_for_body39_in_y_idx_2_reg_stage1 > scale_updown_bilinear_for_body39_9_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_lnot_i = (scale_updown_bilinear_for_body39_10 ^ 1'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_11 = ({20'd0,scale_updown_bilinear_for_body39_bit_concat109} == out_height_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_or6420 = (scale_updown_bilinear_for_body39_11_reg_stage1 | scale_updown_bilinear_for_body39_lnot_i);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat100 = {scale_updown_bilinear_for_body39_bit_concat100_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_in_y_idx_2[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_12 = ({20'd0,scale_updown_bilinear_for_body39_bit_concat100} < in_height_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_and21 = (scale_updown_bilinear_for_body39_or6420 & scale_updown_bilinear_for_body39_12_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_notlhs = (scale_updown_bilinear_for_body39_in_y_idx_2_reg_stage1 == scale_updown_bilinear_for_body39_9_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_notrhs = (scale_updown_bilinear_for_body39_8_reg_stage1 <= scale_updown_bilinear_for_body39_in_x_idx_2_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_not_or_cond591 = (scale_updown_bilinear_for_body39_notrhs & scale_updown_bilinear_for_body39_notlhs);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_596 = (scale_updown_bilinear_for_body39_10 | scale_updown_bilinear_for_body39_not_or_cond591);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_13 = ({20'd0,scale_updown_bilinear_for_body39_bit_concat109} < out_height_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_lnot_i171 = (for_loop_scale_cpp_196_5_inductionVar_stage0 != 32'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newEarly_1 = (scale_updown_bilinear_for_body39_13 & scale_updown_bilinear_for_body39_lnot_i171);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newCurOp_1 = (scale_updown_bilinear_for_body39_596 & scale_updown_bilinear_for_body39_newEarly_1_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_NotCondition3 = (scale_updown_bilinear_for_body39_and21 ^ 1'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_14 = (scale_updown_bilinear_for_body39_in_x_idx_2 == 12'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_T5 = (scale_updown_bilinear_for_body39_and21 & scale_updown_bilinear_for_body39_14_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_15 = ({20'd0,scale_updown_bilinear_for_body39_bit_concat109} == scale_updown_bilinear_or_body35_lr_ph_sub75_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_or_cond = (scale_updown_bilinear_for_body39_10 & scale_updown_bilinear_for_body39_15_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_595 = (scale_updown_bilinear_for_body39_or_cond & scale_updown_bilinear_for_body39_12_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_T8 = (scale_updown_bilinear_for_body39_595 & scale_updown_bilinear_for_body39_NotCondition3);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_NotCondition9 = (scale_updown_bilinear_for_body39_595 ^ 1'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_F10 = (scale_updown_bilinear_for_body39_NotCondition3 & scale_updown_bilinear_for_body39_NotCondition9);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_lnot = (scale_updown_bilinear_for_body39_in_row_flag_1102 == 8'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat99 = {scale_updown_bilinear_for_body39_bit_concat99_bit_select_operand_0[6:0], scale_updown_bilinear_for_body39_lnot};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_17 = (scale_updown_bilinear_for_body39_in_x_idx_2 + 12'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat98 = {scale_updown_bilinear_for_body39_bit_concat98_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_17[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_18 = ({20'd0,scale_updown_bilinear_for_body39_bit_concat98} == in_width_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat97 = {scale_updown_bilinear_for_body39_bit_concat97_bit_select_operand_0[10:0], scale_updown_bilinear_for_body39_18};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_593 = (scale_updown_bilinear_for_body39_18 ? 12'd0 : scale_updown_bilinear_for_body39_17);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select = (scale_updown_bilinear_for_body39_exitMask_T5 ? scale_updown_bilinear_for_body39_bit_concat99_reg_stage1 : scale_updown_bilinear_for_body39_in_row_flag_1102_reg_stage1);
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_19 = axi_master_scale_updown_bilinear_orig_entry_input__consumed_data;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_cmp114 = (scale_updown_bilinear_for_body39_select == 8'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat96 = {scale_updown_bilinear_for_body39_bit_concat96_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_in_x_idx_2[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_T11 = (scale_updown_bilinear_for_body39_and21 & scale_updown_bilinear_for_body39_cmp114);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_NotCondition12 = (scale_updown_bilinear_for_body39_cmp114 ^ 1'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_F13 = (scale_updown_bilinear_for_body39_and21 & scale_updown_bilinear_for_body39_NotCondition12);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep26 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat96}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep32 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat96}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep38 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat96}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep44 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat96}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select26 = (scale_updown_bilinear_for_body39_and21 ? scale_updown_bilinear_for_body39_select : scale_updown_bilinear_for_body39_in_row_flag_1102_reg_stage1);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select26_reg <= scale_updown_bilinear_for_body39_select26;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select22 = (scale_updown_bilinear_for_body39_exitMask_F10 ? scale_updown_bilinear_for_body39_in_x_idx_2_reg_stage1 : scale_updown_bilinear_for_body39_593_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select24 = (scale_updown_bilinear_for_body39_exitMask_T8 ? scale_updown_bilinear_for_body39_593_reg_stage1 : scale_updown_bilinear_for_body39_select22);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select24_reg <= scale_updown_bilinear_for_body39_select24;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_in_y_idx_2_2 = (scale_updown_bilinear_for_body39_exitMask_F10 ? 12'd0 : scale_updown_bilinear_for_body39_bit_concat97_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select20_v = (scale_updown_bilinear_for_body39_exitMask_T8 ? scale_updown_bilinear_for_body39_bit_concat97_reg_stage1 : scale_updown_bilinear_for_body39_in_y_idx_2_2);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select20 = (scale_updown_bilinear_for_body39_in_y_idx_2_reg_stage1 + scale_updown_bilinear_for_body39_select20_v);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select20_reg <= scale_updown_bilinear_for_body39_select20;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_cmp158 = (scale_updown_bilinear_for_body39_select26 == 8'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat95 = {scale_updown_bilinear_for_body39_bit_concat95_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_bit_select94[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep50 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat95}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_20 = scale_updown_bilinear_entry_in_row_2a_read_data_wire_b;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_T27 = (scale_updown_bilinear_for_body39_newCurOp_1 & scale_updown_bilinear_for_body39_cmp158);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_NotCondition28 = (scale_updown_bilinear_for_body39_cmp158 ^ 1'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_F29 = (scale_updown_bilinear_for_body39_newCurOp_1_reg_stage2 & scale_updown_bilinear_for_body39_NotCondition28_reg_stage2);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat93 = {scale_updown_bilinear_for_body39_bit_concat93_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_8[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep56 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat93}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_21 = scale_updown_bilinear_entry_in_row_2b_read_data_wire_b;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep62 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat95}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_22 = scale_updown_bilinear_entry_in_row_1a_read_data_wire_b;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep68 = (1'd0 + (4 * {20'd0,scale_updown_bilinear_for_body39_bit_concat93}));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_23 = scale_updown_bilinear_entry_in_row_1b_read_data_wire_b;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_24 = scale_updown_bilinear_entry_in_row_1a_read_data_wire_b;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_25 = scale_updown_bilinear_entry_in_row_1b_read_data_wire_b;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_26 = scale_updown_bilinear_entry_in_row_2b_read_data_wire_b;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select40 = (scale_updown_bilinear_for_body39_exitMask_T27_reg_stage3 ? scale_updown_bilinear_for_body39_20 : scale_updown_bilinear_for_body39_24);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select89 = scale_updown_bilinear_for_body39_select40[7:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select79 = scale_updown_bilinear_for_body39_select40[15:8];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select73 = scale_updown_bilinear_for_body39_select40[23:16];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select66 = scale_updown_bilinear_for_body39_select40[31:16];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select47 = scale_updown_bilinear_for_body39_select40[29:8];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select28 = scale_updown_bilinear_for_body39_select40[21:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select38 = (scale_updown_bilinear_for_body39_exitMask_T27_reg_stage3 ? scale_updown_bilinear_for_body39_21 : scale_updown_bilinear_for_body39_25);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select87 = scale_updown_bilinear_for_body39_select38[7:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select77 = scale_updown_bilinear_for_body39_select38[15:8];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select71 = scale_updown_bilinear_for_body39_select38[23:16];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select36 = (scale_updown_bilinear_for_body39_exitMask_T27_reg_stage3 ? scale_updown_bilinear_for_body39_23 : scale_updown_bilinear_for_body39_26);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select54 = scale_updown_bilinear_for_body39_select36[23:16];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select35 = scale_updown_bilinear_for_body39_select36[15:8];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select16 = scale_updown_bilinear_for_body39_select36[7:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select34 = (scale_updown_bilinear_for_body39_exitMask_F29_reg_stage3 ? scale_updown_bilinear_for_body39_20 : scale_updown_bilinear_for_body39_22);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select85 = scale_updown_bilinear_for_body39_select34[7:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select75 = scale_updown_bilinear_for_body39_select34[15:8];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select69 = scale_updown_bilinear_for_body39_select34[23:16];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat92 = {scale_updown_bilinear_for_body39_bit_concat92_bit_select_operand_0[11:0], scale_updown_bilinear_for_body39_sub_i2[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat91 = {scale_updown_bilinear_for_body39_bit_concat91_bit_select_operand_0[11:0], scale_updown_bilinear_for_body39_sub_i1[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_27 = legup_mult_scale_updown_bilinear_for_body39_27_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select83 = scale_updown_bilinear_for_body39_27[21:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat90 = {scale_updown_bilinear_for_body39_bit_concat90_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select89[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat88 = {scale_updown_bilinear_for_body39_bit_concat88_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select87[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat86 = {scale_updown_bilinear_for_body39_bit_concat86_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select85[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat84 = {scale_updown_bilinear_for_body39_bit_concat84_bit_select_operand_0[21:0], scale_updown_bilinear_for_body39_bit_select83[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat82 = {scale_updown_bilinear_for_body39_bit_concat82_bit_select_operand_0[21:0], scale_updown_bilinear_for_body39_sub_i2[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat81 = {scale_updown_bilinear_for_body39_bit_concat81_bit_select_operand_0[21:0], scale_updown_bilinear_for_body39_sub_i1[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat80 = {scale_updown_bilinear_for_body39_bit_concat80_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select79[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat78 = {scale_updown_bilinear_for_body39_bit_concat78_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select77[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat76 = {scale_updown_bilinear_for_body39_bit_concat76_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select75[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat74 = {scale_updown_bilinear_for_body39_bit_concat74_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select73[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat72 = {scale_updown_bilinear_for_body39_bit_concat72_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select71[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat70 = {scale_updown_bilinear_for_body39_bit_concat70_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select69[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat68 = {{scale_updown_bilinear_for_body39_bit_concat68_bit_select_operand_0[20:0], scale_updown_bilinear_for_body39_write_count_mod4_[7:0]}, scale_updown_bilinear_for_body39_bit_concat68_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_cmp_i_i_i = ({21'd0,scale_updown_bilinear_for_body39_bit_concat68} > 32'd31);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_T30 = (scale_updown_bilinear_for_body39_newCurOp_1 & scale_updown_bilinear_for_body39_cmp_i_i_i_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat67 = {{scale_updown_bilinear_for_body39_bit_concat67_bit_select_operand_0[5:0], scale_updown_bilinear_for_body39_bit_select66[15:0]}, scale_updown_bilinear_for_body39_bit_concat67_bit_select_operand_4[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub155_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat70} - {1'd0,scale_updown_bilinear_for_body39_bit_concat74});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select65 = scale_updown_bilinear_for_body39_sub155_i_width_extended[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_28 = $signed({{1{scale_updown_bilinear_for_body39_bit_select65[8]}},scale_updown_bilinear_for_body39_bit_select65});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select63 = scale_updown_bilinear_for_body39_28_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat64 = {scale_updown_bilinear_for_body39_bit_select63_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat64_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_29 = $signed({{3{scale_updown_bilinear_for_body39_bit_concat64[18]}},scale_updown_bilinear_for_body39_bit_concat64});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_30 = legup_mult_scale_updown_bilinear_for_body39_30_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select61 = scale_updown_bilinear_for_body39_30_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat62 = {scale_updown_bilinear_for_body39_bit_concat62_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select61_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub150_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat72} - {1'd0,scale_updown_bilinear_for_body39_bit_concat74});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select60 = scale_updown_bilinear_for_body39_sub150_i_width_extended[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_31 = $signed({{1{scale_updown_bilinear_for_body39_bit_select60[8]}},scale_updown_bilinear_for_body39_bit_select60});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select58 = scale_updown_bilinear_for_body39_31_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat59 = {scale_updown_bilinear_for_body39_bit_select58_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat59_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_32 = $signed({{3{scale_updown_bilinear_for_body39_bit_concat59[18]}},scale_updown_bilinear_for_body39_bit_concat59});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_33 = legup_mult_scale_updown_bilinear_for_body39_33_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select56 = scale_updown_bilinear_for_body39_33_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat57 = {scale_updown_bilinear_for_body39_bit_concat57_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select56_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat55 = {scale_updown_bilinear_for_body39_bit_concat55_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select54[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_add144_neg_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat55} - {1'd0,scale_updown_bilinear_for_body39_bit_concat70});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_add141_i = ($signed({{1{scale_updown_bilinear_for_body39_add144_neg_i[8]}},scale_updown_bilinear_for_body39_add144_neg_i}) - {2'd0,scale_updown_bilinear_for_body39_bit_concat72});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub145_i = ($signed({{1{scale_updown_bilinear_for_body39_add141_i[9]}},scale_updown_bilinear_for_body39_add141_i}) + {3'd0,scale_updown_bilinear_for_body39_bit_concat74});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select53 = scale_updown_bilinear_for_body39_sub145_i[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_34 = $signed(scale_updown_bilinear_for_body39_bit_select53);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select51 = scale_updown_bilinear_for_body39_34_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat52 = {scale_updown_bilinear_for_body39_bit_select51_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat52_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_35 = $signed({{2{scale_updown_bilinear_for_body39_bit_concat52[19]}},scale_updown_bilinear_for_body39_bit_concat52});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_36 = legup_mult_scale_updown_bilinear_for_body39_36_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select49 = scale_updown_bilinear_for_body39_36_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat50 = {scale_updown_bilinear_for_body39_bit_concat50_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select49_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_37 = ({3'd0,scale_updown_bilinear_for_body39_bit_concat50} + {1'd0,scale_updown_bilinear_for_body39_bit_concat67_reg_stage4});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newEarly_1_3 = ({1'd0,scale_updown_bilinear_for_body39_bit_concat57} + {1'd0,scale_updown_bilinear_for_body39_bit_concat62});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newCurOp_2 = ({1'd0,scale_updown_bilinear_for_body39_37_reg_stage5} + {3'd0,scale_updown_bilinear_for_body39_newEarly_1_3_reg_stage5});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select9 = scale_updown_bilinear_for_body39_newCurOp_2[17:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat48 = {scale_updown_bilinear_for_body39_bit_select47[21:0], scale_updown_bilinear_for_body39_bit_concat48_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub93_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat76} - {1'd0,scale_updown_bilinear_for_body39_bit_concat80});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select46 = scale_updown_bilinear_for_body39_sub93_i_width_extended[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_38 = $signed({{1{scale_updown_bilinear_for_body39_bit_select46[8]}},scale_updown_bilinear_for_body39_bit_select46});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select44 = scale_updown_bilinear_for_body39_38_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat45 = {scale_updown_bilinear_for_body39_bit_select44_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat45_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_39 = $signed({{3{scale_updown_bilinear_for_body39_bit_concat45[18]}},scale_updown_bilinear_for_body39_bit_concat45});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_40 = legup_mult_scale_updown_bilinear_for_body39_40_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select42 = scale_updown_bilinear_for_body39_40_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat43 = {scale_updown_bilinear_for_body39_bit_concat43_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select42_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub88_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat78} - {1'd0,scale_updown_bilinear_for_body39_bit_concat80});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select41 = scale_updown_bilinear_for_body39_sub88_i_width_extended[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_41 = $signed({{1{scale_updown_bilinear_for_body39_bit_select41[8]}},scale_updown_bilinear_for_body39_bit_select41});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select39 = scale_updown_bilinear_for_body39_41_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat40 = {scale_updown_bilinear_for_body39_bit_select39_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat40_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_42 = $signed({{3{scale_updown_bilinear_for_body39_bit_concat40[18]}},scale_updown_bilinear_for_body39_bit_concat40});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_43 = legup_mult_scale_updown_bilinear_for_body39_43_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select37 = scale_updown_bilinear_for_body39_43_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat38 = {scale_updown_bilinear_for_body39_bit_concat38_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select37_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat36 = {scale_updown_bilinear_for_body39_bit_concat36_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select35[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_add82_neg_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat36} - {1'd0,scale_updown_bilinear_for_body39_bit_concat76});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_add79_i = ($signed({{1{scale_updown_bilinear_for_body39_add82_neg_i[8]}},scale_updown_bilinear_for_body39_add82_neg_i}) - {2'd0,scale_updown_bilinear_for_body39_bit_concat78});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub83_i = ($signed({{1{scale_updown_bilinear_for_body39_add79_i[9]}},scale_updown_bilinear_for_body39_add79_i}) + {3'd0,scale_updown_bilinear_for_body39_bit_concat80});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select34 = scale_updown_bilinear_for_body39_sub83_i[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_44 = $signed(scale_updown_bilinear_for_body39_bit_select34);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select32 = scale_updown_bilinear_for_body39_44_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat33 = {scale_updown_bilinear_for_body39_bit_select32_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat33_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_45 = $signed({{2{scale_updown_bilinear_for_body39_bit_concat33[19]}},scale_updown_bilinear_for_body39_bit_concat33});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_46 = legup_mult_scale_updown_bilinear_for_body39_46_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select30 = scale_updown_bilinear_for_body39_46_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat31 = {scale_updown_bilinear_for_body39_bit_concat31_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select30_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_47 = ({8'd0,scale_updown_bilinear_for_body39_bit_concat31} + scale_updown_bilinear_for_body39_bit_concat48_reg_stage4);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newEarly_3 = ({1'd0,scale_updown_bilinear_for_body39_bit_concat38} + {1'd0,scale_updown_bilinear_for_body39_bit_concat43});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newCurOp_4 = (scale_updown_bilinear_for_body39_47_reg_stage5 + {7'd0,scale_updown_bilinear_for_body39_newEarly_3_reg_stage5});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select5 = scale_updown_bilinear_for_body39_newCurOp_4[17:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat29 = {scale_updown_bilinear_for_body39_bit_select28[21:0], scale_updown_bilinear_for_body39_bit_concat29_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub31_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat86} - {1'd0,scale_updown_bilinear_for_body39_bit_concat90});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select27 = scale_updown_bilinear_for_body39_sub31_i_width_extended[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_48 = $signed({{1{scale_updown_bilinear_for_body39_bit_select27[8]}},scale_updown_bilinear_for_body39_bit_select27});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select25 = scale_updown_bilinear_for_body39_48_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat26 = {scale_updown_bilinear_for_body39_bit_select25_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat26_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_49 = $signed({{3{scale_updown_bilinear_for_body39_bit_concat26[18]}},scale_updown_bilinear_for_body39_bit_concat26});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_50 = legup_mult_scale_updown_bilinear_for_body39_50_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select23 = scale_updown_bilinear_for_body39_50_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat24 = {scale_updown_bilinear_for_body39_bit_concat24_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select23_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub26_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat88} - {1'd0,scale_updown_bilinear_for_body39_bit_concat90});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select22 = scale_updown_bilinear_for_body39_sub26_i_width_extended[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_51 = $signed({{1{scale_updown_bilinear_for_body39_bit_select22[8]}},scale_updown_bilinear_for_body39_bit_select22});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select20 = scale_updown_bilinear_for_body39_51_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat21 = {scale_updown_bilinear_for_body39_bit_select20_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat21_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_52 = $signed({{3{scale_updown_bilinear_for_body39_bit_concat21[18]}},scale_updown_bilinear_for_body39_bit_concat21});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_53 = legup_mult_scale_updown_bilinear_for_body39_53_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select18 = scale_updown_bilinear_for_body39_53_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat19 = {scale_updown_bilinear_for_body39_bit_concat19_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select18_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat17 = {scale_updown_bilinear_for_body39_bit_concat17_bit_select_operand_0[23:0], scale_updown_bilinear_for_body39_bit_select16[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_add21_neg_i = ({1'd0,scale_updown_bilinear_for_body39_bit_concat17} - {1'd0,scale_updown_bilinear_for_body39_bit_concat86});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_add_i = ($signed({{1{scale_updown_bilinear_for_body39_add21_neg_i[8]}},scale_updown_bilinear_for_body39_add21_neg_i}) - {2'd0,scale_updown_bilinear_for_body39_bit_concat88});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_sub_i = ($signed({{1{scale_updown_bilinear_for_body39_add_i[9]}},scale_updown_bilinear_for_body39_add_i}) + {3'd0,scale_updown_bilinear_for_body39_bit_concat90});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select15 = scale_updown_bilinear_for_body39_sub_i[9:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_54 = $signed(scale_updown_bilinear_for_body39_bit_select15);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select13 = scale_updown_bilinear_for_body39_54_width_extended[11:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat14 = {scale_updown_bilinear_for_body39_bit_select13_width_extended[11:0], scale_updown_bilinear_for_body39_bit_concat14_bit_select_operand_2[9:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_55 = $signed({{2{scale_updown_bilinear_for_body39_bit_concat14[19]}},scale_updown_bilinear_for_body39_bit_concat14});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_56 = legup_mult_scale_updown_bilinear_for_body39_56_out;
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select11 = scale_updown_bilinear_for_body39_56_width_extended[33:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat12 = {scale_updown_bilinear_for_body39_bit_concat12_bit_select_operand_0[7:0], scale_updown_bilinear_for_body39_bit_select11_width_extended[23:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_57 = ({8'd0,scale_updown_bilinear_for_body39_bit_concat12} + scale_updown_bilinear_for_body39_bit_concat29_reg_stage4);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newEarly_5 = ({1'd0,scale_updown_bilinear_for_body39_bit_concat19} + {1'd0,scale_updown_bilinear_for_body39_bit_concat24});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_newCurOp_6 = (scale_updown_bilinear_for_body39_57_reg_stage5 + {7'd0,scale_updown_bilinear_for_body39_newEarly_5_reg_stage5});
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select2 = scale_updown_bilinear_for_body39_newCurOp_6[17:10];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat10 = {scale_updown_bilinear_for_body39_bit_concat10_bit_select_operand_0[55:0], scale_updown_bilinear_for_body39_bit_select9[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat8 = {{scale_updown_bilinear_for_body39_bit_concat8_bit_select_operand_0[52:0], scale_updown_bilinear_for_body39_write_count_mod4_[7:0]}, scale_updown_bilinear_for_body39_bit_concat8_bit_select_operand_4[2:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_58 = ({56'd0,scale_updown_bilinear_for_body39_bit_concat10} <<< ({53'd0,scale_updown_bilinear_for_body39_bit_concat8_reg_stage5} % 64'd64));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select7 = scale_updown_bilinear_for_body39_58[31:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat6 = {scale_updown_bilinear_for_body39_bit_concat6_bit_select_operand_0[55:0], scale_updown_bilinear_for_body39_bit_select5[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_59 = ({56'd0,scale_updown_bilinear_for_body39_bit_concat6} <<< ({53'd0,scale_updown_bilinear_for_body39_bit_concat8_reg_stage5} % 64'd64));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select4 = scale_updown_bilinear_for_body39_59[31:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat3 = {scale_updown_bilinear_for_body39_bit_concat3_bit_select_operand_0[55:0], scale_updown_bilinear_for_body39_bit_select2[7:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_60 = ({56'd0,scale_updown_bilinear_for_body39_bit_concat3} <<< ({53'd0,scale_updown_bilinear_for_body39_bit_concat8_reg_stage5} % 64'd64));
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_select = scale_updown_bilinear_for_body39_60[31:0];
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select49 = (scale_updown_bilinear_for_body39_exitMask_T30_reg_stage5 ? 32'd0 : scale_updown_bilinear_for_body39_bit_select);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_61 = (scale_updown_bilinear_for_body39_exitMask_T30_reg_stage5 ? 32'd0 : scale_updown_bilinear_for_body39_bit_select7);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select47 = (scale_updown_bilinear_for_body39_red_beat_2_reg_stage6 | scale_updown_bilinear_for_body39_61_reg_stage6);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_62 = (scale_updown_bilinear_for_body39_exitMask_T30_reg_stage5 ? 32'd0 : scale_updown_bilinear_for_body39_bit_select4);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select45 = (scale_updown_bilinear_for_body39_green_beat_2_reg_stage6 | scale_updown_bilinear_for_body39_62_reg_stage6);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_63 = (scale_updown_bilinear_for_body39_select49_reg_stage6 | scale_updown_bilinear_for_body39_blue_beat_2_reg_stage6);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_cmp215 = (scale_updown_bilinear_for_body39_write_count_mod4_ == 8'd3);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_T41 = (scale_updown_bilinear_for_body39_newCurOp_1 & scale_updown_bilinear_for_body39_cmp215_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_inc223 = (scale_updown_bilinear_for_body39_burst_count_1104 + 8'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_cmp225 = (scale_updown_bilinear_for_body39_inc223 == -8'd128);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_T50 = (scale_updown_bilinear_for_body39_exitMask_T41 & scale_updown_bilinear_for_body39_cmp225);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_NotCondition51 = (scale_updown_bilinear_for_body39_cmp225 ^ 1'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitMask_F52 = (scale_updown_bilinear_for_body39_exitMask_T41 & scale_updown_bilinear_for_body39_NotCondition51);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_inc230 = (scale_updown_bilinear_for_body39_write_count_mod4_ + 8'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select66 = (scale_updown_bilinear_for_body39_exitMask_T50 ? 8'd0 : scale_updown_bilinear_for_body39_burst_count_1104);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select68 = (scale_updown_bilinear_for_body39_exitMask_F52 ? scale_updown_bilinear_for_body39_inc223 : scale_updown_bilinear_for_body39_select66);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select64 = (scale_updown_bilinear_for_body39_exitMask_T41 ? 8'd0 : scale_updown_bilinear_for_body39_inc230_reg_stage1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select61 = (scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6 ? 32'd0 : scale_updown_bilinear_for_body39_select47);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select58 = (scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6 ? 32'd0 : scale_updown_bilinear_for_body39_select45);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select55 = (scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6 ? 32'd0 : scale_updown_bilinear_for_body39_63);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_64 = (scale_updown_bilinear_for_body39_out_x_idx_2 + 12'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat1 = {scale_updown_bilinear_for_body39_bit_concat1_bit_select_operand_0[19:0], scale_updown_bilinear_for_body39_64[11:0]};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_65 = ({20'd0,scale_updown_bilinear_for_body39_bit_concat1} == out_width_reg);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_bit_concat = {scale_updown_bilinear_for_body39_bit_concat_bit_select_operand_0[10:0], scale_updown_bilinear_for_body39_65};
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_594 = (scale_updown_bilinear_for_body39_65 ? 12'd0 : scale_updown_bilinear_for_body39_64);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select85 = (scale_updown_bilinear_for_body39_newCurOp_1_reg_stage2 ? scale_updown_bilinear_for_body39_select68_reg_stage2 : scale_updown_bilinear_for_body39_burst_count_1104_reg_stage2);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_select85_reg <= scale_updown_bilinear_for_body39_select85;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select83 = (scale_updown_bilinear_for_body39_newCurOp_1 ? scale_updown_bilinear_for_body39_select64 : scale_updown_bilinear_for_body39_write_count_mod4__reg_stage1);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select83_reg <= scale_updown_bilinear_for_body39_select83;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select81 = (scale_updown_bilinear_for_body39_newCurOp_1 ? scale_updown_bilinear_for_body39_594_reg_stage1 : scale_updown_bilinear_for_body39_out_x_idx_2_reg_stage1);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select81_reg <= scale_updown_bilinear_for_body39_select81;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_out_y_idx_2_7 = (scale_updown_bilinear_for_body39_newCurOp_1 ? scale_updown_bilinear_for_body39_bit_concat_reg_stage1 : 12'd0);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select79 = (scale_updown_bilinear_for_body39_out_y_idx_2_reg_stage1 + scale_updown_bilinear_for_body39_out_y_idx_2_7);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select79_reg <= scale_updown_bilinear_for_body39_select79;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select77 = (scale_updown_bilinear_for_body39_newCurOp_1_reg_stage6 ? scale_updown_bilinear_for_body39_select61 : scale_updown_bilinear_for_body39_red_beat_2_reg_stage6);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_6) begin
+		scale_updown_bilinear_for_body39_select77_reg <= scale_updown_bilinear_for_body39_select77;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select75 = (scale_updown_bilinear_for_body39_newCurOp_1_reg_stage6 ? scale_updown_bilinear_for_body39_select58 : scale_updown_bilinear_for_body39_green_beat_2_reg_stage6);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_6) begin
+		scale_updown_bilinear_for_body39_select75_reg <= scale_updown_bilinear_for_body39_select75;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_select73 = (scale_updown_bilinear_for_body39_newCurOp_1_reg_stage6 ? scale_updown_bilinear_for_body39_select55 : scale_updown_bilinear_for_body39_blue_beat_2_reg_stage6);
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_6) begin
+		scale_updown_bilinear_for_body39_select73_reg <= scale_updown_bilinear_for_body39_select73;
+	end
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_66 = (for_loop_scale_cpp_196_5_inductionVar_stage0 + 32'd1);
+end
+always @(*) begin
+		scale_updown_bilinear_for_body39_exitcond1 = (scale_updown_bilinear_for_body39_66 == {20'd0,scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1_reg});
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_clken = scale_updown_bilinear_entry_in_row_1a_clken_pipeline_cond;
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_address_a = 'dx;
+	if ((for_loop_scale_cpp_174_3_valid_bit_0 & 1'd1)) begin
+		scale_updown_bilinear_entry_in_row_1a_address_a = (scale_updown_bilinear_for_body_mem_flat_gep >> 2'd2);
+	end
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_T11)) begin
+		scale_updown_bilinear_entry_in_row_1a_address_a = (scale_updown_bilinear_for_body39_mem_flat_gep26_reg_stage1 >> 2'd2);
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_write_en_a = 'd0;
+	if ((for_loop_scale_cpp_174_3_state_enable_0 & 1'd1)) begin
+		scale_updown_bilinear_entry_in_row_1a_write_en_a = 1'd1;
+	end
+	if ((for_loop_scale_cpp_196_5_state_enable_1 & scale_updown_bilinear_for_body39_exitMask_T11)) begin
+		scale_updown_bilinear_entry_in_row_1a_write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_write_data_a = 'dx;
+	if ((for_loop_scale_cpp_174_3_valid_bit_0 & 1'd1)) begin
+		scale_updown_bilinear_entry_in_row_1a_write_data_a = scale_updown_bilinear_for_body_0;
+	end
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_T11)) begin
+		scale_updown_bilinear_entry_in_row_1a_write_data_a = scale_updown_bilinear_for_body39_19;
+	end
+end
+assign scale_updown_bilinear_entry_in_row_1a_read_en_a = 'd0;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_address_b = scale_updown_bilinear_entry_in_row_1a_address_b_reg;
+	if ((for_loop_scale_cpp_196_5_state_enable_2 & scale_updown_bilinear_for_body39_exitMask_T27_reg_stage2)) begin
+		scale_updown_bilinear_entry_in_row_1a_address_b = (scale_updown_bilinear_for_body39_mem_flat_gep62_reg_stage2 >> 2'd2);
+	end
+	if ((for_loop_scale_cpp_196_5_state_enable_2 & scale_updown_bilinear_for_body39_exitMask_F29)) begin
+		scale_updown_bilinear_entry_in_row_1a_address_b = (scale_updown_bilinear_for_body39_mem_flat_gep62_reg_stage2 >> 2'd2);
+	end
+end
+assign scale_updown_bilinear_entry_in_row_1a_write_en_b = 'd0;
+assign scale_updown_bilinear_entry_in_row_1a_write_data_b = 'dx;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_read_en_b = 'd0;
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_entry_in_row_1a_read_en_b = 1'd1;
+	end
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_entry_in_row_1a_read_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_clken = scale_updown_bilinear_entry_in_row_1b_clken_pipeline_cond;
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_address_a = 'dx;
+	if ((for_loop_scale_cpp_174_3_valid_bit_0 & 1'd1)) begin
+		scale_updown_bilinear_entry_in_row_1b_address_a = (scale_updown_bilinear_for_body_mem_flat_gep8 >> 2'd2);
+	end
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_T11)) begin
+		scale_updown_bilinear_entry_in_row_1b_address_a = (scale_updown_bilinear_for_body39_mem_flat_gep32_reg_stage1 >> 2'd2);
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_write_en_a = 'd0;
+	if ((for_loop_scale_cpp_174_3_state_enable_0 & 1'd1)) begin
+		scale_updown_bilinear_entry_in_row_1b_write_en_a = 1'd1;
+	end
+	if ((for_loop_scale_cpp_196_5_state_enable_1 & scale_updown_bilinear_for_body39_exitMask_T11)) begin
+		scale_updown_bilinear_entry_in_row_1b_write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_write_data_a = 'dx;
+	if ((for_loop_scale_cpp_174_3_valid_bit_0 & 1'd1)) begin
+		scale_updown_bilinear_entry_in_row_1b_write_data_a = scale_updown_bilinear_for_body_0;
+	end
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_T11)) begin
+		scale_updown_bilinear_entry_in_row_1b_write_data_a = scale_updown_bilinear_for_body39_19;
+	end
+end
+assign scale_updown_bilinear_entry_in_row_1b_read_en_a = 'd0;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_address_b = scale_updown_bilinear_entry_in_row_1b_address_b_reg;
+	if ((for_loop_scale_cpp_196_5_state_enable_2 & scale_updown_bilinear_for_body39_exitMask_T27_reg_stage2)) begin
+		scale_updown_bilinear_entry_in_row_1b_address_b = (scale_updown_bilinear_for_body39_mem_flat_gep68_reg_stage2 >> 2'd2);
+	end
+	if ((for_loop_scale_cpp_196_5_state_enable_2 & scale_updown_bilinear_for_body39_exitMask_F29)) begin
+		scale_updown_bilinear_entry_in_row_1b_address_b = (scale_updown_bilinear_for_body39_mem_flat_gep68_reg_stage2 >> 2'd2);
+	end
+end
+assign scale_updown_bilinear_entry_in_row_1b_write_en_b = 'd0;
+assign scale_updown_bilinear_entry_in_row_1b_write_data_b = 'dx;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_read_en_b = 'd0;
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_entry_in_row_1b_read_en_b = 1'd1;
+	end
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_entry_in_row_1b_read_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_clken = scale_updown_bilinear_entry_in_row_2a_clken_pipeline_cond;
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_address_a = 'dx;
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_F13)) begin
+		scale_updown_bilinear_entry_in_row_2a_address_a = (scale_updown_bilinear_for_body39_mem_flat_gep38_reg_stage1 >> 2'd2);
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_write_en_a = 'd0;
+	if ((for_loop_scale_cpp_196_5_state_enable_1 & scale_updown_bilinear_for_body39_exitMask_F13)) begin
+		scale_updown_bilinear_entry_in_row_2a_write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_write_data_a = 'dx;
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_F13)) begin
+		scale_updown_bilinear_entry_in_row_2a_write_data_a = scale_updown_bilinear_for_body39_19;
+	end
+end
+assign scale_updown_bilinear_entry_in_row_2a_read_en_a = 'd0;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_address_b = scale_updown_bilinear_entry_in_row_2a_address_b_reg;
+	if ((for_loop_scale_cpp_196_5_state_enable_2 & scale_updown_bilinear_for_body39_newCurOp_1_reg_stage2)) begin
+		scale_updown_bilinear_entry_in_row_2a_address_b = (scale_updown_bilinear_for_body39_mem_flat_gep50_reg_stage2 >> 2'd2);
+	end
+end
+assign scale_updown_bilinear_entry_in_row_2a_write_en_b = 'd0;
+assign scale_updown_bilinear_entry_in_row_2a_write_data_b = 'dx;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_read_en_b = 'd0;
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_entry_in_row_2a_read_en_b = 1'd1;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_clken = scale_updown_bilinear_entry_in_row_2b_clken_pipeline_cond;
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_address_a = 'dx;
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_F13)) begin
+		scale_updown_bilinear_entry_in_row_2b_address_a = (scale_updown_bilinear_for_body39_mem_flat_gep44_reg_stage1 >> 2'd2);
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_write_en_a = 'd0;
+	if ((for_loop_scale_cpp_196_5_state_enable_1 & scale_updown_bilinear_for_body39_exitMask_F13)) begin
+		scale_updown_bilinear_entry_in_row_2b_write_en_a = 1'd1;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_write_data_a = 'dx;
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_F13)) begin
+		scale_updown_bilinear_entry_in_row_2b_write_data_a = scale_updown_bilinear_for_body39_19;
+	end
+end
+assign scale_updown_bilinear_entry_in_row_2b_read_en_a = 'd0;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_address_b = scale_updown_bilinear_entry_in_row_2b_address_b_reg;
+	if ((for_loop_scale_cpp_196_5_state_enable_2 & scale_updown_bilinear_for_body39_exitMask_T27_reg_stage2)) begin
+		scale_updown_bilinear_entry_in_row_2b_address_b = (scale_updown_bilinear_for_body39_mem_flat_gep56_reg_stage2 >> 2'd2);
+	end
+	if ((for_loop_scale_cpp_196_5_state_enable_2 & scale_updown_bilinear_for_body39_exitMask_F29)) begin
+		scale_updown_bilinear_entry_in_row_2b_address_b = (scale_updown_bilinear_for_body39_mem_flat_gep56_reg_stage2 >> 2'd2);
+	end
+end
+assign scale_updown_bilinear_entry_in_row_2b_write_en_b = 'd0;
+assign scale_updown_bilinear_entry_in_row_2b_write_data_b = 'dx;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_read_en_b = 'd0;
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_entry_in_row_2b_read_en_b = 1'd1;
+	end
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_entry_in_row_2b_read_en_b = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_174_3_state_stall_0)) begin
+		for_loop_scale_cpp_174_3_valid_bit_0 <= (for_loop_scale_cpp_174_3_II_counter & for_loop_scale_cpp_174_3_start);
+	end
+	if (reset) begin
+		for_loop_scale_cpp_174_3_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_state_stall_0 = 1'd0;
+	if (for_loop_scale_cpp_174_3_state_stall_1) begin
+		for_loop_scale_cpp_174_3_state_stall_0 = 1'd1;
+	end
+	if (((for_loop_scale_cpp_174_3_valid_bit_0 & 1'd1) & ~(axi_master_scale_updown_bilinear_orig_entry_input__consumed_valid))) begin
+		for_loop_scale_cpp_174_3_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_state_enable_0 = (for_loop_scale_cpp_174_3_valid_bit_0 & ~(for_loop_scale_cpp_174_3_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_174_3_state_stall_1)) begin
+		for_loop_scale_cpp_174_3_valid_bit_1 <= for_loop_scale_cpp_174_3_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_174_3_valid_bit_1 <= 1'd0;
+	end
+end
+assign for_loop_scale_cpp_174_3_state_stall_1 = 1'd0;
+always @(*) begin
+	for_loop_scale_cpp_174_3_state_enable_1 = (for_loop_scale_cpp_174_3_valid_bit_1 & ~(for_loop_scale_cpp_174_3_state_stall_1));
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_174_3_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_start = (for_loop_scale_cpp_174_3_activate_pipeline | ((for_loop_scale_cpp_174_3_active & ~(for_loop_scale_cpp_174_3_epilogue)) & ~(for_loop_scale_cpp_174_3_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_scale_cpp_174_3_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_scale_cpp_174_3_begin_pipeline) & ~(for_loop_scale_cpp_174_3_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_174_3_inductionVar_stage0 <= 0;
+	end
+	if (for_loop_scale_cpp_174_3_activate_pipeline) begin
+		for_loop_scale_cpp_174_3_inductionVar_stage0 <= 0;
+	end
+	if ((for_loop_scale_cpp_174_3_II_counter & for_loop_scale_cpp_174_3_state_enable_0)) begin
+		for_loop_scale_cpp_174_3_inductionVar_stage0 <= (for_loop_scale_cpp_174_3_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_pipeline_exit_cond = (for_loop_scale_cpp_174_3_state_enable_0 & scale_updown_bilinear_for_body_exitcond);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_174_3_active <= 1'd0;
+	end
+	if (for_loop_scale_cpp_174_3_activate_pipeline) begin
+		for_loop_scale_cpp_174_3_active <= 1'd1;
+	end
+	if (for_loop_scale_cpp_174_3_pipeline_finishing) begin
+		for_loop_scale_cpp_174_3_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_scale_cpp_174_3_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body_preheader_2) & (fsm_stall == 1'd0))) begin
+		for_loop_scale_cpp_174_3_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_174_3_epilogue <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_174_3_pipeline_exit_cond & for_loop_scale_cpp_174_3_active)) begin
+		for_loop_scale_cpp_174_3_epilogue <= 1'd1;
+	end
+	if (for_loop_scale_cpp_174_3_pipeline_finishing) begin
+		for_loop_scale_cpp_174_3_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_pipeline_finish = (for_loop_scale_cpp_174_3_pipeline_finishing | for_loop_scale_cpp_174_3_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_pipeline_finishing = ((for_loop_scale_cpp_174_3_epilogue | for_loop_scale_cpp_174_3_pipeline_exit_cond) & for_loop_scale_cpp_174_3_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_only_last_stage_enabled = ((for_loop_scale_cpp_174_3_num_active_iterations == 1'd1) & for_loop_scale_cpp_174_3_state_enable_1);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_174_3_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_174_3_inserting_new_iteration & ~(for_loop_scale_cpp_174_3_state_enable_1))) begin
+		for_loop_scale_cpp_174_3_num_active_iterations <= (for_loop_scale_cpp_174_3_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_scale_cpp_174_3_inserting_new_iteration) & for_loop_scale_cpp_174_3_state_enable_1)) begin
+		for_loop_scale_cpp_174_3_num_active_iterations <= (for_loop_scale_cpp_174_3_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_174_3_inserting_new_iteration = ((~(for_loop_scale_cpp_174_3_state_stall_0) & for_loop_scale_cpp_174_3_II_counter) & for_loop_scale_cpp_174_3_start);
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_174_3_pipeline_finish_reg <= for_loop_scale_cpp_174_3_pipeline_finish;
+	if (reset) begin
+		for_loop_scale_cpp_174_3_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_scale_cpp_174_3_activate_pipeline) begin
+		for_loop_scale_cpp_174_3_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_196_5_state_stall_0)) begin
+		for_loop_scale_cpp_196_5_valid_bit_0 <= (for_loop_scale_cpp_196_5_II_counter & for_loop_scale_cpp_196_5_start);
+	end
+	if (reset) begin
+		for_loop_scale_cpp_196_5_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_stall_0 = 1'd0;
+	if (for_loop_scale_cpp_196_5_state_stall_1) begin
+		for_loop_scale_cpp_196_5_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_enable_0 = (for_loop_scale_cpp_196_5_valid_bit_0 & ~(for_loop_scale_cpp_196_5_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_196_5_state_stall_1)) begin
+		for_loop_scale_cpp_196_5_valid_bit_1 <= for_loop_scale_cpp_196_5_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_196_5_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_stall_1 = 1'd0;
+	if (for_loop_scale_cpp_196_5_state_stall_2) begin
+		for_loop_scale_cpp_196_5_state_stall_1 = 1'd1;
+	end
+	if (((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_T8) & ~(axi_master_scale_updown_bilinear_orig_entry_input__consumed_valid))) begin
+		for_loop_scale_cpp_196_5_state_stall_1 = 1'd1;
+	end
+	if (((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_and21) & ~(axi_master_scale_updown_bilinear_orig_entry_input__consumed_valid))) begin
+		for_loop_scale_cpp_196_5_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_196_5_valid_bit_1 & burst_ready_valid) & ~(burst_ready_ready)) & (axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_196_5_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_enable_1 = (for_loop_scale_cpp_196_5_valid_bit_1 & ~(for_loop_scale_cpp_196_5_state_stall_1));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_196_5_state_stall_2)) begin
+		for_loop_scale_cpp_196_5_valid_bit_2 <= for_loop_scale_cpp_196_5_state_enable_1;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_196_5_valid_bit_2 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_stall_2 = 1'd0;
+	if (for_loop_scale_cpp_196_5_state_stall_3) begin
+		for_loop_scale_cpp_196_5_state_stall_2 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_enable_2 = (for_loop_scale_cpp_196_5_valid_bit_2 & ~(for_loop_scale_cpp_196_5_state_stall_2));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_196_5_state_stall_3)) begin
+		for_loop_scale_cpp_196_5_valid_bit_3 <= for_loop_scale_cpp_196_5_state_enable_2;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_196_5_valid_bit_3 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_stall_3 = 1'd0;
+	if (for_loop_scale_cpp_196_5_state_stall_4) begin
+		for_loop_scale_cpp_196_5_state_stall_3 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_enable_3 = (for_loop_scale_cpp_196_5_valid_bit_3 & ~(for_loop_scale_cpp_196_5_state_stall_3));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_196_5_state_stall_4)) begin
+		for_loop_scale_cpp_196_5_valid_bit_4 <= for_loop_scale_cpp_196_5_state_enable_3;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_196_5_valid_bit_4 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_stall_4 = 1'd0;
+	if (for_loop_scale_cpp_196_5_state_stall_5) begin
+		for_loop_scale_cpp_196_5_state_stall_4 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_enable_4 = (for_loop_scale_cpp_196_5_valid_bit_4 & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_196_5_state_stall_5)) begin
+		for_loop_scale_cpp_196_5_valid_bit_5 <= for_loop_scale_cpp_196_5_state_enable_4;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_196_5_valid_bit_5 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_stall_5 = 1'd0;
+	if (for_loop_scale_cpp_196_5_state_stall_6) begin
+		for_loop_scale_cpp_196_5_state_stall_5 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_enable_5 = (for_loop_scale_cpp_196_5_valid_bit_5 & ~(for_loop_scale_cpp_196_5_state_stall_5));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_196_5_state_stall_6)) begin
+		for_loop_scale_cpp_196_5_valid_bit_6 <= for_loop_scale_cpp_196_5_state_enable_5;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_196_5_valid_bit_6 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_stall_6 = 1'd0;
+	if ((((for_loop_scale_cpp_196_5_valid_bit_6 & output_red_fifo_valid) & ~(output_red_fifo_ready)) & (axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_stalln_reg))) begin
+		for_loop_scale_cpp_196_5_state_stall_6 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_196_5_valid_bit_6 & output_green_fifo_valid) & ~(output_green_fifo_ready)) & (axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_stalln_reg))) begin
+		for_loop_scale_cpp_196_5_state_stall_6 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_196_5_valid_bit_6 & output_blue_fifo_valid) & ~(output_blue_fifo_ready)) & (axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_stalln_reg))) begin
+		for_loop_scale_cpp_196_5_state_stall_6 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_state_enable_6 = (for_loop_scale_cpp_196_5_valid_bit_6 & ~(for_loop_scale_cpp_196_5_state_stall_6));
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_196_5_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_start = (for_loop_scale_cpp_196_5_activate_pipeline | ((for_loop_scale_cpp_196_5_active & ~(for_loop_scale_cpp_196_5_epilogue)) & ~(for_loop_scale_cpp_196_5_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_scale_cpp_196_5_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_scale_cpp_196_5_begin_pipeline) & ~(for_loop_scale_cpp_196_5_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_blue_beat_2_reg_stage6 <= scale_updown_bilinear_for_body39_blue_beat_2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_green_beat_2_reg_stage6 <= scale_updown_bilinear_for_body39_green_beat_2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_red_beat_2_reg_stage6 <= scale_updown_bilinear_for_body39_red_beat_2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_in_y_idx_2_reg_stage1 <= scale_updown_bilinear_for_body39_in_y_idx_2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_in_x_idx_2_reg_stage1 <= scale_updown_bilinear_for_body39_in_x_idx_2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_out_y_idx_2_reg_stage1 <= scale_updown_bilinear_for_body39_out_y_idx_2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_out_x_idx_2_reg_stage1 <= scale_updown_bilinear_for_body39_out_x_idx_2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_burst_count_1104_reg_stage2 <= scale_updown_bilinear_for_body39_burst_count_1104;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_write_count_mod4__reg_stage1 <= scale_updown_bilinear_for_body39_write_count_mod4_;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_in_row_flag_1102_reg_stage1 <= scale_updown_bilinear_for_body39_in_row_flag_1102;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_8_reg_stage1 <= scale_updown_bilinear_for_body39_8;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_9_reg_stage1 <= scale_updown_bilinear_for_body39_9;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_11_reg_stage1 <= scale_updown_bilinear_for_body39_11;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_12_reg_stage1 <= scale_updown_bilinear_for_body39_12;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_newEarly_1_reg_stage1 <= scale_updown_bilinear_for_body39_newEarly_1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_newCurOp_1_reg_stage2 <= scale_updown_bilinear_for_body39_newCurOp_1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_newCurOp_1_reg_stage3 <= scale_updown_bilinear_for_body39_newCurOp_1_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_newCurOp_1_reg_stage4 <= scale_updown_bilinear_for_body39_newCurOp_1_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_newCurOp_1_reg_stage5 <= scale_updown_bilinear_for_body39_newCurOp_1_reg_stage4;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_newCurOp_1_reg_stage6 <= scale_updown_bilinear_for_body39_newCurOp_1_reg_stage5;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_14_reg_stage1 <= scale_updown_bilinear_for_body39_14;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_15_reg_stage1 <= scale_updown_bilinear_for_body39_15;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat99_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat99;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat97_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat97;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_593_reg_stage1 <= scale_updown_bilinear_for_body39_593;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep26_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep26;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep32_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep32;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep38_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep38;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep44_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep44;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select26_reg_stage2 <= scale_updown_bilinear_for_body39_select26;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select24_reg_stage2 <= scale_updown_bilinear_for_body39_select24;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select20_reg_stage2 <= scale_updown_bilinear_for_body39_select20;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep50_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep50;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep50_reg_stage2 <= scale_updown_bilinear_for_body39_mem_flat_gep50_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_exitMask_T27_reg_stage2 <= scale_updown_bilinear_for_body39_exitMask_T27;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_exitMask_T27_reg_stage3 <= scale_updown_bilinear_for_body39_exitMask_T27_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_NotCondition28_reg_stage2 <= scale_updown_bilinear_for_body39_NotCondition28;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_exitMask_F29_reg_stage3 <= scale_updown_bilinear_for_body39_exitMask_F29;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep56_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep56;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep56_reg_stage2 <= scale_updown_bilinear_for_body39_mem_flat_gep56_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep62_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep62;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep62_reg_stage2 <= scale_updown_bilinear_for_body39_mem_flat_gep62_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep68_reg_stage1 <= scale_updown_bilinear_for_body39_mem_flat_gep68;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_mem_flat_gep68_reg_stage2 <= scale_updown_bilinear_for_body39_mem_flat_gep68_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat92_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat92;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat91_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat91;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_bit_concat84_reg_stage2 <= scale_updown_bilinear_for_body39_bit_concat84;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_bit_concat84_reg_stage3 <= scale_updown_bilinear_for_body39_bit_concat84_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_bit_concat84_reg_stage4 <= scale_updown_bilinear_for_body39_bit_concat84_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat82_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat82;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_bit_concat82_reg_stage2 <= scale_updown_bilinear_for_body39_bit_concat82_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_bit_concat82_reg_stage3 <= scale_updown_bilinear_for_body39_bit_concat82_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_bit_concat82_reg_stage4 <= scale_updown_bilinear_for_body39_bit_concat82_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat81_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat81;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_bit_concat81_reg_stage2 <= scale_updown_bilinear_for_body39_bit_concat81_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_bit_concat81_reg_stage3 <= scale_updown_bilinear_for_body39_bit_concat81_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_bit_concat81_reg_stage4 <= scale_updown_bilinear_for_body39_bit_concat81_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_cmp_i_i_i_reg_stage1 <= scale_updown_bilinear_for_body39_cmp_i_i_i;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_exitMask_T30_reg_stage2 <= scale_updown_bilinear_for_body39_exitMask_T30;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_exitMask_T30_reg_stage3 <= scale_updown_bilinear_for_body39_exitMask_T30_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_exitMask_T30_reg_stage4 <= scale_updown_bilinear_for_body39_exitMask_T30_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_exitMask_T30_reg_stage5 <= scale_updown_bilinear_for_body39_exitMask_T30_reg_stage4;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_bit_concat67_reg_stage4 <= scale_updown_bilinear_for_body39_bit_concat67;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_29_reg_stage4 <= scale_updown_bilinear_for_body39_29;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_32_reg_stage4 <= scale_updown_bilinear_for_body39_32;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_35_reg_stage4 <= scale_updown_bilinear_for_body39_35;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_37_reg_stage5 <= scale_updown_bilinear_for_body39_37;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_newEarly_1_3_reg_stage5 <= scale_updown_bilinear_for_body39_newEarly_1_3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_bit_concat48_reg_stage4 <= scale_updown_bilinear_for_body39_bit_concat48;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_39_reg_stage4 <= scale_updown_bilinear_for_body39_39;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_42_reg_stage4 <= scale_updown_bilinear_for_body39_42;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_45_reg_stage4 <= scale_updown_bilinear_for_body39_45;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_47_reg_stage5 <= scale_updown_bilinear_for_body39_47;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_newEarly_3_reg_stage5 <= scale_updown_bilinear_for_body39_newEarly_3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_bit_concat29_reg_stage4 <= scale_updown_bilinear_for_body39_bit_concat29;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_49_reg_stage4 <= scale_updown_bilinear_for_body39_49;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_52_reg_stage4 <= scale_updown_bilinear_for_body39_52;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_55_reg_stage4 <= scale_updown_bilinear_for_body39_55;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_57_reg_stage5 <= scale_updown_bilinear_for_body39_57;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_newEarly_5_reg_stage5 <= scale_updown_bilinear_for_body39_newEarly_5;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat8_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat8;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_bit_concat8_reg_stage2 <= scale_updown_bilinear_for_body39_bit_concat8_reg_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_bit_concat8_reg_stage3 <= scale_updown_bilinear_for_body39_bit_concat8_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_bit_concat8_reg_stage4 <= scale_updown_bilinear_for_body39_bit_concat8_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_bit_concat8_reg_stage5 <= scale_updown_bilinear_for_body39_bit_concat8_reg_stage4;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_select49_reg_stage6 <= scale_updown_bilinear_for_body39_select49;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_61_reg_stage6 <= scale_updown_bilinear_for_body39_61;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_62_reg_stage6 <= scale_updown_bilinear_for_body39_62;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_cmp215_reg_stage1 <= scale_updown_bilinear_for_body39_cmp215;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_exitMask_T41_reg_stage2 <= scale_updown_bilinear_for_body39_exitMask_T41;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_exitMask_T41_reg_stage3 <= scale_updown_bilinear_for_body39_exitMask_T41_reg_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		scale_updown_bilinear_for_body39_exitMask_T41_reg_stage4 <= scale_updown_bilinear_for_body39_exitMask_T41_reg_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		scale_updown_bilinear_for_body39_exitMask_T41_reg_stage5 <= scale_updown_bilinear_for_body39_exitMask_T41_reg_stage4;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_5) begin
+		scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6 <= scale_updown_bilinear_for_body39_exitMask_T41_reg_stage5;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_inc230_reg_stage1 <= scale_updown_bilinear_for_body39_inc230;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select68_reg_stage2 <= scale_updown_bilinear_for_body39_select68;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_bit_concat_reg_stage1 <= scale_updown_bilinear_for_body39_bit_concat;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		scale_updown_bilinear_for_body39_594_reg_stage1 <= scale_updown_bilinear_for_body39_594;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		scale_updown_bilinear_for_body39_select85_reg_stage3 <= scale_updown_bilinear_for_body39_select85;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select83_reg_stage2 <= scale_updown_bilinear_for_body39_select83;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select81_reg_stage2 <= scale_updown_bilinear_for_body39_select81;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		scale_updown_bilinear_for_body39_select79_reg_stage2 <= scale_updown_bilinear_for_body39_select79;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_6) begin
+		scale_updown_bilinear_for_body39_select77_reg_stage7 <= scale_updown_bilinear_for_body39_select77;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_6) begin
+		scale_updown_bilinear_for_body39_select75_reg_stage7 <= scale_updown_bilinear_for_body39_select75;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_6) begin
+		scale_updown_bilinear_for_body39_select73_reg_stage7 <= scale_updown_bilinear_for_body39_select73;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_196_5_inductionVar_stage0 <= 0;
+	end
+	if (for_loop_scale_cpp_196_5_activate_pipeline) begin
+		for_loop_scale_cpp_196_5_inductionVar_stage0 <= 0;
+	end
+	if ((for_loop_scale_cpp_196_5_II_counter & for_loop_scale_cpp_196_5_state_enable_0)) begin
+		for_loop_scale_cpp_196_5_inductionVar_stage0 <= (for_loop_scale_cpp_196_5_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_pipeline_exit_cond = (for_loop_scale_cpp_196_5_state_enable_0 & scale_updown_bilinear_for_body39_exitcond1);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_196_5_active <= 1'd0;
+	end
+	if (for_loop_scale_cpp_196_5_activate_pipeline) begin
+		for_loop_scale_cpp_196_5_active <= 1'd1;
+	end
+	if (for_loop_scale_cpp_196_5_pipeline_finishing) begin
+		for_loop_scale_cpp_196_5_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_scale_cpp_196_5_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_scale_updown_bilinear_BB_for_body39_preheader_9) & (fsm_stall == 1'd0))) begin
+		for_loop_scale_cpp_196_5_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_196_5_epilogue <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_196_5_pipeline_exit_cond & for_loop_scale_cpp_196_5_active)) begin
+		for_loop_scale_cpp_196_5_epilogue <= 1'd1;
+	end
+	if (for_loop_scale_cpp_196_5_pipeline_finishing) begin
+		for_loop_scale_cpp_196_5_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_pipeline_finish = (for_loop_scale_cpp_196_5_pipeline_finishing | for_loop_scale_cpp_196_5_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_pipeline_finishing = ((for_loop_scale_cpp_196_5_epilogue | for_loop_scale_cpp_196_5_pipeline_exit_cond) & for_loop_scale_cpp_196_5_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_only_last_stage_enabled = ((for_loop_scale_cpp_196_5_num_active_iterations == 1'd1) & for_loop_scale_cpp_196_5_state_enable_6);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_196_5_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_196_5_inserting_new_iteration & ~(for_loop_scale_cpp_196_5_state_enable_6))) begin
+		for_loop_scale_cpp_196_5_num_active_iterations <= (for_loop_scale_cpp_196_5_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_scale_cpp_196_5_inserting_new_iteration) & for_loop_scale_cpp_196_5_state_enable_6)) begin
+		for_loop_scale_cpp_196_5_num_active_iterations <= (for_loop_scale_cpp_196_5_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_196_5_inserting_new_iteration = ((~(for_loop_scale_cpp_196_5_state_stall_0) & for_loop_scale_cpp_196_5_II_counter) & for_loop_scale_cpp_196_5_start);
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_196_5_pipeline_finish_reg <= for_loop_scale_cpp_196_5_pipeline_finish;
+	if (reset) begin
+		for_loop_scale_cpp_196_5_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_scale_cpp_196_5_activate_pipeline) begin
+		for_loop_scale_cpp_196_5_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_activate_pipeline) begin
+		for_loop_scale_cpp_196_5_in_first_iteration_stage0 <= 1'd1;
+	end
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		for_loop_scale_cpp_196_5_in_first_iteration_stage0 <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_0) begin
+		for_loop_scale_cpp_196_5_in_first_iteration_stage1 <= for_loop_scale_cpp_196_5_in_first_iteration_stage0;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_1) begin
+		for_loop_scale_cpp_196_5_in_first_iteration_stage2 <= for_loop_scale_cpp_196_5_in_first_iteration_stage1;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_2) begin
+		for_loop_scale_cpp_196_5_in_first_iteration_stage3 <= for_loop_scale_cpp_196_5_in_first_iteration_stage2;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_3) begin
+		for_loop_scale_cpp_196_5_in_first_iteration_stage4 <= for_loop_scale_cpp_196_5_in_first_iteration_stage3;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_196_5_state_enable_4) begin
+		for_loop_scale_cpp_196_5_in_first_iteration_stage5 <= for_loop_scale_cpp_196_5_in_first_iteration_stage4;
+	end
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input__consumed_valid = input_fifo_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input__consumed_data = input_fifo;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_input__consumed_taken = 1'd0;
+	if ((for_loop_scale_cpp_174_3_valid_bit_0 & 1'd1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_input__consumed_taken = ~(for_loop_scale_cpp_174_3_state_stall_0);
+	end
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_T8)) begin
+		axi_master_scale_updown_bilinear_orig_entry_input__consumed_taken = ~(for_loop_scale_cpp_196_5_state_stall_1);
+	end
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_and21)) begin
+		axi_master_scale_updown_bilinear_orig_entry_input__consumed_taken = ~(for_loop_scale_cpp_196_5_state_stall_1);
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_clken_pipeline_cond = ((((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_174_3_3) & ~(for_loop_scale_cpp_174_3_state_stall_1)) | ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_2))) | ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_3)));
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_clken_pipeline_cond = ((((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_174_3_3) & ~(for_loop_scale_cpp_174_3_state_stall_1)) | ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_2))) | ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_3)));
+end
+assign scale_updown_bilinear_or_body35_lr_ph_bit_concat11_bit_select_operand_0 = 13'd0;
+assign scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0_bit_select_operand_0 = 13'd0;
+assign scale_updown_bilinear_or_body35_lr_ph_bit_concat11_1_bit_select_operand_0 = 20'd0;
+assign scale_updown_bilinear_for_body39_bit_concat109_bit_select_operand_0 = 20'd0;
+always @(*) begin
+	legup_mult_unsigned_19_12_0_0_clock = clk;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_0_aclr = reset;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_0_clken = legup_mult_scale_updown_bilinear_for_body39_6_en;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_0_dataa = scale_updown_bilinear_or_body35_lr_ph_bit_concat11_reg;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_0_datab = scale_updown_bilinear_for_body39_bit_concat109;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_6_out_actual = legup_mult_unsigned_19_12_0_0_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_6_out = $signed(legup_mult_scale_updown_bilinear_for_body39_6_out_actual);
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_6_en = legup_mult_scale_updown_bilinear_for_body39_6_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_6_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_0));
+end
+assign scale_updown_bilinear_for_body39_bit_concat107_bit_select_operand_2 = 10'd0;
+assign scale_updown_bilinear_for_body39_bit_concat104_bit_select_operand_0 = 20'd0;
+always @(*) begin
+	legup_mult_unsigned_19_12_0_1_clock = clk;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_1_aclr = reset;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_1_clken = legup_mult_scale_updown_bilinear_for_body39_7_en;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_1_dataa = scale_updown_bilinear_or_body35_lr_ph_bit_concat11_0_reg;
+end
+always @(*) begin
+	legup_mult_unsigned_19_12_0_1_datab = scale_updown_bilinear_for_body39_bit_concat104;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_7_out_actual = legup_mult_unsigned_19_12_0_1_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_7_out = $signed(legup_mult_scale_updown_bilinear_for_body39_7_out_actual);
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_7_en = legup_mult_scale_updown_bilinear_for_body39_7_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_7_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_0));
+end
+assign scale_updown_bilinear_for_body39_bit_concat102_bit_select_operand_2 = 10'd0;
+assign scale_updown_bilinear_for_body39_bit_concat100_bit_select_operand_0 = 20'd0;
+assign scale_updown_bilinear_for_body39_bit_concat99_bit_select_operand_0 = 7'd0;
+assign scale_updown_bilinear_for_body39_bit_concat98_bit_select_operand_0 = 20'd0;
+assign scale_updown_bilinear_for_body39_bit_concat97_bit_select_operand_0 = 11'd0;
+assign scale_updown_bilinear_for_body39_bit_concat96_bit_select_operand_0 = 20'd0;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_clken_pipeline_cond = (((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_2)) | ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_3)));
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_clken_pipeline_cond = (((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_2)) | ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_3)));
+end
+assign scale_updown_bilinear_for_body39_bit_concat95_bit_select_operand_0 = 20'd0;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_read_data_wire_b = scale_updown_bilinear_entry_in_row_2a_read_data_b;
+end
+always @(posedge clk) begin
+	if ((reset | finish)) begin
+		scale_updown_bilinear_entry_in_row_2a_address_b_reg <= 11'd0;
+	end
+	if (scale_updown_bilinear_entry_in_row_2a_address_b_reg_enable) begin
+		scale_updown_bilinear_entry_in_row_2a_address_b_reg <= scale_updown_bilinear_entry_in_row_2a_address_b;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2a_address_b_reg_enable = for_loop_scale_cpp_196_5_state_enable_2;
+end
+assign scale_updown_bilinear_for_body39_bit_concat93_bit_select_operand_0 = 20'd0;
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_read_data_wire_b = scale_updown_bilinear_entry_in_row_2b_read_data_b;
+end
+always @(posedge clk) begin
+	if ((reset | finish)) begin
+		scale_updown_bilinear_entry_in_row_2b_address_b_reg <= 11'd0;
+	end
+	if (scale_updown_bilinear_entry_in_row_2b_address_b_reg_enable) begin
+		scale_updown_bilinear_entry_in_row_2b_address_b_reg <= scale_updown_bilinear_entry_in_row_2b_address_b;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_2b_address_b_reg_enable = (for_loop_scale_cpp_196_5_state_enable_2 | for_loop_scale_cpp_196_5_state_enable_2);
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_read_data_wire_b = scale_updown_bilinear_entry_in_row_1a_read_data_b;
+end
+always @(posedge clk) begin
+	if ((reset | finish)) begin
+		scale_updown_bilinear_entry_in_row_1a_address_b_reg <= 11'd0;
+	end
+	if (scale_updown_bilinear_entry_in_row_1a_address_b_reg_enable) begin
+		scale_updown_bilinear_entry_in_row_1a_address_b_reg <= scale_updown_bilinear_entry_in_row_1a_address_b;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1a_address_b_reg_enable = (for_loop_scale_cpp_196_5_state_enable_2 | for_loop_scale_cpp_196_5_state_enable_2);
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_read_data_wire_b = scale_updown_bilinear_entry_in_row_1b_read_data_b;
+end
+always @(posedge clk) begin
+	if ((reset | finish)) begin
+		scale_updown_bilinear_entry_in_row_1b_address_b_reg <= 11'd0;
+	end
+	if (scale_updown_bilinear_entry_in_row_1b_address_b_reg_enable) begin
+		scale_updown_bilinear_entry_in_row_1b_address_b_reg <= scale_updown_bilinear_entry_in_row_1b_address_b;
+	end
+end
+always @(*) begin
+	scale_updown_bilinear_entry_in_row_1b_address_b_reg_enable = (for_loop_scale_cpp_196_5_state_enable_2 | for_loop_scale_cpp_196_5_state_enable_2);
+end
+assign scale_updown_bilinear_for_body39_bit_concat92_bit_select_operand_0 = 12'd0;
+assign scale_updown_bilinear_for_body39_bit_concat91_bit_select_operand_0 = 12'd0;
+always @(*) begin
+	legup_mult_unsigned_12_12_0_2_clock = clk;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_0_2_aclr = reset;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_0_2_clken = legup_mult_scale_updown_bilinear_for_body39_27_en;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_0_2_dataa = scale_updown_bilinear_for_body39_bit_concat92_reg_stage1;
+end
+always @(*) begin
+	legup_mult_unsigned_12_12_0_2_datab = scale_updown_bilinear_for_body39_bit_concat91_reg_stage1;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_27_out_actual = legup_mult_unsigned_12_12_0_2_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_27_out = $signed(legup_mult_scale_updown_bilinear_for_body39_27_out_actual);
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_27_en = legup_mult_scale_updown_bilinear_for_body39_27_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_27_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_1));
+end
+assign scale_updown_bilinear_for_body39_bit_concat90_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat88_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat86_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat84_bit_select_operand_0 = 22'd0;
+assign scale_updown_bilinear_for_body39_bit_concat82_bit_select_operand_0 = 22'd0;
+assign scale_updown_bilinear_for_body39_bit_concat81_bit_select_operand_0 = 22'd0;
+assign scale_updown_bilinear_for_body39_bit_concat80_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat78_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat76_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat74_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat72_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat70_bit_select_operand_0 = 24'd0;
+assign scale_updown_bilinear_for_body39_bit_concat68_bit_select_operand_0 = 21'd0;
+assign scale_updown_bilinear_for_body39_bit_concat68_bit_select_operand_4 = 3'd0;
+assign scale_updown_bilinear_for_body39_bit_concat67_bit_select_operand_0 = 6'd0;
+assign scale_updown_bilinear_for_body39_bit_concat67_bit_select_operand_4 = 10'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_sub155_i_width_extended = {{1{scale_updown_bilinear_for_body39_sub155_i[8]}},scale_updown_bilinear_for_body39_sub155_i};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_28_width_extended = {{3{scale_updown_bilinear_for_body39_28[8]}},scale_updown_bilinear_for_body39_28};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select63_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select63[8]}},scale_updown_bilinear_for_body39_bit_select63};
+end
+assign scale_updown_bilinear_for_body39_bit_concat64_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_19_13_0_3_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_3_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_3_clken = legup_mult_scale_updown_bilinear_for_body39_30_en;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_3_dataa = scale_updown_bilinear_for_body39_29_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_3_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat81_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_30_out_actual = legup_mult_signed_19_13_0_3_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_30_out = legup_mult_scale_updown_bilinear_for_body39_30_out_actual[30:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_30_en = legup_mult_scale_updown_bilinear_for_body39_30_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_30_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_30_width_extended = {{3{scale_updown_bilinear_for_body39_30[30]}},scale_updown_bilinear_for_body39_30};
+end
+assign scale_updown_bilinear_for_body39_bit_concat62_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select61_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select61[20]}},scale_updown_bilinear_for_body39_bit_select61};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_sub150_i_width_extended = {{1{scale_updown_bilinear_for_body39_sub150_i[8]}},scale_updown_bilinear_for_body39_sub150_i};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_31_width_extended = {{3{scale_updown_bilinear_for_body39_31[8]}},scale_updown_bilinear_for_body39_31};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select58_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select58[8]}},scale_updown_bilinear_for_body39_bit_select58};
+end
+assign scale_updown_bilinear_for_body39_bit_concat59_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_19_13_0_4_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_4_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_4_clken = legup_mult_scale_updown_bilinear_for_body39_33_en;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_4_dataa = scale_updown_bilinear_for_body39_32_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_4_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat82_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_33_out_actual = legup_mult_signed_19_13_0_4_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_33_out = legup_mult_scale_updown_bilinear_for_body39_33_out_actual[30:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_33_en = legup_mult_scale_updown_bilinear_for_body39_33_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_33_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_33_width_extended = {{3{scale_updown_bilinear_for_body39_33[30]}},scale_updown_bilinear_for_body39_33};
+end
+assign scale_updown_bilinear_for_body39_bit_concat57_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select56_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select56[20]}},scale_updown_bilinear_for_body39_bit_select56};
+end
+assign scale_updown_bilinear_for_body39_bit_concat55_bit_select_operand_0 = 24'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_34_width_extended = {{2{scale_updown_bilinear_for_body39_34[9]}},scale_updown_bilinear_for_body39_34};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select51_width_extended = {{2{scale_updown_bilinear_for_body39_bit_select51[9]}},scale_updown_bilinear_for_body39_bit_select51};
+end
+assign scale_updown_bilinear_for_body39_bit_concat52_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_20_13_0_5_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_5_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_5_clken = legup_mult_scale_updown_bilinear_for_body39_36_en;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_5_dataa = scale_updown_bilinear_for_body39_35_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_5_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat84_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_36_out_actual = legup_mult_signed_20_13_0_5_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_36_out = legup_mult_scale_updown_bilinear_for_body39_36_out_actual[31:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_36_en = legup_mult_scale_updown_bilinear_for_body39_36_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_36_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_36_width_extended = {{2{scale_updown_bilinear_for_body39_36[31]}},scale_updown_bilinear_for_body39_36};
+end
+assign scale_updown_bilinear_for_body39_bit_concat50_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select49_width_extended = {{2{scale_updown_bilinear_for_body39_bit_select49[21]}},scale_updown_bilinear_for_body39_bit_select49};
+end
+assign scale_updown_bilinear_for_body39_bit_concat48_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_sub93_i_width_extended = {{1{scale_updown_bilinear_for_body39_sub93_i[8]}},scale_updown_bilinear_for_body39_sub93_i};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_38_width_extended = {{3{scale_updown_bilinear_for_body39_38[8]}},scale_updown_bilinear_for_body39_38};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select44_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select44[8]}},scale_updown_bilinear_for_body39_bit_select44};
+end
+assign scale_updown_bilinear_for_body39_bit_concat45_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_19_13_0_6_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_6_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_6_clken = legup_mult_scale_updown_bilinear_for_body39_40_en;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_6_dataa = scale_updown_bilinear_for_body39_39_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_6_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat81_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_40_out_actual = legup_mult_signed_19_13_0_6_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_40_out = legup_mult_scale_updown_bilinear_for_body39_40_out_actual[30:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_40_en = legup_mult_scale_updown_bilinear_for_body39_40_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_40_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_40_width_extended = {{3{scale_updown_bilinear_for_body39_40[30]}},scale_updown_bilinear_for_body39_40};
+end
+assign scale_updown_bilinear_for_body39_bit_concat43_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select42_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select42[20]}},scale_updown_bilinear_for_body39_bit_select42};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_sub88_i_width_extended = {{1{scale_updown_bilinear_for_body39_sub88_i[8]}},scale_updown_bilinear_for_body39_sub88_i};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_41_width_extended = {{3{scale_updown_bilinear_for_body39_41[8]}},scale_updown_bilinear_for_body39_41};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select39_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select39[8]}},scale_updown_bilinear_for_body39_bit_select39};
+end
+assign scale_updown_bilinear_for_body39_bit_concat40_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_19_13_0_7_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_7_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_7_clken = legup_mult_scale_updown_bilinear_for_body39_43_en;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_7_dataa = scale_updown_bilinear_for_body39_42_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_7_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat82_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_43_out_actual = legup_mult_signed_19_13_0_7_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_43_out = legup_mult_scale_updown_bilinear_for_body39_43_out_actual[30:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_43_en = legup_mult_scale_updown_bilinear_for_body39_43_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_43_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_43_width_extended = {{3{scale_updown_bilinear_for_body39_43[30]}},scale_updown_bilinear_for_body39_43};
+end
+assign scale_updown_bilinear_for_body39_bit_concat38_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select37_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select37[20]}},scale_updown_bilinear_for_body39_bit_select37};
+end
+assign scale_updown_bilinear_for_body39_bit_concat36_bit_select_operand_0 = 24'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_44_width_extended = {{2{scale_updown_bilinear_for_body39_44[9]}},scale_updown_bilinear_for_body39_44};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select32_width_extended = {{2{scale_updown_bilinear_for_body39_bit_select32[9]}},scale_updown_bilinear_for_body39_bit_select32};
+end
+assign scale_updown_bilinear_for_body39_bit_concat33_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_20_13_0_8_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_8_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_8_clken = legup_mult_scale_updown_bilinear_for_body39_46_en;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_8_dataa = scale_updown_bilinear_for_body39_45_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_8_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat84_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_46_out_actual = legup_mult_signed_20_13_0_8_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_46_out = legup_mult_scale_updown_bilinear_for_body39_46_out_actual[31:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_46_en = legup_mult_scale_updown_bilinear_for_body39_46_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_46_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_46_width_extended = {{2{scale_updown_bilinear_for_body39_46[31]}},scale_updown_bilinear_for_body39_46};
+end
+assign scale_updown_bilinear_for_body39_bit_concat31_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select30_width_extended = {{2{scale_updown_bilinear_for_body39_bit_select30[21]}},scale_updown_bilinear_for_body39_bit_select30};
+end
+assign scale_updown_bilinear_for_body39_bit_concat29_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_sub31_i_width_extended = {{1{scale_updown_bilinear_for_body39_sub31_i[8]}},scale_updown_bilinear_for_body39_sub31_i};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_48_width_extended = {{3{scale_updown_bilinear_for_body39_48[8]}},scale_updown_bilinear_for_body39_48};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select25_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select25[8]}},scale_updown_bilinear_for_body39_bit_select25};
+end
+assign scale_updown_bilinear_for_body39_bit_concat26_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_19_13_0_9_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_9_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_9_clken = legup_mult_scale_updown_bilinear_for_body39_50_en;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_9_dataa = scale_updown_bilinear_for_body39_49_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_9_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat81_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_50_out_actual = legup_mult_signed_19_13_0_9_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_50_out = legup_mult_scale_updown_bilinear_for_body39_50_out_actual[30:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_50_en = legup_mult_scale_updown_bilinear_for_body39_50_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_50_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_50_width_extended = {{3{scale_updown_bilinear_for_body39_50[30]}},scale_updown_bilinear_for_body39_50};
+end
+assign scale_updown_bilinear_for_body39_bit_concat24_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select23_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select23[20]}},scale_updown_bilinear_for_body39_bit_select23};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_sub26_i_width_extended = {{1{scale_updown_bilinear_for_body39_sub26_i[8]}},scale_updown_bilinear_for_body39_sub26_i};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_51_width_extended = {{3{scale_updown_bilinear_for_body39_51[8]}},scale_updown_bilinear_for_body39_51};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select20_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select20[8]}},scale_updown_bilinear_for_body39_bit_select20};
+end
+assign scale_updown_bilinear_for_body39_bit_concat21_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_19_13_0_10_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_10_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_10_clken = legup_mult_scale_updown_bilinear_for_body39_53_en;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_10_dataa = scale_updown_bilinear_for_body39_52_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_19_13_0_10_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat82_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_53_out_actual = legup_mult_signed_19_13_0_10_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_53_out = legup_mult_scale_updown_bilinear_for_body39_53_out_actual[30:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_53_en = legup_mult_scale_updown_bilinear_for_body39_53_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_53_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_53_width_extended = {{3{scale_updown_bilinear_for_body39_53[30]}},scale_updown_bilinear_for_body39_53};
+end
+assign scale_updown_bilinear_for_body39_bit_concat19_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select18_width_extended = {{3{scale_updown_bilinear_for_body39_bit_select18[20]}},scale_updown_bilinear_for_body39_bit_select18};
+end
+assign scale_updown_bilinear_for_body39_bit_concat17_bit_select_operand_0 = 24'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_54_width_extended = {{2{scale_updown_bilinear_for_body39_54[9]}},scale_updown_bilinear_for_body39_54};
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select13_width_extended = {{2{scale_updown_bilinear_for_body39_bit_select13[9]}},scale_updown_bilinear_for_body39_bit_select13};
+end
+assign scale_updown_bilinear_for_body39_bit_concat14_bit_select_operand_2 = 10'd0;
+always @(*) begin
+	legup_mult_signed_20_13_0_11_clock = clk;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_11_aclr = reset;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_11_clken = legup_mult_scale_updown_bilinear_for_body39_56_en;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_11_dataa = scale_updown_bilinear_for_body39_55_reg_stage4;
+end
+always @(*) begin
+	legup_mult_signed_20_13_0_11_datab = {1'd0,scale_updown_bilinear_for_body39_bit_concat84_reg_stage4};
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_56_out_actual = legup_mult_signed_20_13_0_11_result;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_56_out = legup_mult_scale_updown_bilinear_for_body39_56_out_actual[31:0];
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_56_en = legup_mult_scale_updown_bilinear_for_body39_56_en_pipeline_cond;
+end
+always @(*) begin
+	legup_mult_scale_updown_bilinear_for_body39_56_en_pipeline_cond = ((cur_state == LEGUP_pipeline_wait_for_loop_scale_cpp_196_5_12) & ~(for_loop_scale_cpp_196_5_state_stall_4));
+end
+always @(*) begin
+	scale_updown_bilinear_for_body39_56_width_extended = {{2{scale_updown_bilinear_for_body39_56[31]}},scale_updown_bilinear_for_body39_56};
+end
+assign scale_updown_bilinear_for_body39_bit_concat12_bit_select_operand_0 = 8'd0;
+always @(*) begin
+	scale_updown_bilinear_for_body39_bit_select11_width_extended = {{2{scale_updown_bilinear_for_body39_bit_select11[21]}},scale_updown_bilinear_for_body39_bit_select11};
+end
+assign scale_updown_bilinear_for_body39_bit_concat10_bit_select_operand_0 = 56'd0;
+assign scale_updown_bilinear_for_body39_bit_concat8_bit_select_operand_0 = 53'd0;
+assign scale_updown_bilinear_for_body39_bit_concat8_bit_select_operand_4 = 3'd0;
+assign scale_updown_bilinear_for_body39_bit_concat6_bit_select_operand_0 = 56'd0;
+assign scale_updown_bilinear_for_body39_bit_concat3_bit_select_operand_0 = 56'd0;
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_196_5_state_stall_6 & output_red_fifo_valid) & ~(output_red_fifo_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_stalln_reg <= ~(for_loop_scale_cpp_196_5_state_stall_6);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_enable_cond_a = (for_loop_scale_cpp_196_5_valid_bit_6 & (axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_196_5_state_stall_6 & output_green_fifo_valid) & ~(output_green_fifo_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_stalln_reg <= ~(for_loop_scale_cpp_196_5_state_stall_6);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_enable_cond_a = (for_loop_scale_cpp_196_5_valid_bit_6 & (axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_196_5_state_stall_6 & output_blue_fifo_valid) & ~(output_blue_fifo_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_stalln_reg <= ~(for_loop_scale_cpp_196_5_state_stall_6);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_enable_cond_a = (for_loop_scale_cpp_196_5_valid_bit_6 & (axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_196_5_state_stall_1 & burst_ready_valid) & ~(burst_ready_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_196_5_state_stall_1);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_enable_cond_a = (for_loop_scale_cpp_196_5_valid_bit_1 & (axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_stalln_reg));
+end
+assign scale_updown_bilinear_for_body39_bit_concat1_bit_select_operand_0 = 20'd0;
+assign scale_updown_bilinear_for_body39_bit_concat_bit_select_operand_0 = 11'd0;
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_not_accessed_due_to_stall_a <= ((fsm_stall & burst_ready_valid) & ~(burst_ready_ready));
+end
+always @(posedge clk) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_enable_cond_a = ((cur_state == LEGUP_F_scale_updown_bilinear_BB_if_then248_13) & (axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_not_accessed_due_to_stall_a | axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_stalln_reg));
+end
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_if_end250_14)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+always @(*) begin
+	input_fifo_ready = axi_master_scale_updown_bilinear_orig_entry_input__consumed_taken;
+end
+always @(*) begin
+		output_red_fifo = scale_updown_bilinear_for_body39_select47;
+end
+always @(*) begin
+	output_red_fifo_valid = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_entry_output_for_loop_scale_cpp_196_5_state_6_enable_cond_a & scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6)) begin
+		output_red_fifo_valid = 1'd1;
+	end
+end
+always @(*) begin
+		output_green_fifo = scale_updown_bilinear_for_body39_select45;
+end
+always @(*) begin
+	output_green_fifo_valid = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_entry_output_1_for_loop_scale_cpp_196_5_state_6_enable_cond_a & scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6)) begin
+		output_green_fifo_valid = 1'd1;
+	end
+end
+always @(*) begin
+		output_blue_fifo = scale_updown_bilinear_for_body39_63;
+end
+always @(*) begin
+	output_blue_fifo_valid = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_entry_output_2_for_loop_scale_cpp_196_5_state_6_enable_cond_a & scale_updown_bilinear_for_body39_exitMask_T41_reg_stage6)) begin
+		output_blue_fifo_valid = 1'd1;
+	end
+end
+always @(*) begin
+	burst_ready = 8'd0;
+	if ((for_loop_scale_cpp_196_5_valid_bit_1 & scale_updown_bilinear_for_body39_exitMask_T50)) begin
+		burst_ready = 8'd1;
+	end
+	if ((cur_state == LEGUP_F_scale_updown_bilinear_BB_if_then248_13)) begin
+		burst_ready = 8'd1;
+	end
+end
+always @(*) begin
+	burst_ready_valid = 1'd0;
+	if ((axi_master_scale_updown_bilinear_orig_entry_burst__for_loop_scale_cpp_196_5_state_1_enable_cond_a & scale_updown_bilinear_for_body39_exitMask_T50)) begin
+		burst_ready_valid = 1'd1;
+	end
+	if (axi_master_scale_updown_bilinear_orig_entry_burst__LEGUP_F_scale_updown_bilinear_BB_if_then248_13_enable_cond_a) begin
+		burst_ready_valid = 1'd1;
+	end
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_axi_rgb_write
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	addr_r_val,
+	addr_g_val,
+	addr_b_val,
+	width,
+	height,
+	burst_ready,
+	burst_ready_ready,
+	burst_ready_valid,
+	master_aw_addr,
+	master_aw_ready,
+	master_aw_valid,
+	master_aw_burst,
+	master_aw_size,
+	master_aw_len,
+	fifo_r,
+	fifo_r_ready,
+	fifo_r_valid,
+	master_w_data,
+	master_w_ready,
+	master_w_valid,
+	master_w_strb,
+	master_w_last,
+	master_b_resp,
+	master_b_resp_ready,
+	master_b_resp_valid,
+	fifo_g,
+	fifo_g_ready,
+	fifo_g_valid,
+	fifo_b,
+	fifo_b_ready,
+	fifo_b_valid
+);
+
+parameter [5:0] LEGUP_0 = 6'd0;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_entry_1 = 6'd1;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_entry_2 = 6'd2;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3 = 6'd3;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_cond_cleanup_4 = 6'd4;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_body214_preheader_5 = 6'd5;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_body_6 = 6'd6;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_then_7 = 6'd7;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_end_8 = 6'd8;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_body46_preheader_9 = 6'd9;
+parameter [5:0] LEGUP_pipeline_wait_for_loop_scale_cpp_424_5_10 = 6'd10;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_end_loopexit_11 = 6'd11;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_end_12 = 6'd12;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_then55_13 = 6'd13;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_else_14 = 6'd14;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_end58_15 = 6'd15;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_body110_preheader_16 = 6'd16;
+parameter [5:0] LEGUP_pipeline_wait_for_loop_scale_cpp_441_5_17 = 6'd17;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_end124_loopexit_18 = 6'd18;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_end124_19 = 6'd19;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_then127_20 = 6'd20;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_else129_21 = 6'd21;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_end131_22 = 6'd22;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_body183_preheader_23 = 6'd23;
+parameter [5:0] LEGUP_pipeline_wait_for_loop_scale_cpp_459_5_24 = 6'd24;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_end198_loopexit_25 = 6'd25;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_end198_26 = 6'd26;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_then201_27 = 6'd27;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_if_else203_28 = 6'd28;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_inc206_29 = 6'd29;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_loopexit_30 = 6'd30;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_31 = 6'd31;
+parameter [5:0] LEGUP_F_axi_rgb_write_BB_for_body214_32 = 6'd32;
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] addr_r_val;
+input [31:0] addr_g_val;
+input [31:0] addr_b_val;
+input [31:0] width;
+input [31:0] height;
+input [7:0] burst_ready;
+output reg  burst_ready_ready;
+input  burst_ready_valid;
+output reg [31:0] master_aw_addr;
+input  master_aw_ready;
+output reg  master_aw_valid;
+output reg [1:0] master_aw_burst;
+output reg [2:0] master_aw_size;
+output reg [7:0] master_aw_len;
+input [31:0] fifo_r;
+output reg  fifo_r_ready;
+input  fifo_r_valid;
+output reg [31:0] master_w_data;
+input  master_w_ready;
+output reg  master_w_valid;
+output reg [3:0] master_w_strb;
+output reg  master_w_last;
+input [1:0] master_b_resp;
+output reg  master_b_resp_ready;
+input  master_b_resp_valid;
+input [31:0] fifo_g;
+output reg  fifo_g_ready;
+input  fifo_g_valid;
+input [31:0] fifo_b;
+output reg  fifo_b_ready;
+input  fifo_b_valid;
+reg [5:0] cur_state/* synthesis syn_encoding="onehot" */;
+reg [5:0] next_state;
+reg [31:0] addr_r_val_reg;
+reg [31:0] addr_g_val_reg;
+reg [31:0] addr_b_val_reg;
+reg [31:0] width_reg;
+reg [31:0] height_reg;
+reg  fsm_stall;
+reg [31:0] axi_rgb_write_entry_mul;
+reg [21:0] axi_rgb_write_entry_bit_select5;
+reg [21:0] axi_rgb_write_entry_bit_select5_reg;
+reg [20:0] axi_rgb_write_entry_bit_select3;
+reg [20:0] axi_rgb_write_entry_bit_select3_reg;
+reg  axi_rgb_write_entry_0;
+reg [20:0] axi_rgb_write_for_body_lr_ph_bit_concat4;
+reg [20:0] axi_rgb_write_for_body_lr_ph_bit_concat4_reg;
+reg  axi_rgb_write_or_cond_cleanup_1;
+reg [31:0] axi_rgb_write_for_body_indvar6;
+reg [31:0] axi_rgb_write_for_body_indvar6_reg;
+reg [20:0] axi_rgb_write_for_body_burst_cnt_0;
+reg [20:0] axi_rgb_write_for_body_burst_cnt_0_reg;
+reg [15:0] axi_rgb_write_for_body_outstanding_1;
+reg [15:0] axi_rgb_write_for_body_outstanding_1_reg;
+reg [22:0] axi_rgb_write_for_body_bit_select1;
+reg [31:0] axi_rgb_write_for_body_bit_concat2;
+reg [31:0] axi_rgb_write_for_body_r_addr_0;
+reg [31:0] axi_rgb_write_for_body_r_addr_0_reg;
+reg [31:0] axi_rgb_write_for_body_g_addr_0;
+reg [31:0] axi_rgb_write_for_body_g_addr_0_reg;
+reg [31:0] axi_rgb_write_for_body_b_addr_0;
+reg [31:0] axi_rgb_write_for_body_b_addr_0_reg;
+reg [20:0] axi_rgb_write_for_body_bit_concat;
+reg [20:0] axi_rgb_write_for_body_bit_concat_reg;
+reg [21:0] axi_rgb_write_for_body_3;
+reg  axi_rgb_write_for_body_4;
+reg [21:0] axi_rgb_write_if_then_5;
+reg [7:0] axi_rgb_write_if_then_bit_select;
+reg [7:0] axi_rgb_write_if_end_burst_len_0;
+reg [7:0] axi_rgb_write_if_end_burst_len_0_reg;
+reg [7:0] axi_rgb_write_if_end_6;
+reg [7:0] axi_rgb_write_if_end_6_reg;
+reg  axi_rgb_write_if_end_7;
+reg  axi_rgb_write_if_end_7_reg;
+reg [7:0] axi_rgb_write_for_body46_data_cnt_0;
+reg [7:0] axi_rgb_write_for_body46_8;
+reg  axi_rgb_write_for_body46_9;
+reg [31:0] axi_rgb_write_for_body46_10;
+reg  axi_rgb_write_for_body46_11;
+wire  axi_rgb_write_for_end_12;
+reg [15:0] axi_rgb_write_if_else_14;
+reg [15:0] axi_rgb_write_if_end58_outstanding_2;
+reg [15:0] axi_rgb_write_if_end58_outstanding_2_reg;
+reg [7:0] axi_rgb_write_for_body110_data_cnt105_0119;
+reg [7:0] axi_rgb_write_for_body110_inc;
+reg  axi_rgb_write_for_body110_cmp115;
+reg [31:0] axi_rgb_write_for_body110_15;
+reg  axi_rgb_write_for_body110_cmp109;
+reg [7:0] axi_rgb_write_for_end124_16;
+reg [7:0] axi_rgb_write_for_end124_16_reg;
+wire  axi_rgb_write_for_end124_17;
+reg [15:0] axi_rgb_write_if_else129_19;
+reg [15:0] axi_rgb_write_if_end131_outstanding_3;
+reg [15:0] axi_rgb_write_if_end131_outstanding_3_reg;
+reg [7:0] axi_rgb_write_if_end131_20;
+reg  axi_rgb_write_if_end131_cmp182120;
+reg [7:0] axi_rgb_write_for_body183_data_cnt178_0121;
+reg [7:0] axi_rgb_write_for_body183_inc197;
+reg  axi_rgb_write_for_body183_cmp188;
+reg [31:0] axi_rgb_write_for_body183_21;
+reg  axi_rgb_write_for_body183_cmp182;
+wire  axi_rgb_write_for_end198_22;
+reg [15:0] axi_rgb_write_if_else203_24;
+reg [15:0] axi_rgb_write_for_inc206_outstanding_4;
+reg [15:0] axi_rgb_write_for_inc206_outstanding_4_reg;
+reg [20:0] axi_rgb_write_for_inc206_25;
+reg  axi_rgb_write_for_inc206_26;
+reg [31:0] axi_rgb_write_for_inc206_indvar_next7;
+reg [15:0] axi_rgb_write_for_body214_resp_0;
+reg [15:0] axi_rgb_write_for_body214_resp_0_reg;
+reg [15:0] axi_rgb_write_for_body214_28;
+reg  axi_rgb_write_for_body214_exitcond;
+reg  for_loop_scale_cpp_424_5_valid_bit_0;
+reg  for_loop_scale_cpp_424_5_state_stall_0;
+reg  for_loop_scale_cpp_424_5_state_enable_0;
+reg  for_loop_scale_cpp_424_5_valid_bit_1;
+reg  for_loop_scale_cpp_424_5_state_stall_1;
+reg  for_loop_scale_cpp_424_5_state_enable_1;
+reg  for_loop_scale_cpp_424_5_II_counter;
+reg  for_loop_scale_cpp_424_5_start;
+reg  for_loop_scale_cpp_424_5_activate_pipeline;
+reg  axi_rgb_write_for_body46_9_reg_stage1;
+reg [31:0] axi_rgb_write_for_body46_10_reg_stage1;
+reg [7:0] for_loop_scale_cpp_424_5_inductionVar_stage0;
+reg  for_loop_scale_cpp_424_5_pipeline_exit_cond;
+reg  for_loop_scale_cpp_424_5_active;
+reg  for_loop_scale_cpp_424_5_begin_pipeline;
+reg  for_loop_scale_cpp_424_5_epilogue;
+reg  for_loop_scale_cpp_424_5_pipeline_finish;
+reg  for_loop_scale_cpp_424_5_pipeline_finishing;
+reg  for_loop_scale_cpp_424_5_only_last_stage_enabled;
+reg [1:0] for_loop_scale_cpp_424_5_num_active_iterations;
+reg  for_loop_scale_cpp_424_5_inserting_new_iteration;
+reg  for_loop_scale_cpp_424_5_pipeline_finish_reg;
+reg  for_loop_scale_cpp_441_5_valid_bit_0;
+reg  for_loop_scale_cpp_441_5_state_stall_0;
+reg  for_loop_scale_cpp_441_5_state_enable_0;
+reg  for_loop_scale_cpp_441_5_valid_bit_1;
+reg  for_loop_scale_cpp_441_5_state_stall_1;
+reg  for_loop_scale_cpp_441_5_state_enable_1;
+reg  for_loop_scale_cpp_441_5_II_counter;
+reg  for_loop_scale_cpp_441_5_start;
+reg  for_loop_scale_cpp_441_5_activate_pipeline;
+reg  axi_rgb_write_for_body110_cmp115_reg_stage1;
+reg [31:0] axi_rgb_write_for_body110_15_reg_stage1;
+reg [7:0] for_loop_scale_cpp_441_5_inductionVar_stage0;
+reg  for_loop_scale_cpp_441_5_pipeline_exit_cond;
+reg  for_loop_scale_cpp_441_5_active;
+reg  for_loop_scale_cpp_441_5_begin_pipeline;
+reg  for_loop_scale_cpp_441_5_epilogue;
+reg  for_loop_scale_cpp_441_5_pipeline_finish;
+reg  for_loop_scale_cpp_441_5_pipeline_finishing;
+reg  for_loop_scale_cpp_441_5_only_last_stage_enabled;
+reg [1:0] for_loop_scale_cpp_441_5_num_active_iterations;
+reg  for_loop_scale_cpp_441_5_inserting_new_iteration;
+reg  for_loop_scale_cpp_441_5_pipeline_finish_reg;
+reg  for_loop_scale_cpp_459_5_valid_bit_0;
+reg  for_loop_scale_cpp_459_5_state_stall_0;
+reg  for_loop_scale_cpp_459_5_state_enable_0;
+reg  for_loop_scale_cpp_459_5_valid_bit_1;
+reg  for_loop_scale_cpp_459_5_state_stall_1;
+reg  for_loop_scale_cpp_459_5_state_enable_1;
+reg  for_loop_scale_cpp_459_5_II_counter;
+reg  for_loop_scale_cpp_459_5_start;
+reg  for_loop_scale_cpp_459_5_activate_pipeline;
+reg  axi_rgb_write_for_body183_cmp188_reg_stage1;
+reg [31:0] axi_rgb_write_for_body183_21_reg_stage1;
+reg [7:0] for_loop_scale_cpp_459_5_inductionVar_stage0;
+reg  for_loop_scale_cpp_459_5_pipeline_exit_cond;
+reg  for_loop_scale_cpp_459_5_active;
+reg  for_loop_scale_cpp_459_5_begin_pipeline;
+reg  for_loop_scale_cpp_459_5_epilogue;
+reg  for_loop_scale_cpp_459_5_pipeline_finish;
+reg  for_loop_scale_cpp_459_5_pipeline_finishing;
+reg  for_loop_scale_cpp_459_5_only_last_stage_enabled;
+reg [1:0] for_loop_scale_cpp_459_5_num_active_iterations;
+reg  for_loop_scale_cpp_459_5_inserting_new_iteration;
+reg  for_loop_scale_cpp_459_5_pipeline_finish_reg;
+reg  legup_mult_unsigned_32_32_0_0_clock;
+reg  legup_mult_unsigned_32_32_0_0_aclr;
+reg  legup_mult_unsigned_32_32_0_0_clken;
+reg [31:0] legup_mult_unsigned_32_32_0_0_dataa;
+reg [31:0] legup_mult_unsigned_32_32_0_0_datab;
+wire [31:0] legup_mult_unsigned_32_32_0_0_result;
+reg [31:0] legup_mult_axi_rgb_write_entry_mul_out_actual;
+reg [31:0] legup_mult_axi_rgb_write_entry_mul_out;
+reg  legup_mult_axi_rgb_write_entry_mul_en;
+wire  legup_mult_axi_rgb_write_entry_mul_en_not_in_pipeline;
+reg  legup_mult_axi_rgb_write_entry_mul_en_sequential_cond;
+wire  axi_rgb_write_for_body_lr_ph_bit_concat4_bit_select_operand_0;
+wire [8:0] axi_rgb_write_for_body_bit_concat2_bit_select_operand_2;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__consumed_valid;
+reg  axi_master_scale_updown_bilinear_orig_entry_burst__consumed_taken;
+wire  axi_rgb_write_for_body_bit_concat_bit_select_operand_0;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_consumed_valid;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_output_consumed_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_consumed_taken;
+reg  master_w_data_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_data_for_loop_scale_cpp_424_5_state_1_stalln_reg;
+reg  master_w_data_for_loop_scale_cpp_424_5_state_1_enable_cond_a;
+reg  master_w_strb_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_strb_for_loop_scale_cpp_424_5_state_1_stalln_reg;
+reg  master_w_strb_for_loop_scale_cpp_424_5_state_1_enable_cond_a;
+reg  master_w_last_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_last_for_loop_scale_cpp_424_5_state_1_stalln_reg;
+reg  master_w_last_for_loop_scale_cpp_424_5_state_1_enable_cond_a;
+reg  master_b_resp_consumed_valid;
+reg  master_b_resp_consumed_taken;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_valid;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_taken;
+reg  master_w_data_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_data_for_loop_scale_cpp_441_5_state_1_stalln_reg;
+reg  master_w_data_for_loop_scale_cpp_441_5_state_1_enable_cond_a;
+reg  master_w_strb_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_strb_for_loop_scale_cpp_441_5_state_1_stalln_reg;
+reg  master_w_strb_for_loop_scale_cpp_441_5_state_1_enable_cond_a;
+reg  master_w_last_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_last_for_loop_scale_cpp_441_5_state_1_stalln_reg;
+reg  master_w_last_for_loop_scale_cpp_441_5_state_1_enable_cond_a;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg;
+reg  master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg;
+reg  master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg;
+reg  master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg;
+reg  master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_valid;
+reg [31:0] axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_data;
+reg  axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_taken;
+reg  master_w_data_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_data_for_loop_scale_cpp_459_5_state_1_stalln_reg;
+reg  master_w_data_for_loop_scale_cpp_459_5_state_1_enable_cond_a;
+reg  master_w_strb_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_strb_for_loop_scale_cpp_459_5_state_1_stalln_reg;
+reg  master_w_strb_for_loop_scale_cpp_459_5_state_1_enable_cond_a;
+reg  master_w_last_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a;
+reg  master_w_last_for_loop_scale_cpp_459_5_state_1_stalln_reg;
+reg  master_w_last_for_loop_scale_cpp_459_5_state_1_enable_cond_a;
+
+/*   %mul = mul i32 %height, %width, !dbg !26496, !MSB !26497, !LSB !26498, !ExtendFrom !26497*/
+axi_master_scale_updown_bilinear_legup_mult legup_mult_unsigned_32_32_0_0 (
+	.clock (legup_mult_unsigned_32_32_0_0_clock),
+	.aclr (legup_mult_unsigned_32_32_0_0_aclr),
+	.clken (legup_mult_unsigned_32_32_0_0_clken),
+	.dataa (legup_mult_unsigned_32_32_0_0_dataa),
+	.datab (legup_mult_unsigned_32_32_0_0_datab),
+	.result (legup_mult_unsigned_32_32_0_0_result)
+);
+
+defparam
+	legup_mult_unsigned_32_32_0_0.widtha = 32,
+	legup_mult_unsigned_32_32_0_0.widthb = 32,
+	legup_mult_unsigned_32_32_0_0.widthp = 32,
+	legup_mult_unsigned_32_32_0_0.pipeline = 0,
+	legup_mult_unsigned_32_32_0_0.representation = "UNSIGNED";
+
+
+always @(posedge clk) begin
+if (reset == 1'b1)
+	cur_state <= LEGUP_0;
+else if (!fsm_stall)
+	cur_state <= next_state;
+end
+
+always @(*)
+begin
+next_state = cur_state;
+case(cur_state)  /* synthesis parallel_case */
+LEGUP_0:
+	if ((fsm_stall == 1'd0) && (start == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_entry_1;
+LEGUP_F_axi_rgb_write_BB_entry_1:
+		next_state = LEGUP_F_axi_rgb_write_BB_entry_2;
+LEGUP_F_axi_rgb_write_BB_entry_2:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_entry_0 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_31;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_entry_0 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3;
+LEGUP_F_axi_rgb_write_BB_for_body110_preheader_16:
+		next_state = LEGUP_pipeline_wait_for_loop_scale_cpp_441_5_17;
+LEGUP_F_axi_rgb_write_BB_for_body183_preheader_23:
+		next_state = LEGUP_pipeline_wait_for_loop_scale_cpp_459_5_24;
+LEGUP_F_axi_rgb_write_BB_for_body214_32:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_for_body214_exitcond == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_loopexit_30;
+LEGUP_F_axi_rgb_write_BB_for_body214_preheader_5:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body214_32;
+LEGUP_F_axi_rgb_write_BB_for_body46_preheader_9:
+		next_state = LEGUP_pipeline_wait_for_loop_scale_cpp_424_5_10;
+LEGUP_F_axi_rgb_write_BB_for_body_6:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_for_body_4 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_then_7;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_for_body_4 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_end_8;
+LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body_6;
+LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_31:
+		next_state = LEGUP_0;
+LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_loopexit_30:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_31;
+LEGUP_F_axi_rgb_write_BB_for_cond_cleanup_4:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_or_cond_cleanup_1 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_31;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_or_cond_cleanup_1 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body214_preheader_5;
+LEGUP_F_axi_rgb_write_BB_for_end124_19:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_for_end124_17 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_else129_21;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_for_end124_17 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_then127_20;
+LEGUP_F_axi_rgb_write_BB_for_end124_loopexit_18:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end124_19;
+LEGUP_F_axi_rgb_write_BB_for_end198_26:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_for_end198_22 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_else203_28;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_for_end198_22 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_then201_27;
+LEGUP_F_axi_rgb_write_BB_for_end198_loopexit_25:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end198_26;
+LEGUP_F_axi_rgb_write_BB_for_end_12:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_for_end_12 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_else_14;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_for_end_12 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_if_then55_13;
+LEGUP_F_axi_rgb_write_BB_for_end_loopexit_11:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end_12;
+LEGUP_F_axi_rgb_write_BB_for_inc206_29:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_for_inc206_26 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body_6;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_for_inc206_26 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_cond_cleanup_4;
+LEGUP_F_axi_rgb_write_BB_if_else129_21:
+		next_state = LEGUP_F_axi_rgb_write_BB_if_end131_22;
+LEGUP_F_axi_rgb_write_BB_if_else203_28:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_inc206_29;
+LEGUP_F_axi_rgb_write_BB_if_else_14:
+		next_state = LEGUP_F_axi_rgb_write_BB_if_end58_15;
+LEGUP_F_axi_rgb_write_BB_if_end131_22:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_if_end131_cmp182120 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end198_26;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_if_end131_cmp182120 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body183_preheader_23;
+LEGUP_F_axi_rgb_write_BB_if_end58_15:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_if_end_7_reg == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end124_19;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_if_end_7_reg == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body110_preheader_16;
+LEGUP_F_axi_rgb_write_BB_if_end_8:
+	if ((fsm_stall == 1'd0) && (axi_rgb_write_if_end_7 == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end_12;
+	else if ((fsm_stall == 1'd0) && (axi_rgb_write_if_end_7 == 1'd0))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_body46_preheader_9;
+LEGUP_F_axi_rgb_write_BB_if_then127_20:
+		next_state = LEGUP_F_axi_rgb_write_BB_if_end131_22;
+LEGUP_F_axi_rgb_write_BB_if_then201_27:
+		next_state = LEGUP_F_axi_rgb_write_BB_for_inc206_29;
+LEGUP_F_axi_rgb_write_BB_if_then55_13:
+		next_state = LEGUP_F_axi_rgb_write_BB_if_end58_15;
+LEGUP_F_axi_rgb_write_BB_if_then_7:
+		next_state = LEGUP_F_axi_rgb_write_BB_if_end_8;
+LEGUP_pipeline_wait_for_loop_scale_cpp_424_5_10:
+	if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_424_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end_loopexit_11;
+	else if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_424_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end_loopexit_11;
+LEGUP_pipeline_wait_for_loop_scale_cpp_441_5_17:
+	if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_441_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end124_loopexit_18;
+	else if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_441_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end124_loopexit_18;
+LEGUP_pipeline_wait_for_loop_scale_cpp_459_5_24:
+	if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_459_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end198_loopexit_25;
+	else if ((fsm_stall == 1'd0) && (for_loop_scale_cpp_459_5_pipeline_finish == 1'd1))
+		next_state = LEGUP_F_axi_rgb_write_BB_for_end198_loopexit_25;
+default:
+	next_state = cur_state;
+endcase
+
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		addr_r_val_reg <= addr_r_val;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		addr_g_val_reg <= addr_g_val;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		addr_b_val_reg <= addr_b_val;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		width_reg <= width;
+	end
+end
+always @(posedge clk) begin
+	if ((start & ready)) begin
+		height_reg <= height;
+	end
+end
+always @(*) begin
+	fsm_stall = 1'd0;
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6) & ~(axi_master_scale_updown_bilinear_orig_entry_burst__consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & ~(master_aw_ready)) & (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & ~(master_aw_ready)) & (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & ~(master_aw_ready)) & (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & ~(master_aw_ready)) & (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then55_13) & ~(master_b_resp_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & ~(master_aw_ready)) & (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & ~(master_aw_ready)) & (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & ~(master_aw_ready)) & (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & ~(master_aw_ready)) & (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then127_20) & ~(master_b_resp_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & ~(master_aw_ready)) & (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & ~(master_aw_ready)) & (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & ~(master_aw_ready)) & (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & ~(master_aw_ready)) & (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg))) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then201_27) & ~(master_b_resp_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body214_32) & ~(master_b_resp_consumed_valid))) begin
+		fsm_stall = 1'd1;
+	end
+end
+always @(*) begin
+		axi_rgb_write_entry_mul = legup_mult_axi_rgb_write_entry_mul_out;
+end
+always @(*) begin
+		axi_rgb_write_entry_bit_select5 = axi_rgb_write_entry_mul[23:2];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_entry_1)) begin
+		axi_rgb_write_entry_bit_select5_reg <= axi_rgb_write_entry_bit_select5;
+	end
+end
+always @(*) begin
+		axi_rgb_write_entry_bit_select3 = axi_rgb_write_entry_mul[22:2];
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_entry_1)) begin
+		axi_rgb_write_entry_bit_select3_reg <= axi_rgb_write_entry_bit_select3;
+	end
+end
+always @(*) begin
+		axi_rgb_write_entry_0 = (axi_rgb_write_entry_bit_select3_reg == 21'd0);
+end
+always @(*) begin
+		axi_rgb_write_for_body_lr_ph_bit_concat4 = {axi_rgb_write_for_body_lr_ph_bit_concat4_bit_select_operand_0, axi_rgb_write_entry_bit_select3_reg[20:0]};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3)) begin
+		axi_rgb_write_for_body_lr_ph_bit_concat4_reg <= axi_rgb_write_for_body_lr_ph_bit_concat4;
+	end
+end
+always @(*) begin
+		axi_rgb_write_or_cond_cleanup_1 = (axi_rgb_write_for_inc206_outstanding_4_reg == 16'd0);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body_indvar6 = 32'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_inc206_29) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_inc206_26 == 1'd1))) */ begin
+		axi_rgb_write_for_body_indvar6 = axi_rgb_write_for_inc206_indvar_next7;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body_indvar6_reg <= axi_rgb_write_for_body_indvar6;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_inc206_29) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_inc206_26 == 1'd1))) begin
+		axi_rgb_write_for_body_indvar6_reg <= axi_rgb_write_for_body_indvar6;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body_burst_cnt_0 = 21'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_inc206_29) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_inc206_26 == 1'd1))) */ begin
+		axi_rgb_write_for_body_burst_cnt_0 = axi_rgb_write_for_inc206_25;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body_burst_cnt_0_reg <= axi_rgb_write_for_body_burst_cnt_0;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_inc206_29) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_inc206_26 == 1'd1))) begin
+		axi_rgb_write_for_body_burst_cnt_0_reg <= axi_rgb_write_for_body_burst_cnt_0;
+	end
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body_outstanding_1 = 16'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_inc206_29) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_inc206_26 == 1'd1))) */ begin
+		axi_rgb_write_for_body_outstanding_1 = axi_rgb_write_for_inc206_outstanding_4_reg;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_lr_ph_3) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body_outstanding_1_reg <= axi_rgb_write_for_body_outstanding_1;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_inc206_29) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_inc206_26 == 1'd1))) begin
+		axi_rgb_write_for_body_outstanding_1_reg <= axi_rgb_write_for_body_outstanding_1;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body_bit_select1 = axi_rgb_write_for_body_indvar6_reg[22:0];
+end
+always @(*) begin
+		axi_rgb_write_for_body_bit_concat2 = {axi_rgb_write_for_body_bit_select1[22:0], axi_rgb_write_for_body_bit_concat2_bit_select_operand_2[8:0]};
+end
+always @(*) begin
+		axi_rgb_write_for_body_r_addr_0 = (axi_rgb_write_for_body_bit_concat2 + addr_r_val_reg);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6)) begin
+		axi_rgb_write_for_body_r_addr_0_reg <= axi_rgb_write_for_body_r_addr_0;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body_g_addr_0 = (axi_rgb_write_for_body_bit_concat2 + addr_g_val_reg);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6)) begin
+		axi_rgb_write_for_body_g_addr_0_reg <= axi_rgb_write_for_body_g_addr_0;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body_b_addr_0 = (axi_rgb_write_for_body_bit_concat2 + addr_b_val_reg);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6)) begin
+		axi_rgb_write_for_body_b_addr_0_reg <= axi_rgb_write_for_body_b_addr_0;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body_bit_concat = {axi_rgb_write_for_body_bit_concat_bit_select_operand_0, axi_rgb_write_for_body_burst_cnt_0_reg[20:0]};
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6)) begin
+		axi_rgb_write_for_body_bit_concat_reg <= axi_rgb_write_for_body_bit_concat;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body_3 = ({1'd0,axi_rgb_write_for_body_bit_concat} + 22'd128);
+end
+always @(*) begin
+		axi_rgb_write_for_body_4 = (axi_rgb_write_for_body_3 > {1'd0,axi_rgb_write_for_body_lr_ph_bit_concat4_reg});
+end
+always @(*) begin
+		axi_rgb_write_if_then_5 = (axi_rgb_write_entry_bit_select5_reg - {1'd0,axi_rgb_write_for_body_bit_concat_reg});
+end
+always @(*) begin
+		axi_rgb_write_if_then_bit_select = axi_rgb_write_if_then_5[7:0];
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_body_4 == 1'd0))) begin
+		axi_rgb_write_if_end_burst_len_0 = -8'd128;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then_7) & (fsm_stall == 1'd0))) */ begin
+		axi_rgb_write_if_end_burst_len_0 = axi_rgb_write_if_then_bit_select;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_body_4 == 1'd0))) begin
+		axi_rgb_write_if_end_burst_len_0_reg <= axi_rgb_write_if_end_burst_len_0;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then_7) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_if_end_burst_len_0_reg <= axi_rgb_write_if_end_burst_len_0;
+	end
+end
+always @(*) begin
+		axi_rgb_write_if_end_6 = (axi_rgb_write_if_end_burst_len_0_reg + $signed(-8'd1));
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8)) begin
+		axi_rgb_write_if_end_6_reg <= axi_rgb_write_if_end_6;
+	end
+end
+always @(*) begin
+		axi_rgb_write_if_end_7 = (axi_rgb_write_if_end_burst_len_0_reg == 8'd0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8)) begin
+		axi_rgb_write_if_end_7_reg <= axi_rgb_write_if_end_7;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body46_data_cnt_0 = (for_loop_scale_cpp_424_5_inductionVar_stage0 + 8'd1);
+end
+always @(*) begin
+		axi_rgb_write_for_body46_8 = (for_loop_scale_cpp_424_5_inductionVar_stage0 + 8'd2);
+end
+always @(*) begin
+		axi_rgb_write_for_body46_9 = (axi_rgb_write_for_body46_data_cnt_0 == axi_rgb_write_if_end_burst_len_0_reg);
+end
+always @(*) begin
+	axi_rgb_write_for_body46_10 = axi_master_scale_updown_bilinear_orig_entry_output_consumed_data;
+end
+always @(*) begin
+		axi_rgb_write_for_body46_11 = (axi_rgb_write_for_body46_8 > axi_rgb_write_if_end_burst_len_0_reg);
+end
+assign axi_rgb_write_for_end_12 = ~(master_b_resp_consumed_valid);
+always @(*) begin
+		axi_rgb_write_if_else_14 = (axi_rgb_write_for_body_outstanding_1_reg + 16'd1);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then55_13) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_if_end58_outstanding_2 = axi_rgb_write_for_body_outstanding_1_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_else_14) & (fsm_stall == 1'd0))) */ begin
+		axi_rgb_write_if_end58_outstanding_2 = axi_rgb_write_if_else_14;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then55_13) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_if_end58_outstanding_2_reg <= axi_rgb_write_if_end58_outstanding_2;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_else_14) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_if_end58_outstanding_2_reg <= axi_rgb_write_if_end58_outstanding_2;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body110_data_cnt105_0119 = (for_loop_scale_cpp_441_5_inductionVar_stage0 + 8'd1);
+end
+always @(*) begin
+		axi_rgb_write_for_body110_inc = (for_loop_scale_cpp_441_5_inductionVar_stage0 + 8'd2);
+end
+always @(*) begin
+		axi_rgb_write_for_body110_cmp115 = (axi_rgb_write_for_body110_data_cnt105_0119 == axi_rgb_write_if_end_burst_len_0_reg);
+end
+always @(*) begin
+	axi_rgb_write_for_body110_15 = axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_data;
+end
+always @(*) begin
+		axi_rgb_write_for_body110_cmp109 = (axi_rgb_write_for_body110_inc > axi_rgb_write_if_end_burst_len_0_reg);
+end
+always @(*) begin
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & (fsm_stall == 1'd0)) & (axi_rgb_write_if_end_7_reg == 1'd1))) begin
+		axi_rgb_write_for_end124_16 = 8'd0;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_end124_loopexit_18) & (fsm_stall == 1'd0))) */ begin
+		axi_rgb_write_for_end124_16 = axi_rgb_write_if_end_burst_len_0_reg;
+	end
+end
+always @(posedge clk) begin
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & (fsm_stall == 1'd0)) & (axi_rgb_write_if_end_7_reg == 1'd1))) begin
+		axi_rgb_write_for_end124_16_reg <= axi_rgb_write_for_end124_16;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_end124_loopexit_18) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_end124_16_reg <= axi_rgb_write_for_end124_16;
+	end
+end
+assign axi_rgb_write_for_end124_17 = ~(master_b_resp_consumed_valid);
+always @(*) begin
+		axi_rgb_write_if_else129_19 = (axi_rgb_write_if_end58_outstanding_2_reg + 16'd1);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then127_20) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_if_end131_outstanding_3 = axi_rgb_write_if_end58_outstanding_2_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_else129_21) & (fsm_stall == 1'd0))) */ begin
+		axi_rgb_write_if_end131_outstanding_3 = axi_rgb_write_if_else129_19;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then127_20) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_if_end131_outstanding_3_reg <= axi_rgb_write_if_end131_outstanding_3;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_else129_21) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_if_end131_outstanding_3_reg <= axi_rgb_write_if_end131_outstanding_3;
+	end
+end
+always @(*) begin
+		axi_rgb_write_if_end131_20 = (axi_rgb_write_for_end124_16_reg + $signed(-8'd1));
+end
+always @(*) begin
+		axi_rgb_write_if_end131_cmp182120 = (axi_rgb_write_for_end124_16_reg == 8'd0);
+end
+always @(*) begin
+		axi_rgb_write_for_body183_data_cnt178_0121 = (for_loop_scale_cpp_459_5_inductionVar_stage0 + 8'd1);
+end
+always @(*) begin
+		axi_rgb_write_for_body183_inc197 = (for_loop_scale_cpp_459_5_inductionVar_stage0 + 8'd2);
+end
+always @(*) begin
+		axi_rgb_write_for_body183_cmp188 = (axi_rgb_write_for_body183_data_cnt178_0121 == axi_rgb_write_for_end124_16_reg);
+end
+always @(*) begin
+	axi_rgb_write_for_body183_21 = axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_data;
+end
+always @(*) begin
+		axi_rgb_write_for_body183_cmp182 = (axi_rgb_write_for_body183_inc197 > axi_rgb_write_for_end124_16_reg);
+end
+assign axi_rgb_write_for_end198_22 = ~(master_b_resp_consumed_valid);
+always @(*) begin
+		axi_rgb_write_if_else203_24 = (axi_rgb_write_if_end131_outstanding_3_reg + 16'd1);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then201_27) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_inc206_outstanding_4 = axi_rgb_write_if_end131_outstanding_3_reg;
+	end
+	else /* if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_else203_28) & (fsm_stall == 1'd0))) */ begin
+		axi_rgb_write_for_inc206_outstanding_4 = axi_rgb_write_if_else203_24;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_then201_27) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_inc206_outstanding_4_reg <= axi_rgb_write_for_inc206_outstanding_4;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_if_else203_28) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_inc206_outstanding_4_reg <= axi_rgb_write_for_inc206_outstanding_4;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_inc206_25 = (axi_rgb_write_for_body_burst_cnt_0_reg + 21'd128);
+end
+always @(*) begin
+		axi_rgb_write_for_inc206_26 = (axi_rgb_write_entry_bit_select3_reg > axi_rgb_write_for_inc206_25);
+end
+always @(*) begin
+		axi_rgb_write_for_inc206_indvar_next7 = (axi_rgb_write_for_body_indvar6_reg + 32'd1);
+end
+always @(*) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body214_preheader_5) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body214_resp_0 = 16'd0;
+	end
+	else /* if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_body214_32) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_body214_exitcond == 1'd0))) */ begin
+		axi_rgb_write_for_body214_resp_0 = axi_rgb_write_for_body214_28;
+	end
+end
+always @(posedge clk) begin
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body214_preheader_5) & (fsm_stall == 1'd0))) begin
+		axi_rgb_write_for_body214_resp_0_reg <= axi_rgb_write_for_body214_resp_0;
+	end
+	if ((((cur_state == LEGUP_F_axi_rgb_write_BB_for_body214_32) & (fsm_stall == 1'd0)) & (axi_rgb_write_for_body214_exitcond == 1'd0))) begin
+		axi_rgb_write_for_body214_resp_0_reg <= axi_rgb_write_for_body214_resp_0;
+	end
+end
+always @(*) begin
+		axi_rgb_write_for_body214_28 = (axi_rgb_write_for_body214_resp_0_reg + 16'd1);
+end
+always @(*) begin
+		axi_rgb_write_for_body214_exitcond = (axi_rgb_write_for_body214_28 == axi_rgb_write_for_inc206_outstanding_4_reg);
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_424_5_state_stall_0)) begin
+		for_loop_scale_cpp_424_5_valid_bit_0 <= (for_loop_scale_cpp_424_5_II_counter & for_loop_scale_cpp_424_5_start);
+	end
+	if (reset) begin
+		for_loop_scale_cpp_424_5_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_state_stall_0 = 1'd0;
+	if (for_loop_scale_cpp_424_5_state_stall_1) begin
+		for_loop_scale_cpp_424_5_state_stall_0 = 1'd1;
+	end
+	if (((for_loop_scale_cpp_424_5_valid_bit_0 & 1'd1) & ~(axi_master_scale_updown_bilinear_orig_entry_output_consumed_valid))) begin
+		for_loop_scale_cpp_424_5_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_state_enable_0 = (for_loop_scale_cpp_424_5_valid_bit_0 & ~(for_loop_scale_cpp_424_5_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_424_5_state_stall_1)) begin
+		for_loop_scale_cpp_424_5_valid_bit_1 <= for_loop_scale_cpp_424_5_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_424_5_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_state_stall_1 = 1'd0;
+	if ((((for_loop_scale_cpp_424_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_data_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_scale_cpp_424_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_424_5_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_424_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_strb_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_scale_cpp_424_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_424_5_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_424_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_last_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_scale_cpp_424_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_424_5_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_state_enable_1 = (for_loop_scale_cpp_424_5_valid_bit_1 & ~(for_loop_scale_cpp_424_5_state_stall_1));
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_424_5_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_start = (for_loop_scale_cpp_424_5_activate_pipeline | ((for_loop_scale_cpp_424_5_active & ~(for_loop_scale_cpp_424_5_epilogue)) & ~(for_loop_scale_cpp_424_5_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_scale_cpp_424_5_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_scale_cpp_424_5_begin_pipeline) & ~(for_loop_scale_cpp_424_5_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_424_5_state_enable_0) begin
+		axi_rgb_write_for_body46_9_reg_stage1 <= axi_rgb_write_for_body46_9;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_424_5_state_enable_0) begin
+		axi_rgb_write_for_body46_10_reg_stage1 <= axi_rgb_write_for_body46_10;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_424_5_inductionVar_stage0 <= 8'd0;
+	end
+	if (for_loop_scale_cpp_424_5_activate_pipeline) begin
+		for_loop_scale_cpp_424_5_inductionVar_stage0 <= 8'd0;
+	end
+	if ((for_loop_scale_cpp_424_5_II_counter & for_loop_scale_cpp_424_5_state_enable_0)) begin
+		for_loop_scale_cpp_424_5_inductionVar_stage0 <= (for_loop_scale_cpp_424_5_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_pipeline_exit_cond = (for_loop_scale_cpp_424_5_state_enable_0 & axi_rgb_write_for_body46_11);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_424_5_active <= 1'd0;
+	end
+	if (for_loop_scale_cpp_424_5_activate_pipeline) begin
+		for_loop_scale_cpp_424_5_active <= 1'd1;
+	end
+	if (for_loop_scale_cpp_424_5_pipeline_finishing) begin
+		for_loop_scale_cpp_424_5_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_scale_cpp_424_5_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body46_preheader_9) & (fsm_stall == 1'd0))) begin
+		for_loop_scale_cpp_424_5_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_424_5_epilogue <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_424_5_pipeline_exit_cond & for_loop_scale_cpp_424_5_active)) begin
+		for_loop_scale_cpp_424_5_epilogue <= 1'd1;
+	end
+	if (for_loop_scale_cpp_424_5_pipeline_finishing) begin
+		for_loop_scale_cpp_424_5_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_pipeline_finish = (for_loop_scale_cpp_424_5_pipeline_finishing | for_loop_scale_cpp_424_5_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_pipeline_finishing = ((for_loop_scale_cpp_424_5_epilogue | for_loop_scale_cpp_424_5_pipeline_exit_cond) & for_loop_scale_cpp_424_5_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_only_last_stage_enabled = ((for_loop_scale_cpp_424_5_num_active_iterations == 1'd1) & for_loop_scale_cpp_424_5_state_enable_1);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_424_5_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_424_5_inserting_new_iteration & ~(for_loop_scale_cpp_424_5_state_enable_1))) begin
+		for_loop_scale_cpp_424_5_num_active_iterations <= (for_loop_scale_cpp_424_5_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_scale_cpp_424_5_inserting_new_iteration) & for_loop_scale_cpp_424_5_state_enable_1)) begin
+		for_loop_scale_cpp_424_5_num_active_iterations <= (for_loop_scale_cpp_424_5_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_424_5_inserting_new_iteration = ((~(for_loop_scale_cpp_424_5_state_stall_0) & for_loop_scale_cpp_424_5_II_counter) & for_loop_scale_cpp_424_5_start);
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_424_5_pipeline_finish_reg <= for_loop_scale_cpp_424_5_pipeline_finish;
+	if (reset) begin
+		for_loop_scale_cpp_424_5_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_scale_cpp_424_5_activate_pipeline) begin
+		for_loop_scale_cpp_424_5_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_441_5_state_stall_0)) begin
+		for_loop_scale_cpp_441_5_valid_bit_0 <= (for_loop_scale_cpp_441_5_II_counter & for_loop_scale_cpp_441_5_start);
+	end
+	if (reset) begin
+		for_loop_scale_cpp_441_5_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_state_stall_0 = 1'd0;
+	if (for_loop_scale_cpp_441_5_state_stall_1) begin
+		for_loop_scale_cpp_441_5_state_stall_0 = 1'd1;
+	end
+	if (((for_loop_scale_cpp_441_5_valid_bit_0 & 1'd1) & ~(axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_valid))) begin
+		for_loop_scale_cpp_441_5_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_state_enable_0 = (for_loop_scale_cpp_441_5_valid_bit_0 & ~(for_loop_scale_cpp_441_5_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_441_5_state_stall_1)) begin
+		for_loop_scale_cpp_441_5_valid_bit_1 <= for_loop_scale_cpp_441_5_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_441_5_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_state_stall_1 = 1'd0;
+	if ((((for_loop_scale_cpp_441_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_data_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_scale_cpp_441_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_441_5_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_441_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_strb_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_scale_cpp_441_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_441_5_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_441_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_last_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_scale_cpp_441_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_441_5_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_state_enable_1 = (for_loop_scale_cpp_441_5_valid_bit_1 & ~(for_loop_scale_cpp_441_5_state_stall_1));
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_441_5_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_start = (for_loop_scale_cpp_441_5_activate_pipeline | ((for_loop_scale_cpp_441_5_active & ~(for_loop_scale_cpp_441_5_epilogue)) & ~(for_loop_scale_cpp_441_5_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_scale_cpp_441_5_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_scale_cpp_441_5_begin_pipeline) & ~(for_loop_scale_cpp_441_5_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_441_5_state_enable_0) begin
+		axi_rgb_write_for_body110_cmp115_reg_stage1 <= axi_rgb_write_for_body110_cmp115;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_441_5_state_enable_0) begin
+		axi_rgb_write_for_body110_15_reg_stage1 <= axi_rgb_write_for_body110_15;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_441_5_inductionVar_stage0 <= 8'd0;
+	end
+	if (for_loop_scale_cpp_441_5_activate_pipeline) begin
+		for_loop_scale_cpp_441_5_inductionVar_stage0 <= 8'd0;
+	end
+	if ((for_loop_scale_cpp_441_5_II_counter & for_loop_scale_cpp_441_5_state_enable_0)) begin
+		for_loop_scale_cpp_441_5_inductionVar_stage0 <= (for_loop_scale_cpp_441_5_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_pipeline_exit_cond = (for_loop_scale_cpp_441_5_state_enable_0 & axi_rgb_write_for_body110_cmp109);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_441_5_active <= 1'd0;
+	end
+	if (for_loop_scale_cpp_441_5_activate_pipeline) begin
+		for_loop_scale_cpp_441_5_active <= 1'd1;
+	end
+	if (for_loop_scale_cpp_441_5_pipeline_finishing) begin
+		for_loop_scale_cpp_441_5_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_scale_cpp_441_5_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body110_preheader_16) & (fsm_stall == 1'd0))) begin
+		for_loop_scale_cpp_441_5_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_441_5_epilogue <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_441_5_pipeline_exit_cond & for_loop_scale_cpp_441_5_active)) begin
+		for_loop_scale_cpp_441_5_epilogue <= 1'd1;
+	end
+	if (for_loop_scale_cpp_441_5_pipeline_finishing) begin
+		for_loop_scale_cpp_441_5_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_pipeline_finish = (for_loop_scale_cpp_441_5_pipeline_finishing | for_loop_scale_cpp_441_5_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_pipeline_finishing = ((for_loop_scale_cpp_441_5_epilogue | for_loop_scale_cpp_441_5_pipeline_exit_cond) & for_loop_scale_cpp_441_5_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_only_last_stage_enabled = ((for_loop_scale_cpp_441_5_num_active_iterations == 1'd1) & for_loop_scale_cpp_441_5_state_enable_1);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_441_5_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_441_5_inserting_new_iteration & ~(for_loop_scale_cpp_441_5_state_enable_1))) begin
+		for_loop_scale_cpp_441_5_num_active_iterations <= (for_loop_scale_cpp_441_5_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_scale_cpp_441_5_inserting_new_iteration) & for_loop_scale_cpp_441_5_state_enable_1)) begin
+		for_loop_scale_cpp_441_5_num_active_iterations <= (for_loop_scale_cpp_441_5_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_441_5_inserting_new_iteration = ((~(for_loop_scale_cpp_441_5_state_stall_0) & for_loop_scale_cpp_441_5_II_counter) & for_loop_scale_cpp_441_5_start);
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_441_5_pipeline_finish_reg <= for_loop_scale_cpp_441_5_pipeline_finish;
+	if (reset) begin
+		for_loop_scale_cpp_441_5_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_scale_cpp_441_5_activate_pipeline) begin
+		for_loop_scale_cpp_441_5_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_459_5_state_stall_0)) begin
+		for_loop_scale_cpp_459_5_valid_bit_0 <= (for_loop_scale_cpp_459_5_II_counter & for_loop_scale_cpp_459_5_start);
+	end
+	if (reset) begin
+		for_loop_scale_cpp_459_5_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_state_stall_0 = 1'd0;
+	if (for_loop_scale_cpp_459_5_state_stall_1) begin
+		for_loop_scale_cpp_459_5_state_stall_0 = 1'd1;
+	end
+	if (((for_loop_scale_cpp_459_5_valid_bit_0 & 1'd1) & ~(axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_valid))) begin
+		for_loop_scale_cpp_459_5_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_state_enable_0 = (for_loop_scale_cpp_459_5_valid_bit_0 & ~(for_loop_scale_cpp_459_5_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(for_loop_scale_cpp_459_5_state_stall_1)) begin
+		for_loop_scale_cpp_459_5_valid_bit_1 <= for_loop_scale_cpp_459_5_state_enable_0;
+	end
+	if (reset) begin
+		for_loop_scale_cpp_459_5_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_state_stall_1 = 1'd0;
+	if ((((for_loop_scale_cpp_459_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_data_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_scale_cpp_459_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_459_5_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_459_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_strb_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_scale_cpp_459_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_459_5_state_stall_1 = 1'd1;
+	end
+	if ((((for_loop_scale_cpp_459_5_valid_bit_1 & master_w_valid) & ~(master_w_ready)) & (master_w_last_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_scale_cpp_459_5_state_1_stalln_reg))) begin
+		for_loop_scale_cpp_459_5_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_state_enable_1 = (for_loop_scale_cpp_459_5_valid_bit_1 & ~(for_loop_scale_cpp_459_5_state_stall_1));
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_459_5_II_counter <= 1'd1;
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_start = (for_loop_scale_cpp_459_5_activate_pipeline | ((for_loop_scale_cpp_459_5_active & ~(for_loop_scale_cpp_459_5_epilogue)) & ~(for_loop_scale_cpp_459_5_pipeline_exit_cond)));
+	if (reset) begin
+		for_loop_scale_cpp_459_5_start = 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_activate_pipeline = ((((fsm_stall == 1'd0) & for_loop_scale_cpp_459_5_begin_pipeline) & ~(for_loop_scale_cpp_459_5_active)) & ~(reset));
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_459_5_state_enable_0) begin
+		axi_rgb_write_for_body183_cmp188_reg_stage1 <= axi_rgb_write_for_body183_cmp188;
+	end
+end
+always @(posedge clk) begin
+	if (for_loop_scale_cpp_459_5_state_enable_0) begin
+		axi_rgb_write_for_body183_21_reg_stage1 <= axi_rgb_write_for_body183_21;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_459_5_inductionVar_stage0 <= 8'd0;
+	end
+	if (for_loop_scale_cpp_459_5_activate_pipeline) begin
+		for_loop_scale_cpp_459_5_inductionVar_stage0 <= 8'd0;
+	end
+	if ((for_loop_scale_cpp_459_5_II_counter & for_loop_scale_cpp_459_5_state_enable_0)) begin
+		for_loop_scale_cpp_459_5_inductionVar_stage0 <= (for_loop_scale_cpp_459_5_inductionVar_stage0 + 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_pipeline_exit_cond = (for_loop_scale_cpp_459_5_state_enable_0 & axi_rgb_write_for_body183_cmp182);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_459_5_active <= 1'd0;
+	end
+	if (for_loop_scale_cpp_459_5_activate_pipeline) begin
+		for_loop_scale_cpp_459_5_active <= 1'd1;
+	end
+	if (for_loop_scale_cpp_459_5_pipeline_finishing) begin
+		for_loop_scale_cpp_459_5_active <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_begin_pipeline = 1'd0;
+	if (reset) begin
+		for_loop_scale_cpp_459_5_begin_pipeline = 1'd0;
+	end
+	if (((cur_state == LEGUP_F_axi_rgb_write_BB_for_body183_preheader_23) & (fsm_stall == 1'd0))) begin
+		for_loop_scale_cpp_459_5_begin_pipeline = 1'd1;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_459_5_epilogue <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_459_5_pipeline_exit_cond & for_loop_scale_cpp_459_5_active)) begin
+		for_loop_scale_cpp_459_5_epilogue <= 1'd1;
+	end
+	if (for_loop_scale_cpp_459_5_pipeline_finishing) begin
+		for_loop_scale_cpp_459_5_epilogue <= 1'd0;
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_pipeline_finish = (for_loop_scale_cpp_459_5_pipeline_finishing | for_loop_scale_cpp_459_5_pipeline_finish_reg);
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_pipeline_finishing = ((for_loop_scale_cpp_459_5_epilogue | for_loop_scale_cpp_459_5_pipeline_exit_cond) & for_loop_scale_cpp_459_5_only_last_stage_enabled);
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_only_last_stage_enabled = ((for_loop_scale_cpp_459_5_num_active_iterations == 1'd1) & for_loop_scale_cpp_459_5_state_enable_1);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		for_loop_scale_cpp_459_5_num_active_iterations <= 1'd0;
+	end
+	if ((for_loop_scale_cpp_459_5_inserting_new_iteration & ~(for_loop_scale_cpp_459_5_state_enable_1))) begin
+		for_loop_scale_cpp_459_5_num_active_iterations <= (for_loop_scale_cpp_459_5_num_active_iterations + 1'd1);
+	end
+	if ((~(for_loop_scale_cpp_459_5_inserting_new_iteration) & for_loop_scale_cpp_459_5_state_enable_1)) begin
+		for_loop_scale_cpp_459_5_num_active_iterations <= (for_loop_scale_cpp_459_5_num_active_iterations - 1'd1);
+	end
+end
+always @(*) begin
+	for_loop_scale_cpp_459_5_inserting_new_iteration = ((~(for_loop_scale_cpp_459_5_state_stall_0) & for_loop_scale_cpp_459_5_II_counter) & for_loop_scale_cpp_459_5_start);
+end
+always @(posedge clk) begin
+	for_loop_scale_cpp_459_5_pipeline_finish_reg <= for_loop_scale_cpp_459_5_pipeline_finish;
+	if (reset) begin
+		for_loop_scale_cpp_459_5_pipeline_finish_reg <= 1'd0;
+	end
+	if (for_loop_scale_cpp_459_5_activate_pipeline) begin
+		for_loop_scale_cpp_459_5_pipeline_finish_reg <= 1'd0;
+	end
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_clock = clk;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_aclr = reset;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_clken = legup_mult_axi_rgb_write_entry_mul_en;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_dataa = height_reg;
+end
+always @(*) begin
+	legup_mult_unsigned_32_32_0_0_datab = width_reg;
+end
+always @(*) begin
+	legup_mult_axi_rgb_write_entry_mul_out_actual = legup_mult_unsigned_32_32_0_0_result;
+end
+always @(*) begin
+	legup_mult_axi_rgb_write_entry_mul_out = legup_mult_axi_rgb_write_entry_mul_out_actual[31:0];
+end
+always @(*) begin
+	legup_mult_axi_rgb_write_entry_mul_en = legup_mult_axi_rgb_write_entry_mul_en_sequential_cond;
+end
+assign legup_mult_axi_rgb_write_entry_mul_en_not_in_pipeline = 1'd1;
+always @(*) begin
+	legup_mult_axi_rgb_write_entry_mul_en_sequential_cond = ((legup_mult_axi_rgb_write_entry_mul_en_not_in_pipeline & (cur_state != LEGUP_0)) & ~(fsm_stall));
+end
+assign axi_rgb_write_for_body_lr_ph_bit_concat4_bit_select_operand_0 = 1'd0;
+assign axi_rgb_write_for_body_bit_concat2_bit_select_operand_2 = 9'd0;
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__consumed_valid = burst_ready_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_burst__consumed_taken = 1'd0;
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_body_6)) begin
+		axi_master_scale_updown_bilinear_orig_entry_burst__consumed_taken = ~(fsm_stall);
+	end
+end
+assign axi_rgb_write_for_body_bit_concat_bit_select_operand_0 = 1'd0;
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8) & (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_stalln_reg));
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_consumed_valid = fifo_r_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_consumed_data = fifo_r;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_consumed_taken = 1'd0;
+	if ((for_loop_scale_cpp_424_5_valid_bit_0 & 1'd1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_output_consumed_taken = ~(for_loop_scale_cpp_424_5_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_424_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_scale_cpp_424_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_424_5_state_stall_1);
+end
+always @(*) begin
+	master_w_data_for_loop_scale_cpp_424_5_state_1_enable_cond_a = (for_loop_scale_cpp_424_5_valid_bit_1 & (master_w_data_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_scale_cpp_424_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_424_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_scale_cpp_424_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_424_5_state_stall_1);
+end
+always @(*) begin
+	master_w_strb_for_loop_scale_cpp_424_5_state_1_enable_cond_a = (for_loop_scale_cpp_424_5_valid_bit_1 & (master_w_strb_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_scale_cpp_424_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_424_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_scale_cpp_424_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_424_5_state_stall_1);
+end
+always @(*) begin
+	master_w_last_for_loop_scale_cpp_424_5_state_1_enable_cond_a = (for_loop_scale_cpp_424_5_valid_bit_1 & (master_w_last_for_loop_scale_cpp_424_5_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_scale_cpp_424_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	if (master_b_resp_consumed_taken) begin
+		master_b_resp_consumed_valid <= 1'd0;
+	end
+	if ((master_b_resp_ready & master_b_resp_valid)) begin
+		master_b_resp_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		master_b_resp_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	master_b_resp_consumed_taken = 1'd0;
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_then55_13)) begin
+		master_b_resp_consumed_taken = ~(fsm_stall);
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_then127_20)) begin
+		master_b_resp_consumed_taken = ~(fsm_stall);
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_then201_27)) begin
+		master_b_resp_consumed_taken = ~(fsm_stall);
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_body214_32)) begin
+		master_b_resp_consumed_taken = ~(fsm_stall);
+	end
+end
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15) & (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_stalln_reg));
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_valid = fifo_g_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_data = fifo_g;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_taken = 1'd0;
+	if ((for_loop_scale_cpp_441_5_valid_bit_0 & 1'd1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_taken = ~(for_loop_scale_cpp_441_5_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_441_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_scale_cpp_441_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_441_5_state_stall_1);
+end
+always @(*) begin
+	master_w_data_for_loop_scale_cpp_441_5_state_1_enable_cond_a = (for_loop_scale_cpp_441_5_valid_bit_1 & (master_w_data_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_scale_cpp_441_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_441_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_scale_cpp_441_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_441_5_state_stall_1);
+end
+always @(*) begin
+	master_w_strb_for_loop_scale_cpp_441_5_state_1_enable_cond_a = (for_loop_scale_cpp_441_5_valid_bit_1 & (master_w_strb_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_scale_cpp_441_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_441_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_scale_cpp_441_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_441_5_state_stall_1);
+end
+always @(*) begin
+	master_w_last_for_loop_scale_cpp_441_5_state_1_enable_cond_a = (for_loop_scale_cpp_441_5_valid_bit_1 & (master_w_last_for_loop_scale_cpp_441_5_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_scale_cpp_441_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a <= ((fsm_stall & master_aw_valid) & ~(master_aw_ready));
+end
+always @(posedge clk) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg <= ~(fsm_stall);
+end
+always @(*) begin
+	master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a = ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22) & (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_not_accessed_due_to_stall_a | master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_stalln_reg));
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_valid = fifo_b_valid;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_data = fifo_b;
+end
+always @(*) begin
+	axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_taken = 1'd0;
+	if ((for_loop_scale_cpp_459_5_valid_bit_0 & 1'd1)) begin
+		axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_taken = ~(for_loop_scale_cpp_459_5_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_459_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_data_for_loop_scale_cpp_459_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_459_5_state_stall_1);
+end
+always @(*) begin
+	master_w_data_for_loop_scale_cpp_459_5_state_1_enable_cond_a = (for_loop_scale_cpp_459_5_valid_bit_1 & (master_w_data_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a | master_w_data_for_loop_scale_cpp_459_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_459_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_strb_for_loop_scale_cpp_459_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_459_5_state_stall_1);
+end
+always @(*) begin
+	master_w_strb_for_loop_scale_cpp_459_5_state_1_enable_cond_a = (for_loop_scale_cpp_459_5_valid_bit_1 & (master_w_strb_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a | master_w_strb_for_loop_scale_cpp_459_5_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a <= ((for_loop_scale_cpp_459_5_state_stall_1 & master_w_valid) & ~(master_w_ready));
+end
+always @(posedge clk) begin
+	master_w_last_for_loop_scale_cpp_459_5_state_1_stalln_reg <= ~(for_loop_scale_cpp_459_5_state_stall_1);
+end
+always @(*) begin
+	master_w_last_for_loop_scale_cpp_459_5_state_1_enable_cond_a = (for_loop_scale_cpp_459_5_valid_bit_1 & (master_w_last_for_loop_scale_cpp_459_5_state_1_not_accessed_due_to_stall_a | master_w_last_for_loop_scale_cpp_459_5_state_1_stalln_reg));
+end
+always @(*) begin
+	ready = (cur_state == LEGUP_0);
+end
+always @(posedge clk) begin
+	if ((cur_state == LEGUP_0)) begin
+		finish <= 1'd0;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_for_cond_cleanup213_31)) begin
+		finish <= (fsm_stall == 1'd0);
+	end
+end
+always @(*) begin
+	burst_ready_ready = axi_master_scale_updown_bilinear_orig_entry_burst__consumed_taken;
+end
+always @(*) begin
+	master_aw_addr = 0;
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8)) begin
+		master_aw_addr = axi_rgb_write_for_body_r_addr_0_reg;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15)) begin
+		master_aw_addr = axi_rgb_write_for_body_g_addr_0_reg;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22)) begin
+		master_aw_addr = axi_rgb_write_for_body_b_addr_0_reg;
+	end
+end
+always @(*) begin
+	master_aw_valid = 1'd0;
+	if (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end_8_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end58_15_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_addr_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_burst_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_size_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+	if (master_aw_len_LEGUP_F_axi_rgb_write_BB_if_end131_22_enable_cond_a) begin
+		master_aw_valid = 1'd1;
+	end
+end
+always @(*) begin
+	master_aw_burst = 2'd0;
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8)) begin
+		master_aw_burst = 2'd1;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15)) begin
+		master_aw_burst = 2'd1;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22)) begin
+		master_aw_burst = 2'd1;
+	end
+end
+always @(*) begin
+	master_aw_size = 3'd0;
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8)) begin
+		master_aw_size = 3'd2;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15)) begin
+		master_aw_size = 3'd2;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22)) begin
+		master_aw_size = 3'd2;
+	end
+end
+always @(*) begin
+	master_aw_len = 8'd0;
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end_8)) begin
+		master_aw_len = axi_rgb_write_if_end_6;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end58_15)) begin
+		master_aw_len = axi_rgb_write_if_end_6_reg;
+	end
+	if ((cur_state == LEGUP_F_axi_rgb_write_BB_if_end131_22)) begin
+		master_aw_len = axi_rgb_write_if_end131_20;
+	end
+end
+always @(*) begin
+	fifo_r_ready = axi_master_scale_updown_bilinear_orig_entry_output_consumed_taken;
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_424_5_valid_bit_1 & 1'd1)) begin
+		master_w_data = axi_rgb_write_for_body46_10_reg_stage1;
+	end
+	else if ((for_loop_scale_cpp_441_5_valid_bit_1 & 1'd1)) begin
+		master_w_data = axi_rgb_write_for_body110_15_reg_stage1;
+	end
+	else /* if ((for_loop_scale_cpp_459_5_valid_bit_1 & 1'd1)) */ begin
+		master_w_data = axi_rgb_write_for_body183_21_reg_stage1;
+	end
+end
+always @(*) begin
+	master_w_valid = 1'd0;
+	if ((master_w_data_for_loop_scale_cpp_424_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_strb_for_loop_scale_cpp_424_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_last_for_loop_scale_cpp_424_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_data_for_loop_scale_cpp_441_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_strb_for_loop_scale_cpp_441_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_last_for_loop_scale_cpp_441_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_data_for_loop_scale_cpp_459_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_strb_for_loop_scale_cpp_459_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+	if ((master_w_last_for_loop_scale_cpp_459_5_state_1_enable_cond_a & 1'd1)) begin
+		master_w_valid = 1'd1;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_424_5_valid_bit_1 & 1'd1)) begin
+		master_w_strb = -4'd1;
+	end
+	else if ((for_loop_scale_cpp_441_5_valid_bit_1 & 1'd1)) begin
+		master_w_strb = -4'd1;
+	end
+	else /* if ((for_loop_scale_cpp_459_5_valid_bit_1 & 1'd1)) */ begin
+		master_w_strb = -4'd1;
+	end
+end
+always @(*) begin
+	if ((for_loop_scale_cpp_424_5_valid_bit_1 & 1'd1)) begin
+		master_w_last = axi_rgb_write_for_body46_9_reg_stage1;
+	end
+	else if ((for_loop_scale_cpp_441_5_valid_bit_1 & 1'd1)) begin
+		master_w_last = axi_rgb_write_for_body110_cmp115_reg_stage1;
+	end
+	else /* if ((for_loop_scale_cpp_459_5_valid_bit_1 & 1'd1)) */ begin
+		master_w_last = axi_rgb_write_for_body183_cmp188_reg_stage1;
+	end
+end
+always @(*) begin
+	master_b_resp_ready = (~(master_b_resp_consumed_valid) | master_b_resp_consumed_taken);
+	if (reset) begin
+		master_b_resp_ready = 1'd0;
+	end
+end
+always @(*) begin
+	fifo_g_ready = axi_master_scale_updown_bilinear_orig_entry_output_1_consumed_taken;
+end
+always @(*) begin
+	fifo_b_ready = axi_master_scale_updown_bilinear_orig_entry_output_2_consumed_taken;
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_bilinear_scale_control_memory_read
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	s_ar_addr,
+	axi_s_ar_ready,
+	axi_s_ar_valid,
+	s_ar_burst,
+	s_ar_size,
+	s_ar_len,
+	bilinear_scale_control_memory_out_addr_write_en,
+	bilinear_scale_control_memory_out_addr_write_data,
+	bilinear_scale_control_memory_out_addr_read_data,
+	bilinear_scale_control_memory_in_addr_write_en,
+	bilinear_scale_control_memory_in_addr_write_data,
+	bilinear_scale_control_memory_in_addr_read_data,
+	bilinear_scale_control_memory_yratio_write_en,
+	bilinear_scale_control_memory_yratio_write_data,
+	bilinear_scale_control_memory_yratio_read_data,
+	bilinear_scale_control_memory_xratio_write_en,
+	bilinear_scale_control_memory_xratio_write_data,
+	bilinear_scale_control_memory_xratio_read_data,
+	bilinear_scale_control_memory_in_width_write_en,
+	bilinear_scale_control_memory_in_width_write_data,
+	bilinear_scale_control_memory_in_width_read_data,
+	bilinear_scale_control_memory_in_stride_write_en,
+	bilinear_scale_control_memory_in_stride_write_data,
+	bilinear_scale_control_memory_in_stride_read_data,
+	bilinear_scale_control_memory_out_width_write_en,
+	bilinear_scale_control_memory_out_width_write_data,
+	bilinear_scale_control_memory_out_width_read_data,
+	bilinear_scale_control_memory_in_height_write_en,
+	bilinear_scale_control_memory_in_height_write_data,
+	bilinear_scale_control_memory_in_height_read_data,
+	bilinear_scale_control_memory_out_height_write_en,
+	bilinear_scale_control_memory_out_height_write_data,
+	bilinear_scale_control_memory_out_height_read_data,
+	bilinear_scale_control_memory_ctrl_write_en,
+	bilinear_scale_control_memory_ctrl_write_data,
+	bilinear_scale_control_memory_ctrl_read_data,
+	s_r_data,
+	axi_s_r_ready,
+	axi_s_r_valid,
+	s_r_resp,
+	s_r_last
+);
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] s_ar_addr;
+output reg  axi_s_ar_ready;
+input  axi_s_ar_valid;
+input [1:0] s_ar_burst;
+input [2:0] s_ar_size;
+input [7:0] s_ar_len;
+output  bilinear_scale_control_memory_out_addr_write_en;
+output [31:0] bilinear_scale_control_memory_out_addr_write_data;
+input [31:0] bilinear_scale_control_memory_out_addr_read_data;
+output  bilinear_scale_control_memory_in_addr_write_en;
+output [31:0] bilinear_scale_control_memory_in_addr_write_data;
+input [31:0] bilinear_scale_control_memory_in_addr_read_data;
+output  bilinear_scale_control_memory_yratio_write_en;
+output [31:0] bilinear_scale_control_memory_yratio_write_data;
+input [31:0] bilinear_scale_control_memory_yratio_read_data;
+output  bilinear_scale_control_memory_xratio_write_en;
+output [31:0] bilinear_scale_control_memory_xratio_write_data;
+input [31:0] bilinear_scale_control_memory_xratio_read_data;
+output  bilinear_scale_control_memory_in_width_write_en;
+output [31:0] bilinear_scale_control_memory_in_width_write_data;
+input [31:0] bilinear_scale_control_memory_in_width_read_data;
+output  bilinear_scale_control_memory_in_stride_write_en;
+output [31:0] bilinear_scale_control_memory_in_stride_write_data;
+input [31:0] bilinear_scale_control_memory_in_stride_read_data;
+output  bilinear_scale_control_memory_out_width_write_en;
+output [31:0] bilinear_scale_control_memory_out_width_write_data;
+input [31:0] bilinear_scale_control_memory_out_width_read_data;
+output  bilinear_scale_control_memory_in_height_write_en;
+output [31:0] bilinear_scale_control_memory_in_height_write_data;
+input [31:0] bilinear_scale_control_memory_in_height_read_data;
+output  bilinear_scale_control_memory_out_height_write_en;
+output [31:0] bilinear_scale_control_memory_out_height_write_data;
+input [31:0] bilinear_scale_control_memory_out_height_read_data;
+output  bilinear_scale_control_memory_ctrl_write_en;
+output  bilinear_scale_control_memory_ctrl_write_data;
+input  bilinear_scale_control_memory_ctrl_read_data;
+output reg [63:0] s_r_data;
+input  axi_s_r_ready;
+output reg  axi_s_r_valid;
+output [1:0] s_r_resp;
+output reg  s_r_last;
+reg  bilinear_scale_control_memory_read_entry_0;
+reg [31:0] bilinear_scale_control_memory_read_entry_1;
+reg [7:0] bilinear_scale_control_memory_read_entry_2;
+reg [7:0] bilinear_scale_control_memory_read_entry_3;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx;
+wire  bilinear_scale_control_memory_read_entry_4;
+reg  bilinear_scale_control_memory_read_entry_exitMask_;
+reg  bilinear_scale_control_memory_read_entry_NotCondit;
+reg  bilinear_scale_control_memory_read_entry_exitMask__0;
+reg [7:0] bilinear_scale_control_memory_read_entry_5;
+reg  bilinear_scale_control_memory_read_entry_6;
+reg  bilinear_scale_control_memory_read_entry_not_1;
+reg  bilinear_scale_control_memory_read_entry_1_1;
+reg [7:0] bilinear_scale_control_memory_read_entry_bit_conca;
+reg [31:0] bilinear_scale_control_memory_read_entry_7;
+reg [2:0] bilinear_scale_control_memory_read_entry_bit_selec;
+reg [1:0] bilinear_scale_control_memory_read_entry_bit_selec_2;
+reg [2:0] bilinear_scale_control_memory_read_entry_bit_conca_3;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_4;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_5;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_6;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_7;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_9;
+reg [2:0] bilinear_scale_control_memory_read_entry_bit_conca_10;
+reg  bilinear_scale_control_memory_read_entry_8;
+reg  bilinear_scale_control_memory_read_entry_9;
+reg  bilinear_scale_control_memory_read_entry_10;
+reg  bilinear_scale_control_memory_read_entry_OrCaseExi;
+reg  bilinear_scale_control_memory_read_entry_OrCaseExi_11;
+reg  bilinear_scale_control_memory_read_entry_CaseDefau;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_12;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_13;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_14;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_15;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_17;
+reg  bilinear_scale_control_memory_read_entry_CaseDefau_18;
+reg [31:0] bilinear_scale_control_memory_read_entry_11;
+reg [28:0] bilinear_scale_control_memory_read_entry_bit_selec_19;
+reg [7:0] bilinear_scale_control_memory_read_entry_14;
+reg [28:0] bilinear_scale_control_memory_read_entry_bit_conca_20;
+reg [31:0] bilinear_scale_control_memory_read_entry_15;
+reg [31:0] bilinear_scale_control_memory_read_entry_16;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_21;
+reg [31:0] bilinear_scale_control_memory_read_entry_17;
+reg [31:0] bilinear_scale_control_memory_read_entry_18;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_22;
+reg [31:0] bilinear_scale_control_memory_read_entry_19;
+reg [31:0] bilinear_scale_control_memory_read_entry_20;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_23;
+reg [31:0] bilinear_scale_control_memory_read_entry_21;
+reg [31:0] bilinear_scale_control_memory_read_entry_22;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_24;
+reg [31:0] bilinear_scale_control_memory_read_entry_23;
+reg [31:0] bilinear_scale_control_memory_read_entry_bit_conca_25;
+reg  bilinear_scale_control_memory_read_entry_24;
+reg  bilinear_scale_control_memory_read_entry_bit_conca_26;
+reg  bilinear_scale_control_memory_read_entry_ORexitM;
+reg [63:0] bilinear_scale_control_memory_read_entry_select;
+reg  bilinear_scale_control_memory_read_entry_ORexitM14;
+reg [63:0] bilinear_scale_control_memory_read_entry_select15;
+reg [63:0] bilinear_scale_control_memory_read_entry_select17;
+reg  bilinear_scale_control_memory_read_entry_ORexitM18;
+reg [63:0] bilinear_scale_control_memory_read_entry_select19;
+reg [63:0] bilinear_scale_control_memory_read_entry_select21;
+reg [63:0] bilinear_scale_control_memory_read_entry_select23;
+reg  bilinear_scale_control_memory_read_entry_select38;
+reg  bilinear_scale_control_memory_read_entry_select40;
+reg  bilinear_scale_control_memory_read_entry_ORCondM33;
+reg [31:0] bilinear_scale_control_memory_read_entry_select35;
+reg [7:0] bilinear_scale_control_memory_read_entry_select31;
+reg [7:0] bilinear_scale_control_memory_read_entry_select25;
+reg [7:0] bilinear_scale_control_memory_read_entry_select27;
+reg  axi_s_read_state_inferred_reg;
+reg [31:0] axi_s_read_word_addr_inferred_reg;
+reg [7:0] axi_s_read_burst_len_minus1_inferred_reg;
+reg [7:0] axi_s_read_count_inferred_reg;
+reg  bilinear_scale_control_memory_read_valid_bit_0;
+reg  bilinear_scale_control_memory_read_state_stall_0;
+reg  bilinear_scale_control_memory_read_state_enable_0;
+reg  bilinear_scale_control_memory_read_valid_bit_1;
+reg  bilinear_scale_control_memory_read_state_stall_1;
+reg  bilinear_scale_control_memory_read_state_enable_1;
+reg  bilinear_scale_control_memory_read_II_counter;
+reg  bilinear_scale_control_memory_read_entry_0_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_6_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_12_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_13_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_15_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_CaseCmpEx_17_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_CaseDefau_18_reg_stage1;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_21_reg_stage1;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_22_reg_stage1;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_23_reg_stage1;
+reg [63:0] bilinear_scale_control_memory_read_entry_bit_conca_24_reg_stage1;
+reg [31:0] bilinear_scale_control_memory_read_entry_bit_conca_25_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_bit_conca_26_reg_stage1;
+reg  bilinear_scale_control_memory_read_entry_ORexitM14_reg_stage1;
+reg  axi_s_ar_addr_consumed_valid;
+reg [31:0] axi_s_ar_addr_consumed_data;
+reg  axi_s_ar_addr_consumed_taken;
+wire [23:0] bilinear_scale_control_memory_read_entry_bit_conca_bit_select_operand_0;
+wire [28:0] bilinear_scale_control_memory_read_entry_bit_conca_3_bit_select_operand_0;
+wire [28:0] bilinear_scale_control_memory_read_entry_bit_conca_10_bit_select_operand_0;
+wire  bilinear_scale_control_memory_read_entry_bit_conca_10_bit_select_operand_4;
+reg  axi_s_ar_burst_consumed_valid;
+reg  axi_s_ar_burst_consumed_taken;
+reg  axi_s_ar_size_consumed_valid;
+reg  axi_s_ar_size_consumed_taken;
+reg  axi_s_ar_len_consumed_valid;
+reg [7:0] axi_s_ar_len_consumed_data;
+reg  axi_s_ar_len_consumed_taken;
+wire [2:0] bilinear_scale_control_memory_read_entry_bit_conca_20_bit_select_operand_0;
+wire [31:0] bilinear_scale_control_memory_read_entry_bit_conca_25_bit_select_operand_0;
+wire [62:0] bilinear_scale_control_memory_read_entry_bit_conca_26_bit_select_operand_0;
+reg  axi_s_r_data_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_r_data_bilinear_scale_control_memory_read_state_1_stalln_reg;
+reg  axi_s_r_data_bilinear_scale_control_memory_read_state_1_enable_cond_a;
+reg  axi_s_r_resp_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_r_resp_bilinear_scale_control_memory_read_state_1_stalln_reg;
+reg  axi_s_r_resp_bilinear_scale_control_memory_read_state_1_enable_cond_a;
+reg  axi_s_r_last_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_r_last_bilinear_scale_control_memory_read_state_1_stalln_reg;
+reg  axi_s_r_last_bilinear_scale_control_memory_read_state_1_enable_cond_a;
+
+
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_0 = axi_s_read_state_inferred_reg;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_1 = axi_s_read_word_addr_inferred_reg;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_2 = axi_s_read_burst_len_minus1_inferred_reg;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_3 = axi_s_read_count_inferred_reg;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx = (bilinear_scale_control_memory_read_entry_0 ^ 1'd1);
+end
+assign bilinear_scale_control_memory_read_entry_4 = ~(axi_s_ar_addr_consumed_valid);
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_exitMask_ = (bilinear_scale_control_memory_read_entry_4 & bilinear_scale_control_memory_read_entry_CaseCmpEx);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_NotCondit = (bilinear_scale_control_memory_read_entry_4 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_exitMask__0 = (bilinear_scale_control_memory_read_entry_CaseCmpEx & bilinear_scale_control_memory_read_entry_NotCondit);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_5 = (bilinear_scale_control_memory_read_entry_3 + 8'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_6 = (bilinear_scale_control_memory_read_entry_3 == bilinear_scale_control_memory_read_entry_2);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_not_1 = (bilinear_scale_control_memory_read_entry_6 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_1_1 = (bilinear_scale_control_memory_read_entry_0 & bilinear_scale_control_memory_read_entry_not_1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca = {bilinear_scale_control_memory_read_entry_bit_conca_bit_select_operand_0[23:0], bilinear_scale_control_memory_read_entry_3[7:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_7 = (bilinear_scale_control_memory_read_entry_1 + {24'd0,bilinear_scale_control_memory_read_entry_bit_conca});
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_selec = bilinear_scale_control_memory_read_entry_7[2:0];
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_selec_2 = bilinear_scale_control_memory_read_entry_7[2:1];
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_3 = {bilinear_scale_control_memory_read_entry_bit_conca_3_bit_select_operand_0[28:0], bilinear_scale_control_memory_read_entry_bit_selec[2:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_4 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_3} == 32'd0);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_5 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_3} == 32'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_6 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_3} == 32'd2);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_7 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_3} == 32'd3);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_9 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_3} == 32'd5);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_10 = {{bilinear_scale_control_memory_read_entry_bit_conca_10_bit_select_operand_0[28:0], bilinear_scale_control_memory_read_entry_bit_selec_2[1:0]}, bilinear_scale_control_memory_read_entry_bit_conca_10_bit_select_operand_4};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_8 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_10} == 32'd0);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_9 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_10} == 32'd2);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_10 = ({29'd0,bilinear_scale_control_memory_read_entry_bit_conca_10} == 32'd4);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_OrCaseExi = (bilinear_scale_control_memory_read_entry_8 | bilinear_scale_control_memory_read_entry_9);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_OrCaseExi_11 = (bilinear_scale_control_memory_read_entry_10 | bilinear_scale_control_memory_read_entry_OrCaseExi);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseDefau = (bilinear_scale_control_memory_read_entry_OrCaseExi_11 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_12 = (bilinear_scale_control_memory_read_entry_0 & bilinear_scale_control_memory_read_entry_CaseCmpEx_4);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_13 = (bilinear_scale_control_memory_read_entry_0 & bilinear_scale_control_memory_read_entry_CaseCmpEx_5);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_14 = (bilinear_scale_control_memory_read_entry_0 & bilinear_scale_control_memory_read_entry_CaseCmpEx_6);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_15 = (bilinear_scale_control_memory_read_entry_0 & bilinear_scale_control_memory_read_entry_CaseCmpEx_7);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_17 = (bilinear_scale_control_memory_read_entry_0 & bilinear_scale_control_memory_read_entry_CaseCmpEx_9);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_CaseDefau_18 = (bilinear_scale_control_memory_read_entry_0 & bilinear_scale_control_memory_read_entry_CaseDefau);
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_entry_11 = axi_s_ar_addr_consumed_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_selec_19 = bilinear_scale_control_memory_read_entry_11[31:3];
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_entry_14 = axi_s_ar_len_consumed_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_20 = {bilinear_scale_control_memory_read_entry_bit_conca_20_bit_select_operand_0[2:0], bilinear_scale_control_memory_read_entry_bit_selec_19[28:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_15 = bilinear_scale_control_memory_out_addr_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_16 = bilinear_scale_control_memory_in_addr_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_21 = {bilinear_scale_control_memory_read_entry_15[31:0], bilinear_scale_control_memory_read_entry_16[31:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_17 = bilinear_scale_control_memory_yratio_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_18 = bilinear_scale_control_memory_xratio_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_22 = {bilinear_scale_control_memory_read_entry_17[31:0], bilinear_scale_control_memory_read_entry_18[31:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_19 = bilinear_scale_control_memory_in_width_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_20 = bilinear_scale_control_memory_in_stride_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_23 = {bilinear_scale_control_memory_read_entry_19[31:0], bilinear_scale_control_memory_read_entry_20[31:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_21 = bilinear_scale_control_memory_out_width_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_22 = bilinear_scale_control_memory_in_height_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_24 = {bilinear_scale_control_memory_read_entry_21[31:0], bilinear_scale_control_memory_read_entry_22[31:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_23 = bilinear_scale_control_memory_out_height_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_25 = {bilinear_scale_control_memory_read_entry_bit_conca_25_bit_select_operand_0[31:0], bilinear_scale_control_memory_read_entry_23[31:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_24 = bilinear_scale_control_memory_ctrl_read_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_26 = {bilinear_scale_control_memory_read_entry_bit_conca_26_bit_select_operand_0[62:0], bilinear_scale_control_memory_read_entry_24};
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_ORexitM = (bilinear_scale_control_memory_read_entry_CaseDefau_18_reg_stage1 | bilinear_scale_control_memory_read_entry_CaseCmpEx_12_reg_stage1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select = (bilinear_scale_control_memory_read_entry_CaseDefau_18_reg_stage1 ? 64'd0 : bilinear_scale_control_memory_read_entry_bit_conca_21_reg_stage1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_ORexitM14 = (bilinear_scale_control_memory_read_entry_CaseCmpEx_13 | bilinear_scale_control_memory_read_entry_CaseCmpEx_14);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select15 = (bilinear_scale_control_memory_read_entry_CaseCmpEx_13_reg_stage1 ? bilinear_scale_control_memory_read_entry_bit_conca_22_reg_stage1 : bilinear_scale_control_memory_read_entry_bit_conca_23_reg_stage1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select17 = (bilinear_scale_control_memory_read_entry_CaseCmpEx_15_reg_stage1 ? bilinear_scale_control_memory_read_entry_bit_conca_24_reg_stage1 : {32'd0,bilinear_scale_control_memory_read_entry_bit_conca_25_reg_stage1});
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_ORexitM18 = (bilinear_scale_control_memory_read_entry_CaseCmpEx_17_reg_stage1 | bilinear_scale_control_memory_read_entry_ORexitM);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select19 = (bilinear_scale_control_memory_read_entry_CaseCmpEx_17_reg_stage1 ? bilinear_scale_control_memory_read_entry_bit_conca_26_reg_stage1 : bilinear_scale_control_memory_read_entry_select);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select21 = (bilinear_scale_control_memory_read_entry_ORexitM14_reg_stage1 ? bilinear_scale_control_memory_read_entry_select15 : bilinear_scale_control_memory_read_entry_select17);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select23 = (bilinear_scale_control_memory_read_entry_ORexitM18 ? bilinear_scale_control_memory_read_entry_select19 : bilinear_scale_control_memory_read_entry_select21);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select38 = (bilinear_scale_control_memory_read_entry_exitMask__0 | bilinear_scale_control_memory_read_entry_0);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select40 = (bilinear_scale_control_memory_read_entry_0 ? bilinear_scale_control_memory_read_entry_1_1 : bilinear_scale_control_memory_read_entry_select38);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_ORCondM33 = (bilinear_scale_control_memory_read_entry_exitMask_ | bilinear_scale_control_memory_read_entry_0);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select35 = (bilinear_scale_control_memory_read_entry_ORCondM33 ? bilinear_scale_control_memory_read_entry_1 : {3'd0,bilinear_scale_control_memory_read_entry_bit_conca_20});
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select31 = (bilinear_scale_control_memory_read_entry_ORCondM33 ? bilinear_scale_control_memory_read_entry_2 : bilinear_scale_control_memory_read_entry_14);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select25 = (bilinear_scale_control_memory_read_entry_exitMask__0 ? 8'd0 : bilinear_scale_control_memory_read_entry_3);
+end
+always @(*) begin
+		bilinear_scale_control_memory_read_entry_select27 = (bilinear_scale_control_memory_read_entry_0 ? bilinear_scale_control_memory_read_entry_5 : bilinear_scale_control_memory_read_entry_select25);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_state_inferred_reg <= 1'd0;
+	end
+	if ((bilinear_scale_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_state_inferred_reg <= bilinear_scale_control_memory_read_entry_select40;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_word_addr_inferred_reg <= 32'd0;
+	end
+	if ((bilinear_scale_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_word_addr_inferred_reg <= bilinear_scale_control_memory_read_entry_select35;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_burst_len_minus1_inferred_reg <= 8'd0;
+	end
+	if ((bilinear_scale_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_burst_len_minus1_inferred_reg <= bilinear_scale_control_memory_read_entry_select31;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_read_count_inferred_reg <= 8'd0;
+	end
+	if ((bilinear_scale_control_memory_read_state_enable_0 & 1'd1)) begin
+		axi_s_read_count_inferred_reg <= bilinear_scale_control_memory_read_entry_select27;
+	end
+end
+always @(posedge clk) begin
+	if (~(bilinear_scale_control_memory_read_state_stall_0)) begin
+		bilinear_scale_control_memory_read_valid_bit_0 <= (bilinear_scale_control_memory_read_II_counter & start);
+	end
+	if (reset) begin
+		bilinear_scale_control_memory_read_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_state_stall_0 = 1'd0;
+	if (bilinear_scale_control_memory_read_state_stall_1) begin
+		bilinear_scale_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0) & ~(axi_s_ar_addr_consumed_valid))) begin
+		bilinear_scale_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0) & ~(axi_s_ar_burst_consumed_valid))) begin
+		bilinear_scale_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0) & ~(axi_s_ar_size_consumed_valid))) begin
+		bilinear_scale_control_memory_read_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0) & ~(axi_s_ar_len_consumed_valid))) begin
+		bilinear_scale_control_memory_read_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_state_enable_0 = (bilinear_scale_control_memory_read_valid_bit_0 & ~(bilinear_scale_control_memory_read_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(bilinear_scale_control_memory_read_state_stall_1)) begin
+		bilinear_scale_control_memory_read_valid_bit_1 <= bilinear_scale_control_memory_read_state_enable_0;
+	end
+	if (reset) begin
+		bilinear_scale_control_memory_read_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_state_stall_1 = 1'd0;
+	if ((((bilinear_scale_control_memory_read_valid_bit_1 & axi_s_r_valid) & ~(axi_s_r_ready)) & (axi_s_r_data_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_data_bilinear_scale_control_memory_read_state_1_stalln_reg))) begin
+		bilinear_scale_control_memory_read_state_stall_1 = 1'd1;
+	end
+	if ((((bilinear_scale_control_memory_read_valid_bit_1 & axi_s_r_valid) & ~(axi_s_r_ready)) & (axi_s_r_resp_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_resp_bilinear_scale_control_memory_read_state_1_stalln_reg))) begin
+		bilinear_scale_control_memory_read_state_stall_1 = 1'd1;
+	end
+	if ((((bilinear_scale_control_memory_read_valid_bit_1 & axi_s_r_valid) & ~(axi_s_r_ready)) & (axi_s_r_last_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_last_bilinear_scale_control_memory_read_state_1_stalln_reg))) begin
+		bilinear_scale_control_memory_read_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_read_state_enable_1 = (bilinear_scale_control_memory_read_valid_bit_1 & ~(bilinear_scale_control_memory_read_state_stall_1));
+end
+always @(posedge clk) begin
+	bilinear_scale_control_memory_read_II_counter <= 1'd1;
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_0_reg_stage1 <= bilinear_scale_control_memory_read_entry_0;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_6_reg_stage1 <= bilinear_scale_control_memory_read_entry_6;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_12_reg_stage1 <= bilinear_scale_control_memory_read_entry_CaseCmpEx_12;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_13_reg_stage1 <= bilinear_scale_control_memory_read_entry_CaseCmpEx_13;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_15_reg_stage1 <= bilinear_scale_control_memory_read_entry_CaseCmpEx_15;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_CaseCmpEx_17_reg_stage1 <= bilinear_scale_control_memory_read_entry_CaseCmpEx_17;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_CaseDefau_18_reg_stage1 <= bilinear_scale_control_memory_read_entry_CaseDefau_18;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_21_reg_stage1 <= bilinear_scale_control_memory_read_entry_bit_conca_21;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_22_reg_stage1 <= bilinear_scale_control_memory_read_entry_bit_conca_22;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_23_reg_stage1 <= bilinear_scale_control_memory_read_entry_bit_conca_23;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_24_reg_stage1 <= bilinear_scale_control_memory_read_entry_bit_conca_24;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_25_reg_stage1 <= bilinear_scale_control_memory_read_entry_bit_conca_25;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_bit_conca_26_reg_stage1 <= bilinear_scale_control_memory_read_entry_bit_conca_26;
+	end
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_read_state_enable_0) begin
+		bilinear_scale_control_memory_read_entry_ORexitM14_reg_stage1 <= bilinear_scale_control_memory_read_entry_ORexitM14;
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_ar_addr_consumed_taken) begin
+		axi_s_ar_addr_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_addr_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_addr_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_addr_consumed_data <= s_ar_addr;
+	end
+end
+always @(*) begin
+	axi_s_ar_addr_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0)) begin
+		axi_s_ar_addr_consumed_taken = ~(bilinear_scale_control_memory_read_state_stall_0);
+	end
+end
+assign bilinear_scale_control_memory_read_entry_bit_conca_bit_select_operand_0 = 24'd0;
+assign bilinear_scale_control_memory_read_entry_bit_conca_3_bit_select_operand_0 = 29'd0;
+assign bilinear_scale_control_memory_read_entry_bit_conca_10_bit_select_operand_0 = 29'd0;
+assign bilinear_scale_control_memory_read_entry_bit_conca_10_bit_select_operand_4 = 1'd0;
+always @(posedge clk) begin
+	if (axi_s_ar_burst_consumed_taken) begin
+		axi_s_ar_burst_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_burst_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_burst_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_ar_burst_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0)) begin
+		axi_s_ar_burst_consumed_taken = ~(bilinear_scale_control_memory_read_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_ar_size_consumed_taken) begin
+		axi_s_ar_size_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_size_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_size_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_ar_size_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0)) begin
+		axi_s_ar_size_consumed_taken = ~(bilinear_scale_control_memory_read_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_ar_len_consumed_taken) begin
+		axi_s_ar_len_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_len_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_ar_len_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_ar_ready & axi_s_ar_valid)) begin
+		axi_s_ar_len_consumed_data <= s_ar_len;
+	end
+end
+always @(*) begin
+	axi_s_ar_len_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_read_valid_bit_0 & bilinear_scale_control_memory_read_entry_exitMask__0)) begin
+		axi_s_ar_len_consumed_taken = ~(bilinear_scale_control_memory_read_state_stall_0);
+	end
+end
+assign bilinear_scale_control_memory_read_entry_bit_conca_20_bit_select_operand_0 = 3'd0;
+assign bilinear_scale_control_memory_read_entry_bit_conca_25_bit_select_operand_0 = 32'd0;
+assign bilinear_scale_control_memory_read_entry_bit_conca_26_bit_select_operand_0 = 63'd0;
+always @(posedge clk) begin
+	axi_s_r_data_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a <= ((bilinear_scale_control_memory_read_state_stall_1 & axi_s_r_valid) & ~(axi_s_r_ready));
+end
+always @(posedge clk) begin
+	axi_s_r_data_bilinear_scale_control_memory_read_state_1_stalln_reg <= ~(bilinear_scale_control_memory_read_state_stall_1);
+end
+always @(*) begin
+	axi_s_r_data_bilinear_scale_control_memory_read_state_1_enable_cond_a = (bilinear_scale_control_memory_read_valid_bit_1 & (axi_s_r_data_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_data_bilinear_scale_control_memory_read_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_s_r_resp_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a <= ((bilinear_scale_control_memory_read_state_stall_1 & axi_s_r_valid) & ~(axi_s_r_ready));
+end
+always @(posedge clk) begin
+	axi_s_r_resp_bilinear_scale_control_memory_read_state_1_stalln_reg <= ~(bilinear_scale_control_memory_read_state_stall_1);
+end
+always @(*) begin
+	axi_s_r_resp_bilinear_scale_control_memory_read_state_1_enable_cond_a = (bilinear_scale_control_memory_read_valid_bit_1 & (axi_s_r_resp_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_resp_bilinear_scale_control_memory_read_state_1_stalln_reg));
+end
+always @(posedge clk) begin
+	axi_s_r_last_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a <= ((bilinear_scale_control_memory_read_state_stall_1 & axi_s_r_valid) & ~(axi_s_r_ready));
+end
+always @(posedge clk) begin
+	axi_s_r_last_bilinear_scale_control_memory_read_state_1_stalln_reg <= ~(bilinear_scale_control_memory_read_state_stall_1);
+end
+always @(*) begin
+	axi_s_r_last_bilinear_scale_control_memory_read_state_1_enable_cond_a = (bilinear_scale_control_memory_read_valid_bit_1 & (axi_s_r_last_bilinear_scale_control_memory_read_state_1_not_accessed_due_to_stall_a | axi_s_r_last_bilinear_scale_control_memory_read_state_1_stalln_reg));
+end
+always @(*) begin
+	ready = ~(bilinear_scale_control_memory_read_state_stall_0);
+end
+always @(posedge clk) begin
+	finish <= bilinear_scale_control_memory_read_state_enable_1;
+end
+always @(*) begin
+	axi_s_ar_ready = (~(axi_s_ar_len_consumed_valid) | axi_s_ar_len_consumed_taken);
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_ar_ready = 1'd0;
+	end
+end
+assign bilinear_scale_control_memory_out_addr_write_en = 1'd0;
+assign bilinear_scale_control_memory_out_addr_write_data = 1'd0;
+assign bilinear_scale_control_memory_in_addr_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_addr_write_data = 1'd0;
+assign bilinear_scale_control_memory_yratio_write_en = 1'd0;
+assign bilinear_scale_control_memory_yratio_write_data = 1'd0;
+assign bilinear_scale_control_memory_xratio_write_en = 1'd0;
+assign bilinear_scale_control_memory_xratio_write_data = 1'd0;
+assign bilinear_scale_control_memory_in_width_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_width_write_data = 1'd0;
+assign bilinear_scale_control_memory_in_stride_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_stride_write_data = 1'd0;
+assign bilinear_scale_control_memory_out_width_write_en = 1'd0;
+assign bilinear_scale_control_memory_out_width_write_data = 1'd0;
+assign bilinear_scale_control_memory_in_height_write_en = 1'd0;
+assign bilinear_scale_control_memory_in_height_write_data = 1'd0;
+assign bilinear_scale_control_memory_out_height_write_en = 1'd0;
+assign bilinear_scale_control_memory_out_height_write_data = 1'd0;
+assign bilinear_scale_control_memory_ctrl_write_en = 1'd0;
+assign bilinear_scale_control_memory_ctrl_write_data = 1'd0;
+always @(*) begin
+		s_r_data = bilinear_scale_control_memory_read_entry_select23;
+end
+always @(*) begin
+	axi_s_r_valid = 1'd0;
+	if ((axi_s_r_data_bilinear_scale_control_memory_read_state_1_enable_cond_a & bilinear_scale_control_memory_read_entry_0_reg_stage1)) begin
+		axi_s_r_valid = 1'd1;
+	end
+	if ((axi_s_r_resp_bilinear_scale_control_memory_read_state_1_enable_cond_a & bilinear_scale_control_memory_read_entry_0_reg_stage1)) begin
+		axi_s_r_valid = 1'd1;
+	end
+	if ((axi_s_r_last_bilinear_scale_control_memory_read_state_1_enable_cond_a & bilinear_scale_control_memory_read_entry_0_reg_stage1)) begin
+		axi_s_r_valid = 1'd1;
+	end
+end
+assign s_r_resp = 2'd0;
+always @(*) begin
+		s_r_last = bilinear_scale_control_memory_read_entry_6_reg_stage1;
+end
+
+endmodule
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_bilinear_scale_control_memory_write
+(
+	clk,
+	reset,
+	start,
+	ready,
+	finish,
+	s_aw_addr,
+	axi_s_aw_ready,
+	axi_s_aw_valid,
+	s_w_data,
+	axi_s_w_ready,
+	axi_s_w_valid,
+	s_aw_burst,
+	s_aw_size,
+	s_aw_len,
+	s_w_strb,
+	s_w_last,
+	bilinear_scale_control_memory_ctrl_write_en,
+	bilinear_scale_control_memory_ctrl_write_data,
+	bilinear_scale_control_memory_ctrl_read_data,
+	bilinear_scale_control_memory_in_addr_write_en,
+	bilinear_scale_control_memory_in_addr_write_data,
+	bilinear_scale_control_memory_in_addr_read_data,
+	bilinear_scale_control_memory_xratio_write_en,
+	bilinear_scale_control_memory_xratio_write_data,
+	bilinear_scale_control_memory_xratio_read_data,
+	bilinear_scale_control_memory_in_stride_write_en,
+	bilinear_scale_control_memory_in_stride_write_data,
+	bilinear_scale_control_memory_in_stride_read_data,
+	bilinear_scale_control_memory_in_height_write_en,
+	bilinear_scale_control_memory_in_height_write_data,
+	bilinear_scale_control_memory_in_height_read_data,
+	bilinear_scale_control_memory_out_height_write_en,
+	bilinear_scale_control_memory_out_height_write_data,
+	bilinear_scale_control_memory_out_height_read_data,
+	bilinear_scale_control_memory_out_addr_write_en,
+	bilinear_scale_control_memory_out_addr_write_data,
+	bilinear_scale_control_memory_out_addr_read_data,
+	bilinear_scale_control_memory_yratio_write_en,
+	bilinear_scale_control_memory_yratio_write_data,
+	bilinear_scale_control_memory_yratio_read_data,
+	bilinear_scale_control_memory_in_width_write_en,
+	bilinear_scale_control_memory_in_width_write_data,
+	bilinear_scale_control_memory_in_width_read_data,
+	bilinear_scale_control_memory_out_width_write_en,
+	bilinear_scale_control_memory_out_width_write_data,
+	bilinear_scale_control_memory_out_width_read_data,
+	s_b_resp,
+	s_b_resp_ready,
+	s_b_resp_valid
+);
+
+input  clk;
+input  reset;
+input  start;
+output reg  ready;
+output reg  finish;
+input [31:0] s_aw_addr;
+output reg  axi_s_aw_ready;
+input  axi_s_aw_valid;
+input [63:0] s_w_data;
+output reg  axi_s_w_ready;
+input  axi_s_w_valid;
+input [1:0] s_aw_burst;
+input [2:0] s_aw_size;
+input [7:0] s_aw_len;
+input [7:0] s_w_strb;
+input  s_w_last;
+output reg  bilinear_scale_control_memory_ctrl_write_en;
+output reg  bilinear_scale_control_memory_ctrl_write_data;
+input  bilinear_scale_control_memory_ctrl_read_data;
+output reg  bilinear_scale_control_memory_in_addr_write_en;
+output reg [31:0] bilinear_scale_control_memory_in_addr_write_data;
+input [31:0] bilinear_scale_control_memory_in_addr_read_data;
+output reg  bilinear_scale_control_memory_xratio_write_en;
+output reg [31:0] bilinear_scale_control_memory_xratio_write_data;
+input [31:0] bilinear_scale_control_memory_xratio_read_data;
+output reg  bilinear_scale_control_memory_in_stride_write_en;
+output reg [31:0] bilinear_scale_control_memory_in_stride_write_data;
+input [31:0] bilinear_scale_control_memory_in_stride_read_data;
+output reg  bilinear_scale_control_memory_in_height_write_en;
+output reg [31:0] bilinear_scale_control_memory_in_height_write_data;
+input [31:0] bilinear_scale_control_memory_in_height_read_data;
+output reg  bilinear_scale_control_memory_out_height_write_en;
+output reg [31:0] bilinear_scale_control_memory_out_height_write_data;
+input [31:0] bilinear_scale_control_memory_out_height_read_data;
+output reg  bilinear_scale_control_memory_out_addr_write_en;
+output reg [31:0] bilinear_scale_control_memory_out_addr_write_data;
+input [31:0] bilinear_scale_control_memory_out_addr_read_data;
+output reg  bilinear_scale_control_memory_yratio_write_en;
+output reg [31:0] bilinear_scale_control_memory_yratio_write_data;
+input [31:0] bilinear_scale_control_memory_yratio_read_data;
+output reg  bilinear_scale_control_memory_in_width_write_en;
+output reg [31:0] bilinear_scale_control_memory_in_width_write_data;
+input [31:0] bilinear_scale_control_memory_in_width_read_data;
+output reg  bilinear_scale_control_memory_out_width_write_en;
+output reg [31:0] bilinear_scale_control_memory_out_width_write_data;
+input [31:0] bilinear_scale_control_memory_out_width_read_data;
+output [1:0] s_b_resp;
+input  s_b_resp_ready;
+output reg  s_b_resp_valid;
+reg  bilinear_scale_control_memory_write_entry_0;
+reg [31:0] bilinear_scale_control_memory_write_entry_1;
+reg [7:0] bilinear_scale_control_memory_write_entry_2;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE;
+wire  bilinear_scale_control_memory_write_entry_3;
+reg  bilinear_scale_control_memory_write_entry_exitMask;
+reg  bilinear_scale_control_memory_write_entry_NotCondi;
+reg  bilinear_scale_control_memory_write_entry_exitMask_0;
+wire  bilinear_scale_control_memory_write_entry_4;
+reg  bilinear_scale_control_memory_write_entry_exitMask_1;
+reg  bilinear_scale_control_memory_write_entry_NotCondi_2;
+reg  bilinear_scale_control_memory_write_entry_exitMask_3;
+reg [31:0] bilinear_scale_control_memory_write_entry_5;
+reg [28:0] bilinear_scale_control_memory_write_entry_bit_sele;
+reg [28:0] bilinear_scale_control_memory_write_entry_bit_conc;
+reg [63:0] bilinear_scale_control_memory_write_entry_9;
+reg  bilinear_scale_control_memory_write_entry_bit_sele_4;
+reg [31:0] bilinear_scale_control_memory_write_entry_bit_sele_5;
+reg [31:0] bilinear_scale_control_memory_write_entry_bit_sele_6;
+reg [7:0] bilinear_scale_control_memory_write_entry_10;
+reg [1:0] bilinear_scale_control_memory_write_entry_bit_sele_7;
+reg [3:0] bilinear_scale_control_memory_write_entry_bit_sele_8;
+reg  bilinear_scale_control_memory_write_entry_11;
+reg [7:0] bilinear_scale_control_memory_write_entry_12;
+reg  bilinear_scale_control_memory_write_entry_not_1;
+reg  bilinear_scale_control_memory_write_entry_1_9;
+reg [7:0] bilinear_scale_control_memory_write_entry_bit_conc_10;
+reg [31:0] bilinear_scale_control_memory_write_entry_13;
+reg [2:0] bilinear_scale_control_memory_write_entry_bit_sele_11;
+reg  bilinear_scale_control_memory_write_entry_cmp_i;
+reg [5:0] bilinear_scale_control_memory_write_entry_bit_conc_12;
+reg  bilinear_scale_control_memory_write_entry_cmp43_i;
+reg  bilinear_scale_control_memory_write_entry_and20_i;
+reg [3:0] bilinear_scale_control_memory_write_entry_bit_conc_13;
+reg  bilinear_scale_control_memory_write_entry_14;
+reg [2:0] bilinear_scale_control_memory_write_entry_bit_conc_14;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_15;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_16;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_17;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_18;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_19;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_20;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_21;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_22;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_23;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_24;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_25;
+reg  bilinear_scale_control_memory_write_entry_CaseCmpE_26;
+reg  bilinear_scale_control_memory_write_entry_exitMask_27;
+reg  bilinear_scale_control_memory_write_entry_exitMask_28;
+reg  bilinear_scale_control_memory_write_entry_exitMask_29;
+reg  bilinear_scale_control_memory_write_entry_exitMask_30;
+reg  bilinear_scale_control_memory_write_entry_exitMask_31;
+reg  bilinear_scale_control_memory_write_entry_bit_conc_32;
+reg  bilinear_scale_control_memory_write_entry_15;
+reg  bilinear_scale_control_memory_write_entry_exitMask_33;
+reg  bilinear_scale_control_memory_write_entry_exitMask_34;
+reg  bilinear_scale_control_memory_write_entry_exitMask_35;
+reg  bilinear_scale_control_memory_write_entry_exitMask_36;
+reg  bilinear_scale_control_memory_write_entry_exitMask_37;
+reg  bilinear_scale_control_memory_write_entry_ORCondM5;
+reg  bilinear_scale_control_memory_write_entry_select61;
+reg  bilinear_scale_control_memory_write_entry_select63;
+reg  bilinear_scale_control_memory_write_entry_ORCondM5_38;
+reg [31:0] bilinear_scale_control_memory_write_entry_select56;
+reg [7:0] bilinear_scale_control_memory_write_entry_select;
+reg [7:0] bilinear_scale_control_memory_write_entry_select50;
+reg  axi_s_write_state_inferred_reg;
+reg [31:0] axi_s_write_word_addr_inferred_reg;
+reg [7:0] axi_s_write_count_inferred_reg;
+reg  bilinear_scale_control_memory_write_valid_bit_0;
+reg  bilinear_scale_control_memory_write_state_stall_0;
+reg  bilinear_scale_control_memory_write_state_enable_0;
+reg  bilinear_scale_control_memory_write_valid_bit_1;
+reg  bilinear_scale_control_memory_write_state_stall_1;
+reg  bilinear_scale_control_memory_write_state_enable_1;
+reg  bilinear_scale_control_memory_write_II_counter;
+reg  bilinear_scale_control_memory_write_entry_exitMask_37_reg_stage1;
+reg  axi_s_aw_addr_consumed_valid;
+reg [31:0] axi_s_aw_addr_consumed_data;
+reg  axi_s_aw_addr_consumed_taken;
+reg  axi_s_w_data_consumed_valid;
+reg [63:0] axi_s_w_data_consumed_data;
+reg  axi_s_w_data_consumed_taken;
+reg  axi_s_aw_burst_consumed_valid;
+reg  axi_s_aw_burst_consumed_taken;
+reg  axi_s_aw_size_consumed_valid;
+reg  axi_s_aw_size_consumed_taken;
+reg  axi_s_aw_len_consumed_valid;
+reg  axi_s_aw_len_consumed_taken;
+wire [2:0] bilinear_scale_control_memory_write_entry_bit_conc_bit_select_operand_0;
+reg  axi_s_w_strb_consumed_valid;
+reg [7:0] axi_s_w_strb_consumed_data;
+reg  axi_s_w_strb_consumed_taken;
+reg  axi_s_w_last_consumed_valid;
+reg  axi_s_w_last_consumed_data;
+reg  axi_s_w_last_consumed_taken;
+wire [23:0] bilinear_scale_control_memory_write_entry_bit_conc_10_bit_select_operand_0;
+wire [1:0] bilinear_scale_control_memory_write_entry_bit_conc_12_bit_select_operand_0;
+wire [3:0] bilinear_scale_control_memory_write_entry_bit_conc_12_bit_select_operand_4;
+wire [3:0] bilinear_scale_control_memory_write_entry_bit_conc_13_bit_select_operand_0;
+wire [28:0] bilinear_scale_control_memory_write_entry_bit_conc_14_bit_select_operand_0;
+wire [62:0] bilinear_scale_control_memory_write_entry_bit_conc_32_bit_select_operand_0;
+reg  axi_s_b_resp_bilinear_scale_control_memory_write_state_1_not_accessed_due_to_stall_a;
+reg  axi_s_b_resp_bilinear_scale_control_memory_write_state_1_stalln_reg;
+reg  axi_s_b_resp_bilinear_scale_control_memory_write_state_1_enable_cond_a;
+
+
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_0 = axi_s_write_state_inferred_reg;
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_1 = axi_s_write_word_addr_inferred_reg;
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_2 = axi_s_write_count_inferred_reg;
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE = (bilinear_scale_control_memory_write_entry_0 ^ 1'd1);
+end
+assign bilinear_scale_control_memory_write_entry_3 = ~(axi_s_aw_addr_consumed_valid);
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask = (bilinear_scale_control_memory_write_entry_3 & bilinear_scale_control_memory_write_entry_CaseCmpE);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_NotCondi = (bilinear_scale_control_memory_write_entry_3 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_0 = (bilinear_scale_control_memory_write_entry_CaseCmpE & bilinear_scale_control_memory_write_entry_NotCondi);
+end
+assign bilinear_scale_control_memory_write_entry_4 = ~(axi_s_w_data_consumed_valid);
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_1 = (bilinear_scale_control_memory_write_entry_0 & bilinear_scale_control_memory_write_entry_4);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_NotCondi_2 = (bilinear_scale_control_memory_write_entry_4 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_3 = (bilinear_scale_control_memory_write_entry_0 & bilinear_scale_control_memory_write_entry_NotCondi_2);
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_entry_5 = axi_s_aw_addr_consumed_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_sele = bilinear_scale_control_memory_write_entry_5[31:3];
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_conc = {bilinear_scale_control_memory_write_entry_bit_conc_bit_select_operand_0[2:0], bilinear_scale_control_memory_write_entry_bit_sele[28:0]};
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_entry_9 = axi_s_w_data_consumed_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_sele_4 = bilinear_scale_control_memory_write_entry_9[0];
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_sele_5 = bilinear_scale_control_memory_write_entry_9[31:0];
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_sele_6 = bilinear_scale_control_memory_write_entry_9[63:32];
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_entry_10 = axi_s_w_strb_consumed_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_sele_7 = bilinear_scale_control_memory_write_entry_10[5:4];
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_sele_8 = bilinear_scale_control_memory_write_entry_10[3:0];
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_entry_11 = axi_s_w_last_consumed_data;
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_12 = (bilinear_scale_control_memory_write_entry_2 + 8'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_not_1 = (bilinear_scale_control_memory_write_entry_11 ^ 1'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_1_9 = (bilinear_scale_control_memory_write_entry_0 & bilinear_scale_control_memory_write_entry_not_1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_conc_10 = {bilinear_scale_control_memory_write_entry_bit_conc_10_bit_select_operand_0[23:0], bilinear_scale_control_memory_write_entry_2[7:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_13 = (bilinear_scale_control_memory_write_entry_1 + {24'd0,bilinear_scale_control_memory_write_entry_bit_conc_10});
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_sele_11 = bilinear_scale_control_memory_write_entry_13[2:0];
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_cmp_i = (bilinear_scale_control_memory_write_entry_10 > -8'd65);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_conc_12 = {{bilinear_scale_control_memory_write_entry_bit_conc_12_bit_select_operand_0[1:0], bilinear_scale_control_memory_write_entry_bit_sele_7[1:0]}, bilinear_scale_control_memory_write_entry_bit_conc_12_bit_select_operand_4[3:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_cmp43_i = ({2'd0,bilinear_scale_control_memory_write_entry_bit_conc_12} == 8'd48);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_and20_i = (bilinear_scale_control_memory_write_entry_cmp_i & bilinear_scale_control_memory_write_entry_cmp43_i);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_conc_13 = {bilinear_scale_control_memory_write_entry_bit_conc_13_bit_select_operand_0[3:0], bilinear_scale_control_memory_write_entry_bit_sele_8[3:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_14 = ({4'd0,bilinear_scale_control_memory_write_entry_bit_conc_13} == 8'd15);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_conc_14 = {bilinear_scale_control_memory_write_entry_bit_conc_14_bit_select_operand_0[28:0], bilinear_scale_control_memory_write_entry_bit_sele_11[2:0]};
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_15 = ({29'd0,bilinear_scale_control_memory_write_entry_bit_conc_14} == 32'd0);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_16 = ({29'd0,bilinear_scale_control_memory_write_entry_bit_conc_14} == 32'd1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_17 = ({29'd0,bilinear_scale_control_memory_write_entry_bit_conc_14} == 32'd2);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_18 = ({29'd0,bilinear_scale_control_memory_write_entry_bit_conc_14} == 32'd3);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_19 = ({29'd0,bilinear_scale_control_memory_write_entry_bit_conc_14} == 32'd4);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_20 = ({29'd0,bilinear_scale_control_memory_write_entry_bit_conc_14} == 32'd5);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_21 = (bilinear_scale_control_memory_write_entry_exitMask_3 & bilinear_scale_control_memory_write_entry_CaseCmpE_15);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_22 = (bilinear_scale_control_memory_write_entry_exitMask_3 & bilinear_scale_control_memory_write_entry_CaseCmpE_16);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_23 = (bilinear_scale_control_memory_write_entry_exitMask_3 & bilinear_scale_control_memory_write_entry_CaseCmpE_17);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_24 = (bilinear_scale_control_memory_write_entry_exitMask_3 & bilinear_scale_control_memory_write_entry_CaseCmpE_18);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_25 = (bilinear_scale_control_memory_write_entry_exitMask_3 & bilinear_scale_control_memory_write_entry_CaseCmpE_19);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_CaseCmpE_26 = (bilinear_scale_control_memory_write_entry_exitMask_3 & bilinear_scale_control_memory_write_entry_CaseCmpE_20);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_27 = (bilinear_scale_control_memory_write_entry_CaseCmpE_21 & bilinear_scale_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_28 = (bilinear_scale_control_memory_write_entry_CaseCmpE_22 & bilinear_scale_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_29 = (bilinear_scale_control_memory_write_entry_CaseCmpE_23 & bilinear_scale_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_30 = (bilinear_scale_control_memory_write_entry_CaseCmpE_24 & bilinear_scale_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_31 = (bilinear_scale_control_memory_write_entry_CaseCmpE_25 & bilinear_scale_control_memory_write_entry_14);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_bit_conc_32 = {bilinear_scale_control_memory_write_entry_bit_conc_32_bit_select_operand_0[62:0], bilinear_scale_control_memory_write_entry_bit_sele_4};
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_15 = (bilinear_scale_control_memory_write_entry_bit_conc_32 != 64'd0);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_33 = (bilinear_scale_control_memory_write_entry_CaseCmpE_21 & bilinear_scale_control_memory_write_entry_and20_i);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_34 = (bilinear_scale_control_memory_write_entry_CaseCmpE_22 & bilinear_scale_control_memory_write_entry_and20_i);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_35 = (bilinear_scale_control_memory_write_entry_CaseCmpE_23 & bilinear_scale_control_memory_write_entry_and20_i);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_36 = (bilinear_scale_control_memory_write_entry_CaseCmpE_24 & bilinear_scale_control_memory_write_entry_and20_i);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_exitMask_37 = (bilinear_scale_control_memory_write_entry_exitMask_3 & bilinear_scale_control_memory_write_entry_11);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_ORCondM5 = (bilinear_scale_control_memory_write_entry_exitMask | bilinear_scale_control_memory_write_entry_exitMask_1);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_select61 = (bilinear_scale_control_memory_write_entry_exitMask_0 | bilinear_scale_control_memory_write_entry_1_9);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_select63 = (bilinear_scale_control_memory_write_entry_ORCondM5 ? bilinear_scale_control_memory_write_entry_0 : bilinear_scale_control_memory_write_entry_select61);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_ORCondM5_38 = (bilinear_scale_control_memory_write_entry_exitMask_3 | bilinear_scale_control_memory_write_entry_ORCondM5);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_select56 = (bilinear_scale_control_memory_write_entry_ORCondM5_38 ? bilinear_scale_control_memory_write_entry_1 : {3'd0,bilinear_scale_control_memory_write_entry_bit_conc});
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_select = (bilinear_scale_control_memory_write_entry_exitMask_0 ? 8'd0 : bilinear_scale_control_memory_write_entry_2);
+end
+always @(*) begin
+		bilinear_scale_control_memory_write_entry_select50 = (bilinear_scale_control_memory_write_entry_exitMask_3 ? bilinear_scale_control_memory_write_entry_12 : bilinear_scale_control_memory_write_entry_select);
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_write_state_inferred_reg <= 1'd0;
+	end
+	if ((bilinear_scale_control_memory_write_state_enable_0 & 1'd1)) begin
+		axi_s_write_state_inferred_reg <= bilinear_scale_control_memory_write_entry_select63;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_write_word_addr_inferred_reg <= 32'd0;
+	end
+	if ((bilinear_scale_control_memory_write_state_enable_0 & 1'd1)) begin
+		axi_s_write_word_addr_inferred_reg <= bilinear_scale_control_memory_write_entry_select56;
+	end
+end
+always @(posedge clk) begin
+	if (reset) begin
+		axi_s_write_count_inferred_reg <= 8'd0;
+	end
+	if ((bilinear_scale_control_memory_write_state_enable_0 & 1'd1)) begin
+		axi_s_write_count_inferred_reg <= bilinear_scale_control_memory_write_entry_select50;
+	end
+end
+always @(posedge clk) begin
+	if (~(bilinear_scale_control_memory_write_state_stall_0)) begin
+		bilinear_scale_control_memory_write_valid_bit_0 <= (bilinear_scale_control_memory_write_II_counter & start);
+	end
+	if (reset) begin
+		bilinear_scale_control_memory_write_valid_bit_0 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_state_stall_0 = 1'd0;
+	if (bilinear_scale_control_memory_write_state_stall_1) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0) & ~(axi_s_aw_addr_consumed_valid))) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0) & ~(axi_s_aw_burst_consumed_valid))) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0) & ~(axi_s_aw_size_consumed_valid))) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0) & ~(axi_s_aw_len_consumed_valid))) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_3) & ~(axi_s_w_data_consumed_valid))) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_3) & ~(axi_s_w_strb_consumed_valid))) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+	if (((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_3) & ~(axi_s_w_last_consumed_valid))) begin
+		bilinear_scale_control_memory_write_state_stall_0 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_state_enable_0 = (bilinear_scale_control_memory_write_valid_bit_0 & ~(bilinear_scale_control_memory_write_state_stall_0));
+end
+always @(posedge clk) begin
+	if (~(bilinear_scale_control_memory_write_state_stall_1)) begin
+		bilinear_scale_control_memory_write_valid_bit_1 <= bilinear_scale_control_memory_write_state_enable_0;
+	end
+	if (reset) begin
+		bilinear_scale_control_memory_write_valid_bit_1 <= 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_state_stall_1 = 1'd0;
+	if ((((bilinear_scale_control_memory_write_valid_bit_1 & s_b_resp_valid) & ~(s_b_resp_ready)) & (axi_s_b_resp_bilinear_scale_control_memory_write_state_1_not_accessed_due_to_stall_a | axi_s_b_resp_bilinear_scale_control_memory_write_state_1_stalln_reg))) begin
+		bilinear_scale_control_memory_write_state_stall_1 = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_write_state_enable_1 = (bilinear_scale_control_memory_write_valid_bit_1 & ~(bilinear_scale_control_memory_write_state_stall_1));
+end
+always @(posedge clk) begin
+	bilinear_scale_control_memory_write_II_counter <= 1'd1;
+end
+always @(posedge clk) begin
+	if (bilinear_scale_control_memory_write_state_enable_0) begin
+		bilinear_scale_control_memory_write_entry_exitMask_37_reg_stage1 <= bilinear_scale_control_memory_write_entry_exitMask_37;
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_addr_consumed_taken) begin
+		axi_s_aw_addr_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_addr_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_addr_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_addr_consumed_data <= s_aw_addr;
+	end
+end
+always @(*) begin
+	axi_s_aw_addr_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0)) begin
+		axi_s_aw_addr_consumed_taken = ~(bilinear_scale_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_w_data_consumed_taken) begin
+		axi_s_w_data_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_data_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_w_data_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_data_consumed_data <= s_w_data;
+	end
+end
+always @(*) begin
+	axi_s_w_data_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_3)) begin
+		axi_s_w_data_consumed_taken = ~(bilinear_scale_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_burst_consumed_taken) begin
+		axi_s_aw_burst_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_burst_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_burst_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_aw_burst_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0)) begin
+		axi_s_aw_burst_consumed_taken = ~(bilinear_scale_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_size_consumed_taken) begin
+		axi_s_aw_size_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_size_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_size_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_aw_size_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0)) begin
+		axi_s_aw_size_consumed_taken = ~(bilinear_scale_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_aw_len_consumed_taken) begin
+		axi_s_aw_len_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_aw_ready & axi_s_aw_valid)) begin
+		axi_s_aw_len_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_aw_len_consumed_valid <= 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_aw_len_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_0)) begin
+		axi_s_aw_len_consumed_taken = ~(bilinear_scale_control_memory_write_state_stall_0);
+	end
+end
+assign bilinear_scale_control_memory_write_entry_bit_conc_bit_select_operand_0 = 3'd0;
+always @(posedge clk) begin
+	if (axi_s_w_strb_consumed_taken) begin
+		axi_s_w_strb_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_strb_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_w_strb_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_strb_consumed_data <= s_w_strb;
+	end
+end
+always @(*) begin
+	axi_s_w_strb_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_3)) begin
+		axi_s_w_strb_consumed_taken = ~(bilinear_scale_control_memory_write_state_stall_0);
+	end
+end
+always @(posedge clk) begin
+	if (axi_s_w_last_consumed_taken) begin
+		axi_s_w_last_consumed_valid <= 1'd0;
+	end
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_last_consumed_valid <= 1'd1;
+	end
+	if (reset) begin
+		axi_s_w_last_consumed_valid <= 1'd0;
+	end
+end
+always @(posedge clk) begin
+	if ((axi_s_w_ready & axi_s_w_valid)) begin
+		axi_s_w_last_consumed_data <= s_w_last;
+	end
+end
+always @(*) begin
+	axi_s_w_last_consumed_taken = 1'd0;
+	if ((bilinear_scale_control_memory_write_valid_bit_0 & bilinear_scale_control_memory_write_entry_exitMask_3)) begin
+		axi_s_w_last_consumed_taken = ~(bilinear_scale_control_memory_write_state_stall_0);
+	end
+end
+assign bilinear_scale_control_memory_write_entry_bit_conc_10_bit_select_operand_0 = 24'd0;
+assign bilinear_scale_control_memory_write_entry_bit_conc_12_bit_select_operand_0 = 2'd0;
+assign bilinear_scale_control_memory_write_entry_bit_conc_12_bit_select_operand_4 = 4'd0;
+assign bilinear_scale_control_memory_write_entry_bit_conc_13_bit_select_operand_0 = 4'd0;
+assign bilinear_scale_control_memory_write_entry_bit_conc_14_bit_select_operand_0 = 29'd0;
+assign bilinear_scale_control_memory_write_entry_bit_conc_32_bit_select_operand_0 = 63'd0;
+always @(posedge clk) begin
+	axi_s_b_resp_bilinear_scale_control_memory_write_state_1_not_accessed_due_to_stall_a <= ((bilinear_scale_control_memory_write_state_stall_1 & s_b_resp_valid) & ~(s_b_resp_ready));
+end
+always @(posedge clk) begin
+	axi_s_b_resp_bilinear_scale_control_memory_write_state_1_stalln_reg <= ~(bilinear_scale_control_memory_write_state_stall_1);
+end
+always @(*) begin
+	axi_s_b_resp_bilinear_scale_control_memory_write_state_1_enable_cond_a = (bilinear_scale_control_memory_write_valid_bit_1 & (axi_s_b_resp_bilinear_scale_control_memory_write_state_1_not_accessed_due_to_stall_a | axi_s_b_resp_bilinear_scale_control_memory_write_state_1_stalln_reg));
+end
+always @(*) begin
+	ready = ~(bilinear_scale_control_memory_write_state_stall_0);
+end
+always @(posedge clk) begin
+	finish <= bilinear_scale_control_memory_write_state_enable_1;
+end
+always @(*) begin
+	axi_s_aw_ready = (~(axi_s_aw_len_consumed_valid) | axi_s_aw_len_consumed_taken);
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_aw_ready = 1'd0;
+	end
+end
+always @(*) begin
+	axi_s_w_ready = (~(axi_s_w_last_consumed_valid) | axi_s_w_last_consumed_taken);
+	if (reset) begin
+		axi_s_w_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_w_ready = 1'd0;
+	end
+	if (reset) begin
+		axi_s_w_ready = 1'd0;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_ctrl_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_CaseCmpE_26)) begin
+		bilinear_scale_control_memory_ctrl_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_ctrl_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_CaseCmpE_26)) begin
+		bilinear_scale_control_memory_ctrl_write_data = bilinear_scale_control_memory_write_entry_15;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_addr_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_27)) begin
+		bilinear_scale_control_memory_in_addr_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_addr_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_27)) begin
+		bilinear_scale_control_memory_in_addr_write_data = bilinear_scale_control_memory_write_entry_bit_sele_5;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_xratio_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_28)) begin
+		bilinear_scale_control_memory_xratio_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_xratio_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_28)) begin
+		bilinear_scale_control_memory_xratio_write_data = bilinear_scale_control_memory_write_entry_bit_sele_5;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_stride_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_29)) begin
+		bilinear_scale_control_memory_in_stride_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_stride_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_29)) begin
+		bilinear_scale_control_memory_in_stride_write_data = bilinear_scale_control_memory_write_entry_bit_sele_5;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_height_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_30)) begin
+		bilinear_scale_control_memory_in_height_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_height_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_30)) begin
+		bilinear_scale_control_memory_in_height_write_data = bilinear_scale_control_memory_write_entry_bit_sele_5;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_height_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_31)) begin
+		bilinear_scale_control_memory_out_height_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_height_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_31)) begin
+		bilinear_scale_control_memory_out_height_write_data = bilinear_scale_control_memory_write_entry_bit_sele_5;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_addr_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_33)) begin
+		bilinear_scale_control_memory_out_addr_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_addr_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_33)) begin
+		bilinear_scale_control_memory_out_addr_write_data = bilinear_scale_control_memory_write_entry_bit_sele_6;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_yratio_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_34)) begin
+		bilinear_scale_control_memory_yratio_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_yratio_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_34)) begin
+		bilinear_scale_control_memory_yratio_write_data = bilinear_scale_control_memory_write_entry_bit_sele_6;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_width_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_35)) begin
+		bilinear_scale_control_memory_in_width_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_in_width_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_35)) begin
+		bilinear_scale_control_memory_in_width_write_data = bilinear_scale_control_memory_write_entry_bit_sele_6;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_width_write_en = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_36)) begin
+		bilinear_scale_control_memory_out_width_write_en = 1'd1;
+	end
+end
+always @(*) begin
+	bilinear_scale_control_memory_out_width_write_data = 1'd0;
+	if ((bilinear_scale_control_memory_write_state_enable_0 & bilinear_scale_control_memory_write_entry_exitMask_36)) begin
+		bilinear_scale_control_memory_out_width_write_data = bilinear_scale_control_memory_write_entry_bit_sele_6;
+	end
+end
+assign s_b_resp = 2'd0;
+always @(*) begin
+	s_b_resp_valid = 1'd0;
+	if ((axi_s_b_resp_bilinear_scale_control_memory_write_state_1_enable_cond_a & bilinear_scale_control_memory_write_entry_exitMask_37_reg_stage1)) begin
+		s_b_resp_valid = 1'd1;
+	end
+end
+
+endmodule
+
+
+
+`timescale 1 ns / 1 ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+module axi_master_scale_updown_bilinear_fwft_fifo # (
+    parameter width = 32,
+    parameter widthad = 3,
+    parameter depth = 8,
+    parameter almost_empty_value = 2,
+    parameter almost_full_value = 2,
+    parameter name = "",
+    parameter ramstyle = "",
+    parameter disable_full_empty_check = 0
+) (
+    input reset,
+    input clk,
+    input clken,
+    // Interface to source.
+    output full,
+    output almost_full,
+    input write_en,
+    input [width-1:0] write_data,
+    // Interface to sink.
+    output empty,
+    output almost_empty,
+    input read_en,
+    output [width-1:0] read_data,
+    // Number of words stored in the FIFO.
+    output [widthad:0] usedw
+);
+
+generate
+if (depth == 0) begin
+	assign full = !read_en;
+	assign almost_full = 1'b1;
+	assign empty = !write_en;
+	assign almost_empty = 1'b1;
+	assign read_data = write_data;
+end else if (ramstyle == "block" || ramstyle == "") begin
+    axi_master_scale_updown_bilinear_fwft_fifo_bram # (
+      .width (width),
+      .widthad (widthad),
+      .depth (depth),
+      .almost_empty_value (almost_empty_value),
+      .almost_full_value (almost_full_value),
+      .name (name),
+      .ramstyle (ramstyle),
+      .disable_full_empty_check (disable_full_empty_check)
+    ) fwft_fifo_bram_inst (
+      .reset (reset),
+      .clk (clk),
+      .clken (clken),
+      .full (full),
+      .almost_full (almost_full),
+      .write_en (write_en),
+      .write_data (write_data),
+      .empty (empty),
+      .almost_empty (almost_empty),
+      .read_en (read_en),
+      .read_data (read_data),
+      .usedw (usedw)
+    );
+end else begin // if (ramstyle == distributed || ramstyle == registers)
+    axi_master_scale_updown_bilinear_fwft_fifo_lutram # (
+      .width (width),
+      .widthad (widthad),
+      .depth (depth),
+      .almost_empty_value (almost_empty_value),
+      .almost_full_value (almost_full_value),
+      .name (name),
+      .ramstyle (ramstyle),
+      .disable_full_empty_check (disable_full_empty_check)
+    ) fwft_fifo_lutram_inst (
+      .reset (reset),
+      .clk (clk),
+      .clken (clken),
+      .full (full),
+      .almost_full (almost_full),
+      .write_en (write_en),
+      .write_data (write_data),
+      .empty (empty),
+      .almost_empty (almost_empty),
+      .read_en (read_en),
+      .read_data (read_data),
+      .usedw (usedw)
+    );
+end
+endgenerate
+
+/* synthesis translate_off */
+
+localparam NUM_CYCLES_BETWEEN_STALL_WARNINGS = 1000000;
+integer num_empty_stall_cycles = 0;
+integer num_full_stall_cycles = 0;
+integer num_full_cycles = 0;
+
+always @ (posedge clk) begin
+    if (num_empty_stall_cycles == NUM_CYCLES_BETWEEN_STALL_WARNINGS) begin
+        num_empty_stall_cycles = 0;
+        if (name == "")
+            $display("Warning: fifo_read() has been stalled for %d cycles due to FIFO being empty.", NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+        else
+            $display("Warning: fifo_read() from %s has been stalled for %d cycles due to FIFO being empty.", name, NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+    end else if (empty & read_en)
+        num_empty_stall_cycles = num_empty_stall_cycles + 1;
+    else
+        num_empty_stall_cycles = 0;
+
+
+    if (num_full_stall_cycles == NUM_CYCLES_BETWEEN_STALL_WARNINGS) begin
+        num_full_stall_cycles = 0;
+        if (name == "")
+            $display("Warning: fifo_write() has been stalled for %d cycles due to FIFO being full.", NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+        else
+            $display("Warning: fifo_write() to %s has been stalled for %d cycles due to FIFO being full.", name, NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+    end else if (full & write_en)
+        num_full_stall_cycles = num_full_stall_cycles + 1;
+    else
+        num_full_stall_cycles = 0;
+
+
+    if (num_full_cycles == NUM_CYCLES_BETWEEN_STALL_WARNINGS) begin
+        num_full_cycles = 0;
+        $display("Warning: FIFO %s has been full for %d cycles. The circuit may have been stalled with no progress.", name, NUM_CYCLES_BETWEEN_STALL_WARNINGS);
+        $display("         Please examine the simulation waveform and increase the corresponding FIFO depth if necessary.");
+    end else if (full)
+        num_full_cycles = num_full_cycles + 1;
+    else
+        num_full_cycles = 0;
+end
+
+/* synthesis translate_on */
+
+
+endmodule
+
+//--------------------------------------------
+// Block-RAM-based FWFT FIFO implementation.
+//--------------------------------------------
+
+module axi_master_scale_updown_bilinear_fwft_fifo_bram # (
+    parameter width = 32,
+    parameter widthad = 4,
+    parameter depth = 16,
+    parameter almost_empty_value = 2,
+    parameter almost_full_value = 2,
+    parameter name = "",
+    parameter ramstyle = "block",
+    parameter disable_full_empty_check = 0
+) (
+    input reset,
+    input clk,
+    input clken,
+    // Interface to source.
+    output reg full,
+    output almost_full,
+    input write_en,
+    input [width-1:0] write_data,
+    // Interface to sink.
+    output reg empty,
+    output almost_empty,
+    input read_en,
+    output [width-1:0] read_data,
+    // Number of words stored in the FIFO.
+    output reg [widthad:0] usedw
+);
+
+
+// The output data from RAM.
+wire [width-1:0] ram_data;
+// An extra register to either sample fifo output or write_data.
+reg [width-1:0] sample_data;
+// Use a mealy FSM with 4 states to handle the special cases.
+localparam [1:0] EMPTY = 2'd0;
+localparam [1:0] FALL_THRU = 2'd1;
+localparam [1:0] LEFT_OVER = 2'd2;
+localparam [1:0] STEADY = 2'd3;
+reg [1:0] state = 2'd0;
+
+always @ (posedge clk) begin
+    if (reset) begin
+        state <= EMPTY;
+        sample_data <= {width{1'b0}};
+    end else begin
+        case (state)
+            EMPTY:
+                if (write_en) begin
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end else begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end
+            FALL_THRU:  // usedw must be 1.
+                if (write_en & ~read_en) begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end else if (~write_en & read_en) begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end else if (~write_en & ~read_en) begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end else begin // write_en & read_en
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end
+            LEFT_OVER:  // usedw must be > 1.
+                if (usedw == 1 & read_en & ~write_en) begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end else if (usedw == 1 & read_en & write_en) begin
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end else if (read_en) begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end else begin // ~read_en
+                    state <= LEFT_OVER;
+                    sample_data <= sample_data;
+                end
+            STEADY:
+                if (usedw == 1 & read_en & ~write_en) begin
+                    state <= EMPTY;
+                    sample_data <= {width{1'bX}};
+                end else if (usedw == 1 & read_en & write_en) begin
+                    state <= FALL_THRU;
+                    sample_data <= write_data;
+                end else if (~read_en) begin
+                    state <= LEFT_OVER; // Only transition to LEFT_OVER.
+                    sample_data <= ram_data;
+                end else begin
+                    state <= STEADY;
+                    sample_data <= {width{1'bX}};
+                end
+            default: begin
+                 state <= EMPTY;
+                 sample_data <= {width{1'b0}};
+            end
+        endcase
+    end
+end
+
+assign read_data = (state == LEFT_OVER || state == FALL_THRU) ? sample_data
+                                                              : ram_data;
+
+wire write_handshake = (write_en & ~full);
+wire read_handshake = (read_en & ~empty);
+
+// Full and empty.
+generate
+if (disable_full_empty_check) begin
+    always @ (posedge clk) begin full <= 0; empty <= 0; end
+end else begin
+    always @ (posedge clk) begin
+      if (reset) begin
+        full <= 0;
+        empty <= 1;
+      end else begin
+        full <= (full & ~read_handshake) | ((usedw == depth - 1) & (write_handshake & ~read_handshake));
+        empty <= (empty & ~write_handshake) | ((usedw == 1) & (read_handshake & ~write_handshake));
+      end
+    end
+end
+endgenerate
+
+// FIXME: may want to make almost_full/empty registers too.
+assign almost_full = (usedw >= almost_full_value);
+assign almost_empty= (usedw <= almost_empty_value);
+
+// Read/Write port addresses.
+reg [widthad-1:0] write_address = 0;
+reg [widthad-1:0] read_address = 0;
+
+function [widthad-1:0] increment;
+    input [widthad-1:0] address;
+    input integer depth;
+    increment = (address == depth - 1) ? 0 : address + 1;
+endfunction
+
+always @ (posedge clk) begin
+    if (reset) begin
+        write_address <= 0;
+        read_address <= 0;
+    end else begin
+        if (write_en & ~full)
+            write_address <= increment(write_address, depth);
+        if ((read_en & ~empty & ~(usedw==1)) | (state == FALL_THRU))
+            read_address <= increment(read_address, depth);
+    end
+end
+
+// Usedw.
+always @ (posedge clk) begin
+    if (reset) begin
+        usedw <= 0;
+    end else begin
+        if (write_handshake & read_handshake)
+            usedw <= usedw;
+        else if (write_handshake)
+            usedw <= usedw + 1;
+        else if (read_handshake)
+            usedw <= usedw - 1;
+        else
+            usedw <= usedw;
+    end
+end
+
+/* synthesis translate_off */
+initial
+if ( widthad < $clog2(depth) ) begin
+    $display("Error: Invalid FIFO parameter, widthad=%d, depth=%d.",
+             widthad, depth);
+    $finish;
+end
+
+always @ (posedge clk) begin
+    if ( (state == EMPTY &&
+            (usedw != 0 || read_address != write_address)) ||
+         (state == FALL_THRU &&
+            ((read_address + usedw) % depth != write_address)) ||
+         (state == STEADY &&
+            ((read_address + usedw - 1) % depth != write_address)) ||
+         (state == LEFT_OVER &&
+            ((read_address + usedw - 1) % depth != write_address)) ) begin
+        $display("Error: FIFO read/write address mismatch with usedw.");
+        $display("\t rd_addr=%d, wr_addr=%d, usedw=%d, state=%d.",
+                    read_address, write_address, usedw, state);
+        $finish;
+    end
+    if (usedw > depth) begin
+        $display("Error: usedw goes out of range.");
+        $finish;
+    end
+end
+
+/* synthesis translate_on */
+
+/// Instantiation of inferred ram.
+axi_master_scale_updown_bilinear_simple_ram_dual_port_fifo ram_dual_port_inst (
+  .clk( clk ),
+  // Write port, i.e., interface to source.
+  .waddr( write_address ),
+  .wr_en( write_en & ~full ),
+  .din( write_data ),
+  // Read port, i.e., interface to sink.
+  .raddr( read_address ),
+  .dout( ram_data )
+);
+defparam ram_dual_port_inst.width = width;
+defparam ram_dual_port_inst.widthad = widthad;
+defparam ram_dual_port_inst.numwords = depth;
+
+endmodule
+
+//--------------------------------------------
+// LUT-RAM-based FWFT FIFO implementation.
+//--------------------------------------------
+
+module axi_master_scale_updown_bilinear_fwft_fifo_lutram # (
+    parameter width = 32,
+    parameter widthad = 4,
+    parameter depth = 16,
+    parameter almost_empty_value = 2,
+    parameter almost_full_value = 2,
+    parameter name = "",
+    parameter ramstyle = "",
+    parameter disable_full_empty_check = 0
+) (
+    input reset,
+    input clk,
+    input clken,
+    // Interface to source.
+    output reg full,
+    output almost_full,
+    input write_en,
+    input [width-1:0] write_data,
+    // Interface to sink.
+    output reg empty,
+    output almost_empty,
+    input read_en,
+    output [width-1:0] read_data,
+    // Number of words stored in the FIFO.
+    output reg [widthad:0] usedw
+);
+
+wire write_handshake = (write_en & ~full);
+wire read_handshake = (read_en & ~empty);
+
+// Full and empty.
+generate
+if (disable_full_empty_check) begin
+    always @ (posedge clk) begin full <= 0; empty <= 0; end
+end else begin
+    always @ (posedge clk) begin
+      if (reset) begin
+        full <= 0;
+        empty <= 1;
+      end else begin
+        full <= (full & ~read_handshake) | ((usedw == depth - 1) & (write_handshake & ~read_handshake));
+        empty <= (empty & ~write_handshake) | ((usedw == 1) & (read_handshake & ~write_handshake));
+      end
+    end
+end
+endgenerate
+
+// FIXME: may want to make almost_full/empty registers too.
+assign almost_full = (usedw >= almost_full_value);
+assign almost_empty= (usedw <= almost_empty_value);
+
+// Read/Write port addresses.
+reg [widthad-1:0] write_address = 0;
+reg [widthad-1:0] read_address = 0;
+
+function [widthad-1:0] increment;
+    input [widthad-1:0] address;
+    input integer depth;
+    increment = (address == depth - 1) ? 0 : address + 1;
+endfunction
+
+always @ (posedge clk) begin
+    if (reset) begin
+        write_address <= 0;
+        read_address <= 0;
+    end else begin
+        if (write_en & ~full)
+            write_address <= increment(write_address, depth);
+        if (read_en & ~empty)
+            read_address <= increment(read_address, depth);
+    end
+end
+
+// Usedw.
+always @ (posedge clk) begin
+    if (reset) begin
+        usedw <= 0;
+    end else begin
+        if (write_handshake & read_handshake)
+            usedw <= usedw;
+        else if (write_handshake)
+            usedw <= usedw + 1;
+        else if (read_handshake)
+            usedw <= usedw - 1;
+        else
+            usedw <= usedw;
+    end
+end
+
+/* synthesis translate_off */
+initial
+if ( widthad < $clog2(depth) ) begin
+    $display("Error: Invalid FIFO parameter, widthad=%d, depth=%d.",
+             widthad, depth);
+    $finish;
+end
+
+always @ (posedge clk) begin
+    if ((read_address + usedw) % depth != write_address) begin
+        $display("Error: FIFO read/write address mismatch with usedw.");
+        $display("\t rd_addr=%d, wr_addr=%d, usedw=%d.",
+                    read_address, write_address, usedw);
+        $finish;
+    end
+    if (usedw > depth) begin
+        $display("Error: usedw goes out of range.");
+        $finish;
+    end
+end
+
+/* synthesis translate_on */
+
+/// Instantiation of inferred ram.
+axi_master_scale_updown_bilinear_lutram_dual_port_fifo lutram_dual_port_inst (
+	.clk( clk ),
+	.clken( clken ),
+    // Write port, i.e., interface to source.
+	.address_a( write_address ),
+	.wren_a( write_en & ~full ),
+    .data_a( write_data ),
+    // Read port, i.e., interface to sink.
+	.address_b( read_address ),
+	.q_b( read_data )
+);
+defparam lutram_dual_port_inst.width = width;
+defparam lutram_dual_port_inst.widthad = widthad;
+defparam lutram_dual_port_inst.numwords = depth;
+defparam lutram_dual_port_inst.ramstyle = ramstyle;
+
+endmodule
+
+
+`timescale 1 ns / 1 ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+// Adapted from Example 5 in:
+// Inferring Microchip PolarFire RAM Blocks
+// Synopsys® Application Note, April 2021
+module axi_master_scale_updown_bilinear_simple_ram_dual_port_fifo # (
+  parameter  width    = 1'd0,
+  parameter  widthad  = 1'd0,
+  parameter  numwords = 1'd0
+) (
+  input clk,
+  input [(width-1):0] din,
+  input wr_en,
+  input [(widthad-1):0] waddr, raddr,
+  output [(width-1):0] dout
+);
+  reg [(widthad-1):0] raddr_reg;
+  reg [(width-1):0] mem [(numwords-1):0];
+
+  assign dout = mem[raddr_reg];
+
+  always @ (posedge clk) begin
+    raddr_reg <= raddr;
+    if (wr_en) begin
+      mem[waddr] <= din;
+    end
+  end
+
+endmodule
+
+// Zero-cycle read latency and One-cycle write latency.
+// Port A is for write, Port B is for read.
+module axi_master_scale_updown_bilinear_lutram_dual_port_fifo # (
+    parameter  width = 1'd0,
+    parameter  widthad = 1'd0,
+    parameter  numwords = 1'd0,
+    parameter  ramstyle = ""
+) (
+    input  clk,
+    input  clken,
+    input [widthad - 1:0] address_a,
+    input  wren_a,
+    input [width - 1:0] data_a,
+    input [widthad - 1:0] address_b,
+    output [width - 1:0] q_b
+);
+
+generate
+if (ramstyle == "registers") begin: _M
+   (* ramstyle = ramstyle, ram_style = ramstyle *) reg [width - 1:0] ram [numwords - 1:0] /* synthesis syn_ramstyle = "registers" */;
+end else begin: _M
+   (* ramstyle = ramstyle, ram_style = ramstyle *) reg [width - 1:0] ram [numwords - 1:0] /* synthesis syn_ramstyle = "distributed" */;
+end
+endgenerate
+
+assign q_b = _M.ram[address_b];
+
+always @ (posedge clk) begin
+  if (clken & wren_a) _M.ram[address_a] <= data_a;
+end
+
+endmodule
+
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+`timescale 1 ns / 1 ns
+module axi_master_scale_updown_bilinear_hls_register (
+    clk,
+    reset,
+    write_en,
+    read_data,
+    write_data
+);
+
+parameter width = 32;
+parameter init_value = 0;
+input  clk;
+input  reset;
+input  write_en;
+input  [width-1 : 0 ] write_data;
+output [width-1 : 0 ] read_data;
+reg    [width-1 : 0 ] register [0 : 0];
+
+always @(posedge clk)
+begin
+  if (reset)
+    register[0] <= init_value;
+  else if (write_en)
+    register[0] <= write_data;
+end
+assign read_data = register[0];
+endmodule
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+`timescale 1ns / 1ns
+module axi_master_scale_updown_bilinear_legup_mult # (
+  parameter widtha = 32,
+  parameter widthb = 32,
+  parameter widthp = 64,
+  parameter pipeline = 3,
+  parameter representation = "UNSIGNED",
+  parameter pipeline_stallable = 0 
+) (
+  input clock,
+  input aclr,
+  input clken,
+  input [widtha-1:0] dataa,
+  input [widthb-1:0] datab,
+  output [widthp-1:0] result
+);
+
+generate 
+if (pipeline == 0) begin
+  // If the number of pipeline stages is 0, 
+  // instantiate the combinational multiplier
+  axi_master_scale_updown_bilinear_legup_mult_core legup_mult_core_inst(
+      .dataa(dataa),
+      .datab(datab),
+      .result(result) 
+  );
+  defparam legup_mult_core_inst.widtha = widtha;
+  defparam legup_mult_core_inst.widthb = widthb;
+  defparam legup_mult_core_inst.widthp = widthp;
+  defparam legup_mult_core_inst.representation = representation;
+
+end else if (pipeline_stallable == 0) begin
+  // If the datapath that uses the multiplier is not a pipeline or 
+  // is a pipeline but is not stallable, or if the number of pipeline stages
+  // is 1 or less,
+  // simply instantiate the normal multiplier
+  axi_master_scale_updown_bilinear_legup_mult_pipelined legup_mult_pipelined_inst(
+      .clock(clock),
+      .aclr(aclr),
+      .clken(clken),
+      .dataa(dataa),
+      .datab(datab),
+      .result(result) 
+  );
+  defparam legup_mult_pipelined_inst.widtha = widtha;
+  defparam legup_mult_pipelined_inst.widthb = widthb;
+  defparam legup_mult_pipelined_inst.widthp = widthp;
+  defparam legup_mult_pipelined_inst.pipeline = pipeline;
+  defparam legup_mult_pipelined_inst.representation = representation;
+
+end 
+endgenerate
+
+endmodule
+
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+// combinational generic multiplier
+`timescale 1ns / 1ns
+
+module axi_master_scale_updown_bilinear_legup_mult_core(
+    dataa,
+    datab,
+    result  
+);
+
+parameter widtha = 32;
+parameter widthb = 32;
+parameter widthp = 64;
+parameter representation = "UNSIGNED";
+
+input [widtha-1:0] dataa;
+input [widthb-1:0] datab;
+output [widthp-1:0] result;
+
+generate
+if (representation == "UNSIGNED")
+begin
+
+    wire [widtha-1:0] dataa_in = dataa;
+    wire [widthb-1:0] datab_in = datab;
+    assign result = dataa_in * datab_in;
+
+end else begin
+
+    wire signed [widtha-1:0] dataa_in = dataa;
+    wire signed [widthb-1:0] datab_in = datab;
+    assign result = dataa_in * datab_in;
+
+end
+endgenerate
+
+endmodule
+
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+// generic multiplier with parameterizable pipeline stages
+`timescale 1ns / 1ns
+module axi_master_scale_updown_bilinear_legup_mult_pipelined(
+    clock,
+    aclr,
+    clken, 
+    dataa,
+    datab,
+    result  
+)/* synthesis syn_hier = fixed */;
+
+parameter widtha = 32;
+parameter widthb = 32;
+parameter widthp = 64;
+parameter pipeline = 3;
+parameter representation = "UNSIGNED";
+localparam num_input_pipelines = pipeline >> 1;
+localparam num_output_pipelines = pipeline - num_input_pipelines;
+
+input clock;
+input aclr;
+input clken; 
+
+input [widtha-1:0] dataa;
+input [widthb-1:0] datab;
+output [widthp-1:0] result;
+
+`define PIPELINED_MULTIPLIER_CORE                                                                                \
+    integer input_stage;                                                                                         \
+    always @(*)                                                                                                  \
+    begin                                                                                                        \
+      dataa_reg[0] <= dataa;                                                                                     \
+      datab_reg[0] <= datab;                                                                                     \
+    end                                                                                                          \
+    always @(posedge clock)                                                                                      \
+    begin                                                                                                        \
+      for (input_stage=0; input_stage<num_input_pipelines; input_stage=input_stage+1) begin                      \
+        if (aclr) begin                                                                                          \
+          dataa_reg[input_stage+1] <= 'd0;                                                                       \
+          datab_reg[input_stage+1] <= 'd0;                                                                       \
+        end else if (clken) begin                                                                                \
+          dataa_reg[input_stage+1] <= dataa_reg[input_stage];                                                    \
+          datab_reg[input_stage+1] <= datab_reg[input_stage];                                                    \
+        end                                                                                                      \
+      end                                                                                                        \
+    end                                                                                                          \
+    integer output_stage;                                                                                        \
+    always @(*)                                                                                                  \
+    begin                                                                                                        \
+      result_reg[0] <= dataa_reg[num_input_pipelines] * datab_reg[num_input_pipelines];                          \
+    end                                                                                                          \
+    always @(posedge clock)                                                                                      \
+    begin                                                                                                        \
+      for (output_stage=0; output_stage<num_output_pipelines; output_stage=output_stage+1) begin                 \
+        if (aclr) begin                                                                                          \
+           result_reg[output_stage+1] <= 'd0;                                                                    \
+        end else if (clken) begin                                                                                \
+           result_reg[output_stage+1] <= result_reg[output_stage];                                               \
+        end                                                                                                      \
+      end                                                                                                        \
+    end                                                                                                          \
+    assign result = result_reg[num_output_pipelines];
+
+generate
+if (representation == "UNSIGNED")
+begin
+    reg [widtha-1:0] dataa_reg [num_input_pipelines:0];
+    reg [widthb-1:0] datab_reg [num_input_pipelines:0];
+    reg [widthp-1:0] result_reg [num_output_pipelines:0];
+
+    `PIPELINED_MULTIPLIER_CORE
+
+end else begin
+
+    reg signed [widtha-1:0] dataa_reg [num_input_pipelines:0];
+    reg signed [widthb-1:0] datab_reg [num_input_pipelines:0];
+    reg signed [widthp-1:0] result_reg [num_output_pipelines:0];
+
+    `PIPELINED_MULTIPLIER_CORE
+
+end
+endgenerate
+
+endmodule
+
+`timescale 1ns / 1ns
+// ©2022 Microchip Technology Inc. and its subsidiaries
+//
+// Subject to your compliance with these terms, you may use this Microchip
+// software and any derivatives exclusively with Microchip products. You are
+// responsible for complying with third party license terms applicable to your
+// use of third party software (including open source software) that may
+// accompany this Microchip software. SOFTWARE IS “AS IS.” NO WARRANTIES,
+// WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING
+// ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR
+// A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY
+// INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST
+// OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED,
+// EVEN IF MICROCHIP HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE
+// FORESEEABLE.  TO THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP’S TOTAL
+// LIABILITY ON ALL CLAIMS LATED TO THE SOFTWARE WILL NOT EXCEED AMOUNT OF
+// FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE. MICROCHIP
+// OFFERS NO SUPPORT FOR THE SOFTWARE. YOU MAY CONTACT MICROCHIP AT
+// https://www.microchip.com/en-us/support-and-training/design-help/client-support-services
+// TO INQUIRE ABOUT SUPPORT SERVICES AND APPLICABLE FEES, IF AVAILABLE.
+
+module axi_master_scale_updown_bilinear_ram_dual_port (
+	clk,
+	clken,
+	address_a,
+	read_en_a,
+	write_en_a,
+	write_data_a,
+	byte_en_a,
+	read_data_a,
+	address_b,
+	read_en_b,
+	write_en_b,
+	write_data_b,
+	byte_en_b,
+	read_data_b
+);
+
+parameter  width_a = 1'd1;
+parameter  widthad_a = 1'd1;
+parameter  numwords_a = 1'd1;
+parameter  width_be_a = 1'd1;
+parameter  width_b = 1'd1;
+parameter  widthad_b = 1'd1;
+parameter  numwords_b = 1'd1;
+parameter  width_be_b = 1'd1;
+parameter  init_file = "";
+parameter  latency = 1;
+parameter  fpga_device = "";
+parameter  uses_byte_enables = 1'd0;
+parameter  synthesis_ram_style = "";
+
+input  clk;
+input  clken;
+input [(widthad_a-1):0] address_a;
+output wire [(width_a-1):0] read_data_a;
+wire [(width_a-1):0] read_data_a_wire;
+input  read_en_a;
+input  write_en_a;
+input [(width_a-1):0] write_data_a;
+input [width_be_a-1:0] byte_en_a;
+input [(widthad_b-1):0] address_b;
+output wire [(width_b-1):0] read_data_b;
+wire [(width_b-1):0] read_data_b_wire;
+input  read_en_b;
+input  write_en_b;
+input [(width_b-1):0] write_data_b;
+input [width_be_b-1:0] byte_en_b;
+
+localparam input_latency = ((latency - 1) >> 1);
+localparam output_latency = (latency - 1) - input_latency;
+localparam output_latency_inner_module = ((output_latency >= 1) ? 1 : 0);
+localparam output_latency_wrapper = output_latency - output_latency_inner_module;
+integer latency_num;
+
+// additional input registers if needed
+reg [(widthad_a-1):0] address_a_reg[input_latency:0];
+reg  write_en_a_reg[input_latency:0];
+reg [(width_a-1):0] write_data_a_reg[input_latency:0];
+reg [(width_be_a-1):0] byte_en_a_reg[input_latency:0];
+reg [(widthad_b-1):0] address_b_reg[input_latency:0];
+reg  write_en_b_reg[input_latency:0];
+reg [(width_b-1):0] write_data_b_reg[input_latency:0];
+reg [(width_be_b-1):0] byte_en_b_reg[input_latency:0];
+
+always @(*) begin
+    address_a_reg[0] = address_a;
+    write_en_a_reg[0] = write_en_a;
+    write_data_a_reg[0] = write_data_a;
+    byte_en_a_reg[0] = byte_en_a;
+    address_b_reg[0] = address_b;
+    write_en_b_reg[0] = write_en_b;
+    write_data_b_reg[0] = write_data_b;
+    byte_en_b_reg[0] = byte_en_b;
+end
+
+always @(posedge clk)
+if (clken) begin
+    for (latency_num = 0; latency_num < input_latency; latency_num = latency_num + 1) begin
+        address_a_reg[latency_num + 1] <= address_a_reg[latency_num];
+        write_en_a_reg[latency_num + 1] <= write_en_a_reg[latency_num];
+        write_data_a_reg[latency_num + 1] <= write_data_a_reg[latency_num];
+        byte_en_a_reg[latency_num + 1] <= byte_en_a_reg[latency_num];
+        address_b_reg[latency_num + 1] <= address_b_reg[latency_num];
+        write_en_b_reg[latency_num + 1] <= write_en_b_reg[latency_num];
+        write_data_b_reg[latency_num + 1] <= write_data_b_reg[latency_num];
+        byte_en_b_reg[latency_num + 1] <= byte_en_b_reg[latency_num];
+    end
+end
+
+generate
+if (uses_byte_enables == 1) begin : byte_enabled
+
+    // instantiate byte-enabled RAM 
+    axi_master_scale_updown_bilinear_ram_dual_port_byte_enabled ram_dual_port_byte_enabled_inst(
+        .clk(clk),
+        .clken(clken),
+        .address_a(address_a_reg[input_latency]),
+        .read_en_a(),
+        .write_en_a(write_en_a_reg[input_latency]),
+        .write_data_a(write_data_a_reg[input_latency]),
+        .byte_en_a(byte_en_a_reg[input_latency]),
+        .read_data_a(read_data_a_wire),
+        .address_b(address_b_reg[input_latency]),
+        .read_en_b(),
+        .write_en_b(write_en_b_reg[input_latency]),
+        .write_data_b(write_data_b_reg[input_latency]),
+        .byte_en_b(byte_en_b_reg[input_latency]),
+        .read_data_b(read_data_b_wire)
+    );
+    defparam
+        ram_dual_port_byte_enabled_inst.width_a = width_a,
+        ram_dual_port_byte_enabled_inst.width_be_a = width_be_a,
+        ram_dual_port_byte_enabled_inst.widthad_a = widthad_a,
+        ram_dual_port_byte_enabled_inst.numwords_a = numwords_a,
+        ram_dual_port_byte_enabled_inst.width_b = width_b,
+        ram_dual_port_byte_enabled_inst.width_be_b = width_be_b,
+        ram_dual_port_byte_enabled_inst.widthad_b = widthad_b,
+        ram_dual_port_byte_enabled_inst.numwords_b = numwords_b,
+        ram_dual_port_byte_enabled_inst.use_output_reg = output_latency_inner_module,
+        ram_dual_port_byte_enabled_inst.fpga_device = fpga_device,
+        ram_dual_port_byte_enabled_inst.synthesis_ram_style = synthesis_ram_style,
+        ram_dual_port_byte_enabled_inst.init_file = init_file;
+
+end else begin : regular
+
+    // instantiate non-byte-enabled RAM
+    axi_master_scale_updown_bilinear_ram_dual_port_regular ram_dual_port_regular_inst(
+        .clk(clk),
+        .clken(clken),
+        .address_a(address_a_reg[input_latency]),
+        .read_en_a(),
+        .write_en_a(write_en_a_reg[input_latency]),
+        .write_data_a(write_data_a_reg[input_latency]),        
+        .read_data_a(read_data_a_wire),
+        .address_b(address_b_reg[input_latency]),
+        .read_en_b(),
+        .write_en_b(write_en_b_reg[input_latency]),
+        .write_data_b(write_data_b_reg[input_latency]),        
+        .read_data_b(read_data_b_wire)
+    );
+    defparam
+        ram_dual_port_regular_inst.width_a = width_a,        
+        ram_dual_port_regular_inst.widthad_a = widthad_a,
+        ram_dual_port_regular_inst.numwords_a = numwords_a,
+        ram_dual_port_regular_inst.width_b = width_b,        
+        ram_dual_port_regular_inst.widthad_b = widthad_b,
+        ram_dual_port_regular_inst.numwords_b = numwords_b,
+        ram_dual_port_regular_inst.use_output_reg = output_latency_inner_module,
+        ram_dual_port_regular_inst.fpga_device = fpga_device,
+        ram_dual_port_regular_inst.synthesis_ram_style = synthesis_ram_style,
+        ram_dual_port_regular_inst.init_file = init_file;
+   
+end
+endgenerate
+
+// additional output registers if needed
+reg [(width_a-1):0] read_data_a_reg[output_latency_wrapper:0];
+
+always @(*) begin
+   read_data_a_reg[0] <= read_data_a_wire;
+end
+
+always @(posedge clk)
+if (clken) begin
+    for (latency_num = 0; latency_num < output_latency_wrapper; latency_num = latency_num + 1) begin
+       read_data_a_reg[latency_num + 1] <= read_data_a_reg[latency_num];
+    end
+end
+
+assign read_data_a = read_data_a_reg[output_latency_wrapper];
+
+reg [(width_b-1):0] read_data_b_reg[output_latency_wrapper:0];
+
+always @(*) begin
+    read_data_b_reg[0] <= read_data_b_wire;
+end
+
+always @(posedge clk)
+if (clken) begin
+    for (latency_num = 0; latency_num < output_latency_wrapper; latency_num = latency_num + 1) begin
+        read_data_b_reg[latency_num + 1] <= read_data_b_reg[latency_num];
+    end
+end
+
+assign read_data_b = read_data_b_reg[output_latency_wrapper];
+
+endmodule
+
+// define all the logic that will be used multiple times in different modules
+
+`define SHLS_RAM_DUAL_PORT_INITIALIZATION      \
+    initial begin                              \
+        if (init_file != "")                   \
+            $readmemb(init_file, ram);         \
+    end
+
+`define SHLS_RAM_DUAL_PORT_BYTE_ENABLE_LOGIC                                                                                        \
+    always @ (posedge clk) begin                                                                                                    \
+        if (clken) begin                                                                                                            \
+            read_data_a_wire <= ram[address_a];                                                                                     \
+            if (write_en_a) begin                                                                                                   \
+                for(bank_num = 0; bank_num < width_be_a; bank_num = bank_num + 1) begin                                             \
+                    if (byte_en_a[bank_num]) begin                                                                                  \
+                        ram[address_a][bank_num * byte_width +: byte_width] <= write_data_a[bank_num * byte_width +: byte_width];   \
+                    end                                                                                                             \
+                end                                                                                                                 \
+            end                                                                                                                     \
+        end                                                                                                                         \
+        if (clken) begin                                                                                                            \
+            read_data_b_wire <= ram[address_b];                                                                                     \
+            if (write_en_b) begin                                                                                                   \
+                for(bank_num = 0; bank_num < width_be_b; bank_num = bank_num + 1) begin                                             \
+                    if (byte_en_b[bank_num]) begin                                                                                  \
+                        ram[address_b][bank_num * byte_width +: byte_width] <= write_data_b[bank_num * byte_width +: byte_width];   \
+                    end                                                                                                             \
+                end                                                                                                                 \
+            end                                                                                                                     \
+        end                                                                                                                         \
+    end
+
+`define SHLS_RAM_DUAL_PORT_LOGIC                        \
+    always @ (posedge clk) begin                        \
+        if (clken) begin                                \
+            read_data_a_wire <= ram[address_a];         \
+            if (write_en_a) begin                       \
+                ram[address_a] <= write_data_a;         \
+            end                                         \
+        end                                             \
+        if (clken) begin                                \
+            read_data_b_wire <= ram[address_b];         \
+            if (write_en_b) begin                       \
+                ram[address_b] <= write_data_b;         \
+            end                                         \
+        end                                             \
+    end 
+
+`define SHLS_RAM_DUAL_PORT_LOGIC_OUTPUT_REG                                         \
+    reg [(width_a-1):0] read_data_a_reg/* synthesis syn_allow_retiming = 0 */;      \
+    always @(posedge clk)                                                           \
+    if (clken) begin                                                                \
+        read_data_a_reg <= read_data_a_wire;                                        \
+    end                                                                             \
+    assign read_data_a = read_data_a_reg;                                           \
+    reg [(width_b-1):0] read_data_b_reg/* synthesis syn_allow_retiming = 0 */;      \
+    always @(posedge clk)                                                           \
+    if (clken) begin                                                                \
+        read_data_b_reg <= read_data_b_wire;                                        \
+    end                                                                             \
+    assign read_data_b = read_data_b_reg;
+
+module axi_master_scale_updown_bilinear_ram_dual_port_byte_enabled (
+	clk,
+	clken,
+	address_a,
+	read_en_a,
+	write_en_a,
+	write_data_a,
+	byte_en_a,
+	read_data_a,
+	address_b,
+	read_en_b,
+	write_en_b,
+	write_data_b,
+	byte_en_b,
+	read_data_b
+);
+
+parameter  width_a = 1'd1;
+parameter  widthad_a = 1'd1;
+parameter  numwords_a = 1'd1;
+parameter  width_be_a = 1'd1;
+parameter  width_b = 1'd1;
+parameter  widthad_b = 1'd1;
+parameter  numwords_b = 1'd1;
+parameter  width_be_b = 1'd1;
+parameter  init_file = "";
+parameter  use_output_reg = 0;
+parameter  fpga_device = "";
+parameter  synthesis_ram_style = "";
+localparam  byte_width = 8;
+integer bank_num;
+
+input  clk;
+input  clken;
+input [(widthad_a-1):0] address_a;
+output wire [(width_a-1):0] read_data_a;
+reg [(width_a-1):0] read_data_a_wire;
+input  read_en_a;
+input  write_en_a;
+input [(width_a-1):0] write_data_a;
+input [width_be_a-1:0] byte_en_a;
+input [(widthad_b-1):0] address_b;
+output wire [(width_b-1):0] read_data_b;
+reg [(width_b-1):0] read_data_b_wire;
+input  read_en_b;
+input  write_en_b;
+input [(width_b-1):0] write_data_b;
+input [width_be_b-1:0] byte_en_b;
+
+generate
+if (synthesis_ram_style == "registers" || (fpga_device == "SmartFusion2" && init_file != "") ) begin
+
+    reg [width_a-1:0] ram [numwords_a-1:0] /* synthesis syn_ramstyle = "registers" */;
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_BYTE_ENABLE_LOGIC
+
+end else begin : ram
+
+    reg [width_a-1:0] ram [numwords_a-1:0];
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_BYTE_ENABLE_LOGIC
+
+end
+endgenerate
+
+generate
+if (use_output_reg == 1) begin
+
+    // if using output registers
+    `SHLS_RAM_DUAL_PORT_LOGIC_OUTPUT_REG
+
+end else begin
+
+    // if not using output registers
+    assign read_data_a = read_data_a_wire;
+    assign read_data_b = read_data_b_wire;
+
+end
+endgenerate
+
+endmodule
+
+module axi_master_scale_updown_bilinear_ram_dual_port_regular (
+	clk,
+	clken,
+	address_a,
+	read_en_a,
+	write_en_a,
+	write_data_a,
+	read_data_a,
+	address_b,
+	read_en_b,
+	write_en_b,
+	write_data_b,
+	read_data_b
+);
+
+parameter  width_a = 1'd1;
+parameter  widthad_a = 1'd1;
+parameter  numwords_a = 1'd1;
+parameter  width_b = 1'd1;
+parameter  widthad_b = 1'd1;
+parameter  numwords_b = 1'd1;
+parameter  init_file = "";
+parameter  use_output_reg = 0;
+parameter  fpga_device = "";
+parameter  synthesis_ram_style = "";
+
+input  clk;
+input  clken;
+input [(widthad_a-1):0] address_a;
+output wire [(width_a-1):0] read_data_a;
+reg [(width_a-1):0] read_data_a_wire;
+input  read_en_a;
+input  write_en_a;
+input [(width_a-1):0] write_data_a;
+input [(widthad_b-1):0] address_b;
+output wire [(width_b-1):0] read_data_b;
+reg [(width_b-1):0] read_data_b_wire;
+input  read_en_b;
+input  write_en_b;
+input [(width_b-1):0] write_data_b;
+
+generate
+if (synthesis_ram_style == "registers" || (fpga_device == "SmartFusion2" && init_file != "") ) begin
+
+    reg [width_a-1:0] ram [numwords_a-1:0] /* synthesis syn_ramstyle = "registers" */;
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_LOGIC
+
+end else begin : ram
+
+    reg [width_a-1:0] ram [numwords_a-1:0];
+    `SHLS_RAM_DUAL_PORT_INITIALIZATION
+    `SHLS_RAM_DUAL_PORT_LOGIC
+
+end
+endgenerate
+
+generate
+if (use_output_reg == 1) begin
+
+    // if using output registers
+    `SHLS_RAM_DUAL_PORT_LOGIC_OUTPUT_REG
+
+end else begin
+
+    // if not using output registers
+    assign read_data_a = read_data_a_wire;
+    assign read_data_b = read_data_b_wire;
+
+end
+endgenerate
+        
+endmodule
+

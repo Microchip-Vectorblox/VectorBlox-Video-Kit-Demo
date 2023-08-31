@@ -1,0 +1,67 @@
+
+
+set_io -port_name HPD_I  \
+    -pin_name AL22       \
+    -fixed true          \
+    -DIRECTION INPUT
+
+
+set_io -port_name HPD_O  \
+    -pin_name AG24       \
+    -fixed true          \
+    -DIRECTION OUTPUT
+
+
+set_io -port_name SDA_hdmi_rx  \
+    -pin_name AH25     \
+    -fixed true        \
+    -DIRECTION INOUT
+
+
+
+set_io -port_name SCL_hdmi_rx  \
+    -pin_name AJ25          \
+    -fixed true             \
+    -DIRECTION INPUT
+
+
+set_io -port_name LANE0_RXD_N  \
+    -pin_name AG32             \
+    -RX_CDR_GAIN High          \
+    -DIRECTION INPUT
+
+set_io -port_name LANE0_RXD_P  \
+    -pin_name AG31             \
+    -RX_CDR_GAIN High          \
+    -DIRECTION INPUT
+    
+set_io -port_name LANE1_RXD_N  \
+    -pin_name AC32             \
+    -RX_CDR_GAIN High          \
+    -DIRECTION INPUT
+
+
+set_io -port_name LANE1_RXD_P  \
+    -pin_name AC31             \
+    -RX_CDR_GAIN High          \
+    -DIRECTION INPUT
+
+set_io -port_name LANE2_RXD_N  \
+    -pin_name AD30             \
+    -RX_CDR_GAIN High          \
+    -DIRECTION INPUT
+
+
+set_io -port_name LANE2_RXD_P  \
+    -pin_name AD29             \
+    -RX_CDR_GAIN High          \
+    -DIRECTION INPUT
+
+set_io -port_name REF_CLK_PAD_N  \
+    -pin_name AF30               \
+    -DIRECTION INPUT
+
+
+set_io -port_name REF_CLK_PAD_P  \
+    -pin_name AF29               \
+    -DIRECTION INPUT
