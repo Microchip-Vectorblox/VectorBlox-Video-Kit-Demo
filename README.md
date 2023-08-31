@@ -1,4 +1,4 @@
-# PolarFire&reg; SoC Video Kit VectorBlox Demo Generation Tcl Scripts - Libero&reg; SoC v2023.1+
+# PolarFire&reg; Video Kit VectorBlox Demo Generation Tcl Scripts - Libero&reg; SoC v2023.1+
 
 ## Table of Contents
 
