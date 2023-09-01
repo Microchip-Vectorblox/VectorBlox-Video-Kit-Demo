@@ -41,7 +41,7 @@ These step are automated via running `make spi` from the command line.
 <a name="licensing"></a>
 ### Licensing
 
-The Video Kit VectorBlox Design can be generated using any of the free or paid Libero licenses. Licensing information is available on the Microchip website [here](https://www.microchip.com/en-us/products/fpgas-and-plds/fpga-and-soc-design-tools/fpga/licensing).
+The Video Kit VectorBlox Design requires two free licences -- `Libero SoC Silver License` and `Libero Soc VectorBlox License`. Licensing information is available on the Microchip website [here](https://www.microchip.com/en-us/products/fpgas-and-plds/fpga-and-soc-design-tools/fpga/licensing).
 
 <a name="standard-design-generation"></a>
 ### Standard design generation
