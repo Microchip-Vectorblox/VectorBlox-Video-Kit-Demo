@@ -558,7 +558,7 @@ int main(int argc, char **argv) {
     	else{
     		update_Classifier = 0;
 		}
-        while(tick_counter - tv1 < 1000/frame_rate);
+        while((tick_counter - tv1) < (1000/frame_rate));
     	tv2 = tick_counter;
     	fps = 1000/(tv2 - tv1);
     	loop_draw_frame = swap_draw_frame();

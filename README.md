@@ -25,10 +25,12 @@ This repository supports Libero SoC v2023.1, which is available for download [he
 
 Prior to running the design:
   - VNNX firmware and neural networks are downloaded
-  - the bare-metal demo application is built
+  - the MiV bare-metal demo application is built
   - the SPI flash configuration is generated
 
-This can be automated from the command line via `make spi`. Further detail in regards to changing and compiling the application in SoftConsole and changing networks can be found in our demo guide.
+These step are automated via running `make spi` from the command line.
+
+> Please refer to the [VectorBlox Video Kit Demo Guide](docs/VectorBlox_Video_Kit_Demo_Guide.pdf) for details on modifying and compiling the application in SoftConsole.
 
 
 <a name="using-the-vectorblox-demo-generation-tcl-script"></a>
@@ -75,6 +77,10 @@ Once the script has completed the design can be configured further if needed and
 <a name="demo-controlling"></a>
 ## Launching and controlling the demo
 
-To program the devide and SPI, the user can use FlashPro Express using the job files, or may open the complete Libero design and double click "Run Program Action" followed by "RUN SPI Program Action". Once programmed, power cycle the board and the demo will automatically run.
+To program the devide and SPI, the user can use FlashPro Express using the provided `.job` files, or may open the completed Libero design and double click "Run Program Action" followed by "RUN SPI Program Action". Once programmed, power cycle the board and the demo will automatically run.
 
-The red buttons are used to switch between demos. The first button toggles the menu, and the seconds button selects the mode. For more details on programming or running the demo, please refer to the demo guide.
+The two red buttons are used to switch between demos. The first button toggles the menu, where the seconds button can then select the mode.
+
+Samples videos for input to the Faces Recognition and License Plate Recognition modes are available [here](https://vector-blox-model-zoo.s3.us-west-2.amazonaws.com/Releases/SampleFaces.mp4) and [here](https://vector-blox-model-zoo.s3.us-west-2.amazonaws.com/Releases/SamplePlates.mp4).
+
+> Please refer to the [VectorBlox Video Kit Demo Guide](docs/VectorBlox_Video_Kit_Demo_Guide.pdf) for more information on available demos modes.
