@@ -248,11 +248,11 @@ if { [file exists $project_dir/$project_name.prjx] } {
 #
 # // Run the design flow and add eNVM clients 
 #
-
-set LIBERO_INSTALL_DIR [file dirname [file dirname [file dirname [lindex $auto_path 0]]]]
-catch {remove_profile -name synpro} 
-add_profile -name synpro -type synthesis -tool "Synplify Pro ME" -location "$LIBERO_INSTALL_DIR/SynplifyPro/bin/synplify_pro" 
-select_profile -name synpro
+catch {
+    set LIBERO_INSTALL_DIR [file dirname [file dirname [file dirname [lindex $auto_path 0]]]]
+    add_profile -name synpro -type synthesis -tool "Synplify Pro ME" -location "$LIBERO_INSTALL_DIR/SynplifyPro/bin/synplify_pro" 
+    select_profile -name synpro
+}
 
 if {[info exists SYNTHESIZE]} {
     run_tool -name {SYNTHESIZE}
@@ -288,27 +288,16 @@ configure_tool -name {VERIFYTIMING} \
     -params {SMART_INTERACTIVE:1} 
 
 configure_tool -name {PLACEROUTE} \
-    -params {DELAY_ANALYSIS:MAX} \
     -params {EFFORT_LEVEL:true} \
-    -params {GB_DEMOTION:true} \
     -params {INCRPLACEANDROUTE:false} \
-    -params {IOREG_COMBINING:true} \
-    -params {MULTI_PASS_CRITERIA:VIOLATIONS} \
-    -params {MULTI_PASS_LAYOUT:false} \
-    -params {NUM_MULTI_PASSES:5} \
-    -params {PDPR:false} \
-    -params {RANDOM_SEED:0} \
     -params {REPAIR_MIN_DELAY:true} \
-    -params {REPLICATION:true} \
-    -params {SLACK_CRITERIA:WORST_SLACK} \
-    -params {SPECIFIC_CLOCK:} \
-    -params {START_SEED_INDEX:1} \
-    -params {STOP_ON_FIRST_PASS:false} \
-    -params {TDPR:true} 
+    -params {RANDOM_SEED:0}
 
 if {[info exists PLACEROUTE]} {
     run_tool -name {PLACEROUTE}
-} elseif {[info exists VERIFY_TIMING]} {
+} 
+
+if {[info exists VERIFY_TIMING]} {
     run_tool -name {VERIFYTIMING}
 }
 
