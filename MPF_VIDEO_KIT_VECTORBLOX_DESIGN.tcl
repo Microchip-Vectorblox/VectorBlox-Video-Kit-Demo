@@ -1,4 +1,4 @@
-#
+
 # // PF Video Kit VBX HDMI demo Libero design
 #
 # // Check Libero version and path lenth to verify project can be created
@@ -248,15 +248,18 @@ if { [file exists $project_dir/$project_name.prjx] } {
 #
 # // Run the design flow and add eNVM clients 
 #
-catch {
-    set LIBERO_INSTALL_DIR [file dirname [file dirname [file dirname [lindex $auto_path 0]]]]
-    add_profile -name synpro -type synthesis -tool "Synplify Pro ME" -location "$LIBERO_INSTALL_DIR/SynplifyPro/bin/synplify_pro" 
-    select_profile -name synpro
-}
 
 if {[info exists SYNTHESIZE]} {
     run_tool -name {SYNTHESIZE}
 } 
+
+
+configure_tool -name {PLACEROUTE} \
+    -params {EFFORT_LEVEL:true} \
+    -params {REPAIR_MIN_DELAY:true} \
+    -params {IOREG_COMBINING:true} \
+    -params {REPLICATION:true} \
+    -params {RANDOM_SEED:1}
 
 configure_tool -name {VERIFYTIMING} \
     -params {CONSTRAINTS_COVERAGE:1} \
@@ -286,12 +289,6 @@ configure_tool -name {VERIFYTIMING} \
     -params {MIN_TIMING_VIOLATIONS_SLOW_LV_LT:1} \
     -params {SLACK_THRESHOLD_VIOLATION:0.0} \
     -params {SMART_INTERACTIVE:1} 
-
-configure_tool -name {PLACEROUTE} \
-    -params {EFFORT_LEVEL:true} \
-    -params {INCRPLACEANDROUTE:false} \
-    -params {REPAIR_MIN_DELAY:true} \
-    -params {RANDOM_SEED:0}
 
 if {[info exists PLACEROUTE]} {
     run_tool -name {PLACEROUTE}

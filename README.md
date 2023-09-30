@@ -75,13 +75,11 @@ Once the script has completed the design can be configured further if needed and
 
 Alternatively, the provided `.job` files can be used to program the board via FlashPro Express 
 
-*In addition, plug in an HDMI input into J13, and an HDMI output into J14*
+*In addition, plug in an HDMI input into J35, and an HDMI output into J2*
 
 
 <a name="demo-controlling"></a>
 ## Launching and controlling the demo
-
-To program the devide and SPI, the user can use FlashPro Express using the provided `.job` files, or may open the completed Libero design and double click "Run Program Action" followed by "RUN SPI Program Action". Once programmed, power cycle the board and the demo will automatically run.
 
 - The demo consists of the following:
     - Face Recognition Demo
@@ -89,7 +87,8 @@ To program the devide and SPI, the user can use FlashPro Express using the provi
     - Classification (Mobilenetv2)
     - Object Detection (YOLOv5 Nano, YOLOv4 Tiny)
 
-- Use the two red buttons to switch between demos: `SW1` toggles the menu, where `SW2` can change the selected model. Pressing `SW1` again loads the selected model  
+- Use the two red buttons to switch between demos: `SW1` toggles the menu, where `SW2` can change the selected model. Pressing `SW1` again loads the selected model 
+  > Pressing `SW2` in the Face Recognition Demo toggles on/off the GenderAge network.
 
 Samples videos for input to the Faces Recognition and License Plate Recognition modes are available [here](https://vector-blox-model-zoo.s3.us-west-2.amazonaws.com/Releases/SampleFaces.mp4) and [here](https://vector-blox-model-zoo.s3.us-west-2.amazonaws.com/Releases/SamplePlates.mp4).
 
