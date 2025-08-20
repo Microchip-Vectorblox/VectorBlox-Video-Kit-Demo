@@ -1,4 +1,4 @@
-# Creating SmartDesign read_top
+# Creating SmartDesign "read_top"
 set sd_name {read_top}
 create_smartdesign -sd_name ${sd_name}
 
@@ -100,7 +100,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"read_mux_0:rstart_addr_o" "rsta
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign read_top
+# Generate SmartDesign "read_top"
 generate_component -component_name ${sd_name}

@@ -1,4 +1,4 @@
-# Creating SmartDesign IMX334_IF_TOP
+# Creating SmartDesign "IMX334_IF_TOP"
 set sd_name {IMX334_IF_TOP}
 create_smartdesign -sd_name ${sd_name}
 
@@ -57,9 +57,8 @@ sd_create_pin_slices -sd_name ${sd_name} -pin_name {CSI2_RXDecoder_0:data_out_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:line_end_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:line_start_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:ecc_error_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:word_count_o}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:data_type_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:virtual_channel_o}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CSI2_RXDecoder_0:word_count_o}
 
 
 
@@ -117,7 +116,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"CSI2_RXDecoder_0:data_out_o[9:2
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign IMX334_IF_TOP
+# Generate SmartDesign "IMX334_IF_TOP"
 generate_component -component_name ${sd_name}

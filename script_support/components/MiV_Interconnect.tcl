@@ -2,7 +2,7 @@
 # Family: PolarFire
 # Part Number: MPF300T-1FCG1152E
 # Create and Configure the core component MiV_Interconnect
-create_and_configure_core -core_vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.8.103} -component_name {MiV_Interconnect} -params {\
+create_and_configure_core -core_vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.9.100} -component_name {MiV_Interconnect} -params {\
 "ADDR_WIDTH:32"  \
 "CROSSBAR_MODE:1"  \
 "DATA_WIDTH:64"  \

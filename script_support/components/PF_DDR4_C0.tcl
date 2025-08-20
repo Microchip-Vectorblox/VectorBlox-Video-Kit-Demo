@@ -2,11 +2,11 @@
 # Family: PolarFire
 # Part Number: MPF300T-1FCG1152E
 # Create and Configure the core component PF_DDR4_C0
-create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.111} -component_name {PF_DDR4_C0} -params {\
+create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.113} -component_name {PF_DDR4_C0} -params {\
 "ADDRESS_MIRROR:false" \
 "ADDRESS_ORDERING:CHIP_ROW_BG_BANK_COL" \
 "AUTO_SELF_REFRESH:3" \
-"AXI_ID_WIDTH:6" \
+"AXI_ID_WIDTH:7" \
 "AXI_WIDTH:256" \
 "BANKSTATMODULES:4" \
 "BANK_ADDR_WIDTH:2" \
@@ -17,6 +17,7 @@ create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.111} -comp
 "CAS_WRITE_LATENCY:11" \
 "CA_PARITY_LATENCY_MODE:0" \
 "CCC_PLL_CLOCK_MULTIPLIER:6" \
+"CK_CA_ADDITIVE_OFFSET:4" \
 "CLOCK_DDR:600" \
 "CLOCK_PLL_REFERENCE:100.000" \
 "CLOCK_RATE:4" \

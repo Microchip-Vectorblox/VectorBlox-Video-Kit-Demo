@@ -2,16 +2,9 @@ import argparse
 import re
 
 hex_files = {
-        "SCRFD": 'hex/scrfd_500m_bnkps.hex',
-        "ArcFace": 'hex/mobilefacenet-arcface.hex',
-        "GenderAge": 'hex/genderage.hex',
         "MobileNet V2": 'hex/mobilenet-v2.hex',
-        "LPD": 'hex/lpd_eu_v42.hex',
-        "LPR": 'hex/lpr_eu_v3.hex',
-        "Yolo V5 Nano": 'hex/ultralytics.yolov5n.relu.hex',
-        "Tiny Yolo V4 COCO": 'hex/yolo-v4-tiny-tf.hex',
+        "Yolo V8n_argmax": 'hex/yolov8n_512x288_argmax.hex',
         "CHAR_SPI_OFFSET": 'hex/ascii_characters.hex',
-        "firmware_flash_offset": 'hex/firmware.hex',
 }
 
 

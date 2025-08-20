@@ -21,6 +21,7 @@
  * 0 - 500Mbps data rate, 1080p resolution
  * 1 - 1188Mbps data rate, 4k resolution */
 #define CAM_CONFIG_4K_1_2M		0
+#define frame_rate_FHD      1  //0 - 30FPS, 1 - 60 FPS
 
 #define CAM1_RST GPIO_8
 #define CAM2_RST GPIO_7

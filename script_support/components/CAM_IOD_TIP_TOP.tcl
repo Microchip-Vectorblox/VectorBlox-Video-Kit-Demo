@@ -1,4 +1,4 @@
-# Creating SmartDesign CAM_IOD_TIP_TOP
+# Creating SmartDesign "CAM_IOD_TIP_TOP"
 set sd_name {CAM_IOD_TIP_TOP}
 create_smartdesign -sd_name ${sd_name}
 
@@ -209,7 +209,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_IOD_0:RXD_N" "RXD_N" }
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign CAM_IOD_TIP_TOP
+# Generate SmartDesign "CAM_IOD_TIP_TOP"
 generate_component -component_name ${sd_name}

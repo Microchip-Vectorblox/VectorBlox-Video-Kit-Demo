@@ -1,4 +1,4 @@
-# Creating SmartDesign hdmi_rx_ss
+# Creating SmartDesign "hdmi_rx_ss"
 set sd_name {hdmi_rx_ss}
 create_smartdesign -sd_name ${sd_name}
 
@@ -100,7 +100,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"CCC_EDID_0:REF_CLK_0" "REF_CLK_
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:data_valid_i" "HDMI_RX_C1_0:DATA_VALID_O" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:ddr_clk_i" "ddr_clk_i" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:frame_valid_i" "HDMI_RX_C1_0:V_SYNC_O" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:parallel_clk_i" "HDMI_RX_C1_0:R_RX_CLK_I" "PF_XCVR_ERM_C0_0:LANE0_RX_CLK_R" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:parallel_clk_i" "HDMI_RX_C1_0:B_RX_CLK_I" "PF_XCVR_ERM_C0_0:LANE1_RX_CLK_R" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:rdata_rdy_o" "rdata_rdy_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:reset_i" "reset_i" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:save_frame_i" "save_frame_i" }
@@ -110,13 +110,13 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_HDMI_RX_0:write_req_o
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:BIT_SLIP_B_O" "PF_XCVR_ERM_C0_0:LANE1_RX_SLIP" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:BIT_SLIP_G_O" "PF_XCVR_ERM_C0_0:LANE2_RX_SLIP" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:BIT_SLIP_R_O" "PF_XCVR_ERM_C0_0:LANE0_RX_SLIP" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:B_RX_CLK_I" "PF_XCVR_ERM_C0_0:LANE1_RX_CLK_R" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:B_RX_VALID_I" "PF_XCVR_ERM_C0_0:LANE1_RX_VAL" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:G_RX_CLK_I" "PF_XCVR_ERM_C0_0:LANE2_RX_CLK_R" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:G_RX_VALID_I" "PF_XCVR_ERM_C0_0:LANE2_RX_VAL" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:HPD_I" "HPD_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:HPD_O" "HPD_O" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:RESET_N_I" "RESET_N_I" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:R_RX_CLK_I" "PF_XCVR_ERM_C0_0:LANE0_RX_CLK_R" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:R_RX_VALID_I" "PF_XCVR_ERM_C0_0:LANE0_RX_VAL" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:SCL_I" "SCL_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"LANE0_RXD_N" "PF_XCVR_ERM_C0_0:LANE0_RXD_N" }
@@ -148,7 +148,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"HDMI_RX_C1_0:DATA_R_I" "PF_XCVR
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign hdmi_rx_ss
+# Generate SmartDesign "hdmi_rx_ss"
 generate_component -component_name ${sd_name}

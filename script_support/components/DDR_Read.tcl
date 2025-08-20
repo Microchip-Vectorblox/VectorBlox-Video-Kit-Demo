@@ -1,4 +1,4 @@
-# Creating SmartDesign DDR_Read
+# Creating SmartDesign "DDR_Read"
 set sd_name {DDR_Read}
 create_smartdesign -sd_name ${sd_name}
 
@@ -94,7 +94,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"video_fifo_0:wdata_i" "wdata_i"
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign DDR_Read
+# Generate SmartDesign "DDR_Read"
 generate_component -component_name ${sd_name}

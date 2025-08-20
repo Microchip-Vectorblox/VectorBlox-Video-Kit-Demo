@@ -1,4 +1,4 @@
-# Creating SmartDesign PROC_SUBSYSTEM
+# Creating SmartDesign "PROC_SUBSYSTEM"
 set sd_name {PROC_SUBSYSTEM}
 create_smartdesign -sd_name ${sd_name}
 
@@ -67,11 +67,11 @@ sd_create_scalar_port -sd_name ${sd_name} -port_name {SS} -port_direction {INOUT
 
 # Create top level Bus Ports
 sd_create_bus_port -sd_name ${sd_name} -port_name {PRDATAS9} -port_direction {IN} -port_range {[31:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_BID_0} -port_direction {IN} -port_range {[4:0]}
+sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_BID_0} -port_direction {IN} -port_range {[5:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_BRESP_0} -port_direction {IN} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_BUSER_0} -port_direction {IN} -port_range {[0:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RDATA_0} -port_direction {IN} -port_range {[255:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RID_0} -port_direction {IN} -port_range {[4:0]}
+sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RID_0} -port_direction {IN} -port_range {[5:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RRESP_0} -port_direction {IN} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RUSER_0} -port_direction {IN} -port_range {[0:0]}
 
@@ -81,7 +81,7 @@ sd_create_bus_port -sd_name ${sd_name} -port_name {PWDATAS} -port_direction {OUT
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARADDR_0} -port_direction {OUT} -port_range {[31:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARBURST_0} -port_direction {OUT} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARCACHE_0} -port_direction {OUT} -port_range {[3:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARID_0} -port_direction {OUT} -port_range {[4:0]}
+sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARID_0} -port_direction {OUT} -port_range {[5:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARLEN_0} -port_direction {OUT} -port_range {[7:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARLOCK_0} -port_direction {OUT} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARPROT_0} -port_direction {OUT} -port_range {[2:0]}
@@ -92,7 +92,7 @@ sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_ARUSER_0} -port_direct
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWADDR_0} -port_direction {OUT} -port_range {[31:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWBURST_0} -port_direction {OUT} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWCACHE_0} -port_direction {OUT} -port_range {[3:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWID_0} -port_direction {OUT} -port_range {[4:0]}
+sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWID_0} -port_direction {OUT} -port_range {[5:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWLEN_0} -port_direction {OUT} -port_range {[7:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWLOCK_0} -port_direction {OUT} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWPROT_0} -port_direction {OUT} -port_range {[2:0]}
@@ -239,8 +239,9 @@ sd_invert_pins -sd_name ${sd_name} -pin_names {BIBUF_5:E}
 sd_instantiate_component -sd_name ${sd_name} -component_name {core_vectorblox_C1} -instance_name {core_vectorblox_C1_0}
 
 
+
 # Add CoreAHBLite_0 instance
-sd_instantiate_core -sd_name ${sd_name} -core_vlnv {Actel:DirectCore:CoreAHBLite:5.5.101} -instance_name {CoreAHBLite_0}
+sd_instantiate_core -sd_name ${sd_name} -core_vlnv {Actel:DirectCore:CoreAHBLite:6.1.101} -instance_name {CoreAHBLite_0}
 # Exporting Parameters of instance CoreAHBLite_0
 sd_configure_core_instance -sd_name ${sd_name} -instance_name {CoreAHBLite_0} -params {\
 "FAMILY:26" \
@@ -712,7 +713,6 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"CLK" "PF_SPI_0:CLK" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_0:INT" "MIV_RV32IMA_L1_AXI_C0_0:IRQ[29:29]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_1:INT" "MIV_RV32IMA_L1_AXI_C0_0:IRQ[27:27]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:INT" "MIV_RV32IMA_L1_AXI_C0_0:IRQ[28:28]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"core_vectorblox_C1_0:output_valid" "MIV_RV32IMA_L1_AXI_C0_0:IRQ[26:26]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TCK" "TCK" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TDI" "TDI" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TDO" "TDO" }
@@ -720,7 +720,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TGT_TCK_0" "
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TGT_TDI_0" "MIV_RV32IMA_L1_AXI_C0_0:TDI" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TGT_TDO_0" "MIV_RV32IMA_L1_AXI_C0_0:TDO" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TGT_TMS_0" "MIV_RV32IMA_L1_AXI_C0_0:TMS" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TGT_TRSTB_0" "MIV_RV32IMA_L1_AXI_C0_0:TRST" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TGT_TRST_0" "MIV_RV32IMA_L1_AXI_C0_0:TRST" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TMS" "TMS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"COREJTAGDEBUG_C0_0:TRSTB" "TRSTB" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CORESPI_C0_0:SPICLKI" "PF_SPI_0:CLK_I" }
@@ -744,6 +744,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"DI" "PF_SPI_0:DI" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DO" "PF_SPI_0:DO" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"FLASH" "PF_SPI_0:FLASH" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"IFACE" "PF_SPI_0:IFACE" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"MIV_RV32IMA_L1_AXI_C0_0:IRQ[26:26]" "core_vectorblox_C1_0:output_valid" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_SPI_0:SS" "SS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"core_vectorblox_C1_0:clk_2x" "vbx_clk_2x" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"core_vectorblox_C1_0:resetn" "draw_assist_0:resetn" "vbx_resetn" }
@@ -780,7 +781,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"MiV_Interconnect_0:AXI4mslave6"
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign PROC_SUBSYSTEM
+# Generate SmartDesign "PROC_SUBSYSTEM"
 generate_component -component_name ${sd_name}

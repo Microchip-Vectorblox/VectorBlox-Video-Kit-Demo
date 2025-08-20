@@ -277,7 +277,7 @@
                             							
                             <option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.toolchain.id.89412331" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.toolchain.id" useByScannerDiscovery="false" value="-2032619395" valueType="string"/>
                             							
-                            <option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.target.isa.multiply.1575657763" name="Multiply extension (RVM)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.target.isa.multiply" value="true" valueType="boolean"/>
+                            <option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.target.isa.multiply.1575657763" name="Multiply extension (RVM)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.target.isa.multiply" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnumcueclipse.managedbuild.cross.riscv.targetPlatform.1291741787" isAbstract="false" osList="all" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.targetPlatform"/>
                             							
@@ -305,6 +305,14 @@
                                     								
                                 </option>
                                 								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.defs.1628593029" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="HARDWARE_DRAW"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="HLS_RESIZE"/>
+                                    								
+                                </option>
+                                								
                                 <inputType id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input.898481247" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input"/>
                                 							
                             </tool>
@@ -319,7 +327,15 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/libfixmath&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/libfixmatrix&quot;"/>																																	 
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/libfixmatrix&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs.947279972" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="HLS_RESIZE"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="HARDWARE_DRAW"/>
                                     								
                                 </option>
                                 								

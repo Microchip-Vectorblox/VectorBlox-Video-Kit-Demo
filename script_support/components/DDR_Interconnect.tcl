@@ -2,12 +2,12 @@
 # Family: PolarFire
 # Part Number: MPF300T-1FCG1152E
 # Create and Configure the core component DDR_Interconnect
-create_and_configure_core -core_vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.8.103} -component_name {DDR_Interconnect} -params {\
+create_and_configure_core -core_vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.9.100} -component_name {DDR_Interconnect} -params {\
 "ADDR_WIDTH:32"  \
 "CROSSBAR_MODE:0"  \
 "DATA_WIDTH:256"  \
 "DWC_ADDR_FIFO_DEPTH_CEILING:64"  \
-"ID_WIDTH:3"  \
+"ID_WIDTH:4"  \
 "MASTER0_CHAN_RS:true"  \
 "MASTER0_CLOCK_DOMAIN_CROSSING:true"  \
 "MASTER0_DATA_WIDTH:256"  \

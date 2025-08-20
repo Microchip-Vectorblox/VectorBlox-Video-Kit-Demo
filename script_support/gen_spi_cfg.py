@@ -45,15 +45,25 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output", default='spiflash.cfg')
     parser.add_argument("-d", "--dir", default='hex')
-    parser.add_argument("-s", "--size",type=int, default=361888)
+    parser.add_argument("-s", "--size",type=int, default=512000)
     parser.add_argument("hex_files",nargs='*')
     args = parser.parse_args()
     out_string = ""
-    start_address = 1024+args.size;
+    size=args.size
+    init_size = args.size 
+    path = 'VKPF_VECTORBLOX/designer/VIDEO_KIT_TOP/VIDEO_KIT_TOP_uic.bin'
+    if os.path.isfile(path):
+        init_size = int(subprocess.check_output(['stat', '-c %s','VKPF_VECTORBLOX/designer/VIDEO_KIT_TOP/VIDEO_KIT_TOP_uic.bin']).decode())
+        if init_size<args.size:
+            init_size = args.size
+        print(int(init_size))
+    start_address = 1024+init_size
     for f in args.hex_files:
         client_string,size=generate_client(f, args.dir, start_address)
         start_address+=size
         out_string+=(client_string)
+    
+    
     with open(args.output,"w") as of:
-        of.write(header_template.format(start=1024, size=args.size))
+        of.write(header_template.format(start=1024, size=init_size))
         of.write(out_string)

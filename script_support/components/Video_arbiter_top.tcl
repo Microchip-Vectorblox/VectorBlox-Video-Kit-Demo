@@ -1,4 +1,4 @@
-# Creating SmartDesign Video_arbiter_top
+# Creating SmartDesign "Video_arbiter_top"
 set sd_name {Video_arbiter_top}
 create_smartdesign -sd_name ${sd_name}
 
@@ -252,7 +252,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"BIF_1" "ddr_rw_arbiter_0:BIF_1"
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign Video_arbiter_top
+# Generate SmartDesign "Video_arbiter_top"
 generate_component -component_name ${sd_name}

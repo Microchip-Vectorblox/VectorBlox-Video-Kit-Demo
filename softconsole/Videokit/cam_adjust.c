@@ -110,7 +110,7 @@ void camera_adjust(){
         msdelay(capture_delay);
         swap_draw_frame();
 		mean = get_avg_brightness();
-		if(mean > (brightness_target-2) && mean <(brightness_target+2) || saturation_count>3){
+		if((mean > (brightness_target-2) && (mean <(brightness_target+2))) || saturation_count>3){
 			break;
 		}
 		current_shutter = pid(&shutter_state,mean);

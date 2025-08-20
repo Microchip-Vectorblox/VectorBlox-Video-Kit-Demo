@@ -55,9 +55,6 @@ void imx334_cam_reginit( uint8_t i2c_ch_sel)
 
 	sensor_i2c_write(i2c_ch_sel, 0x3000, 0x01);// STANDBY MODE enabled
 	sensor_i2c_write(i2c_ch_sel, 0x3018, 0x04);//WINMODE
-	sensor_i2c_write(i2c_ch_sel, 0x3030, 0xCA);//VMAX
-	sensor_i2c_write(i2c_ch_sel, 0x3031, 0x08);//VMAX
-	sensor_i2c_write(i2c_ch_sel, 0x3032, 0x00);//VMAX
 	sensor_i2c_write(i2c_ch_sel, 0x3034, 0x4C);//HMAX
 	sensor_i2c_write(i2c_ch_sel, 0x3035, 0x04);//HMAX
 #if CAM_CONFIG_4K_1_2M
@@ -83,6 +80,15 @@ void imx334_cam_reginit( uint8_t i2c_ch_sel)
 	sensor_i2c_write(i2c_ch_sel, 0x30D9, 0x12);//UNREAD_ED_ADR
 	sensor_i2c_write(i2c_ch_sel, 0x304C, 0x00);//OPB_SIZE_V-OPTICAL BLACK
 #else
+#if frame_rate_FHD
+    sensor_i2c_write(i2c_ch_sel, 0x3030, 0x65);//VMAX
+    sensor_i2c_write(i2c_ch_sel, 0x3031, 0x04);//VMAX
+    sensor_i2c_write(i2c_ch_sel, 0x3032, 0x00);//VMAX
+#else
+    sensor_i2c_write(i2c_ch_sel, 0x3030, 0xCA);//VMAX
+    sensor_i2c_write(i2c_ch_sel, 0x3031, 0x08);//VMAX
+    sensor_i2c_write(i2c_ch_sel, 0x3032, 0x00);//VMAX
+#endif
 	sensor_i2c_write(i2c_ch_sel, 0x302C, 0xF0);//TRIM_START
 	sensor_i2c_write(i2c_ch_sel, 0x302D, 0x03);//TRIM_START
 	sensor_i2c_write(i2c_ch_sel, 0x302E, 0x80);//HNUM

@@ -1,4 +1,4 @@
-# Creating SmartDesign write_top
+# Creating SmartDesign "write_top"
 set sd_name {write_top}
 create_smartdesign -sd_name ${sd_name}
 
@@ -110,7 +110,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"write_mux_0:wstart_addr_o" "wst
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign write_top
+# Generate SmartDesign "write_top"
 generate_component -component_name ${sd_name}

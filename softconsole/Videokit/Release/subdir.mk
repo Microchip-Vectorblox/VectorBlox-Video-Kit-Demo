@@ -9,6 +9,7 @@ C_SRCS += \
 ../main.c \
 ../postprocess.c \
 ../postprocess_license_plate.c \
+../postprocess_pose.c \
 ../postprocess_retinaface.c \
 ../postprocess_scrfd.c \
 ../postprocess_ssd.c \
@@ -21,6 +22,7 @@ OBJS += \
 ./main.o \
 ./postprocess.o \
 ./postprocess_license_plate.o \
+./postprocess_pose.o \
 ./postprocess_retinaface.o \
 ./postprocess_scrfd.o \
 ./postprocess_ssd.o \
@@ -33,6 +35,7 @@ C_DEPS += \
 ./main.d \
 ./postprocess.d \
 ./postprocess_license_plate.d \
+./postprocess_pose.d \
 ./postprocess_retinaface.d \
 ./postprocess_scrfd.d \
 ./postprocess_ssd.d \

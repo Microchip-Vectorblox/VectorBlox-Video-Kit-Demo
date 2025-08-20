@@ -4,10 +4,12 @@
 # // Check Libero version and path lenth to verify project can be created
 #
 
-if {[string compare [string range [get_libero_version] 0 end-4] "2023.1"]==0} {
-	puts "Libero v2023.1 detected."
+set libero_version 2024.2
+
+if {[string compare [string range [get_libero_version] 0 5] "$libero_version"]==0} {
+    puts "Libero $libero_version detected."
 } else {
-	error "Incorrect Libero version. Please use Libero v2023.1 to run these scripts."
+    error "Incorrect Libero version. Please use Libero $libero_version to run these scripts."
 }
 
 if { [lindex $tcl_platform(os) 0]  == "Windows" } {
@@ -47,7 +49,7 @@ set install_loc [defvar_get -name ACTEL_SW_DIR]
 set local_dir [pwd]
 set src_path ./script_support
 set constraint_path ./script_support/constraint
-set release_tag "2023.1"
+set release_tag "2024.2"
 
 set project_name "VKPF_VECTORBLOX"
 set project_dir "$local_dir/$project_name"
@@ -95,32 +97,32 @@ if { [file exists $project_dir/$project_name.prjx] } {
     # // Download required cores
     #
 
-    download_core -vlnv {Actel:DirectCore:CoreAHBLite:5.5.101} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Actel:DirectCore:CoreAHBLite:6.1.101} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:COREAHBTOAPB3:3.2.101} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CoreAPB3:4.2.100} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.8.103} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.9.100} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:COREAXITOAHBL:3.6.101} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CoreGPIO:3.2.102} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:COREI2C:7.2.101} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Actel:DirectCore:COREJTAGDEBUG:3.1.100} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Actel:DirectCore:COREJTAGDEBUG:4.0.100} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CORERESET_PF:2.3.100} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Actel:DirectCore:CORERXIODBITALIGN:2.2.100} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Actel:DirectCore:CORERXIODBITALIGN:2.3.103} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CORESPI:5.2.104} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CoreUARTapb:5.7.100} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:SgCore:PF_CCC:2.2.220} -location {www.microchip-ip.com/repositories/SgCore}
     download_core -vlnv {Actel:SgCore:PF_INIT_MONITOR:2.0.307} -location {www.microchip-ip.com/repositories/SgCore}
     download_core -vlnv {Actel:SgCore:PF_XCVR_REF_CLK:1.0.103} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_DDR4:2.5.111} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_IOD_GENERIC_RX:2.1.110} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_SRAM_AHBL_AXI:1.2.110} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_XCVR_ERM:3.1.200} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Microchip:SolutionCore:core_vectorblox:1.1.15} -location {www.microchip-ip.com/repositories/DirectCore} 
+    download_core -vlnv {Actel:SystemBuilder:PF_DDR4:2.5.113} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SystemBuilder:PF_IOD_GENERIC_RX:2.1.113} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SystemBuilder:PF_SRAM_AHBL_AXI:1.2.111} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SystemBuilder:PF_XCVR_ERM:3.1.205} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Microchip:SolutionCore:core_vectorblox:2.0.1} -location {www.microchip-ip.com/repositories/DirectCore} 
     download_core -vlnv {Microsemi:MiV:MIV_RV32IMA_L1_AXI:2.1.100}
     download_core -vlnv {Microsemi:SolutionCore:Bayer_Interpolation:3.0.2} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Microsemi:SolutionCore:Display_Controller:3.1.2} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Microsemi:SolutionCore:HDMI_RX:1.3.0} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Microsemi:SolutionCore:Image_Enhancement:3.0.0} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Microsemi:SolutionCore:mipicsi2rxdecoderPF:2.6.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microsemi:SolutionCore:Display_Controller:4.5.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microsemi:SolutionCore:HDMI_RX:4.2.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microsemi:SolutionCore:Image_Enhancement:4.4.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microsemi:SolutionCore:mipicsi2rxdecoderPF:4.4.0} -location {www.microchip-ip.com/repositories/DirectCore}
 
 
     #This Tcl file sources other Tcl files to build the design(on which recursive export is run) in a bottom-up fashion
@@ -255,11 +257,23 @@ if {[info exists SYNTHESIZE]} {
 
 
 configure_tool -name {PLACEROUTE} \
+    -params {DELAY_ANALYSIS:MAX} \
     -params {EFFORT_LEVEL:true} \
-    -params {REPAIR_MIN_DELAY:true} \
+    -params {GB_DEMOTION:true} \
+    -params {INCRPLACEANDROUTE:false} \
     -params {IOREG_COMBINING:true} \
+    -params {MULTI_PASS_CRITERIA:VIOLATIONS} \
+    -params {MULTI_PASS_LAYOUT:true} \
+    -params {NUM_MULTI_PASSES:8} \
+    -params {PDPR:false} \
+    -params {RANDOM_SEED:3} \
+    -params {REPAIR_MIN_DELAY:true} \
     -params {REPLICATION:true} \
-    -params {RANDOM_SEED:1}
+    -params {SLACK_CRITERIA:WORST_SLACK} \
+    -params {SPECIFIC_CLOCK:} \
+    -params {START_SEED_INDEX:1} \
+    -params {STOP_ON_FIRST_PASS:true} \
+    -params {TDPR:true}
 
 configure_tool -name {VERIFYTIMING} \
     -params {CONSTRAINTS_COVERAGE:1} \

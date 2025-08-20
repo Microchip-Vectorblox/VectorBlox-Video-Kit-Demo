@@ -1,4 +1,4 @@
-# Creating SmartDesign DDR_Write_HDMI_RX
+# Creating SmartDesign "DDR_Write_HDMI_RX"
 set sd_name {DDR_Write_HDMI_RX}
 create_smartdesign -sd_name ${sd_name}
 
@@ -119,7 +119,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"rdata_o" "video_fifo_0:rdata_o"
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
-# Save the smartDesign
+# Save the SmartDesign 
 save_smartdesign -sd_name ${sd_name}
-# Generate SmartDesign DDR_Write_HDMI_RX
+# Generate SmartDesign "DDR_Write_HDMI_RX"
 generate_component -component_name ${sd_name}

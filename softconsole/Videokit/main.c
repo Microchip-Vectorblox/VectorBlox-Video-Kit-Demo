@@ -23,6 +23,9 @@
 #include "recognitionDemo.h"
 #include "detectionDemo.h"
 #include "imageScaler/scaler.h"
+#include "tinyprintf.h"
+
+#define RUNNER_MODE 0 //Enable to get checksum for a singular model
 
 #define LED1 GPIO_0
 #define LED2 GPIO_1
@@ -30,7 +33,6 @@
 #define LED4 GPIO_3
 
 #define MIPI_TRNG_RST GPIO_4
-
 #define SW1_MASK GPIO_10_MASK
 #define SW2_MASK GPIO_11_MASK
 #define USE_CAMERA_MASK GPIO_16_MASK
@@ -39,21 +41,15 @@
 #define DDR_READ_FRAME_START_ADDR 0x7F009108
 
 const int CLASSIFIER_FPS = 10;
-const int CAMERA_FPS = 30;
+const int CAMERA_FPS = 55;
 const int HDMI_FPS = 55;
 int frame_rate;
 
 
 // Specify the Models in the SPI Flash and their Start Addresses
 struct model_descr_t models[] = {
-{"SCRFD","",0x3f4020, "SCRFD"},
-{"ArcFace","",0x67b540, "ARCFACE"},
-{"GenderAge","",0x7a4338, "GENDERAGE"},
-{"LPD","",0x108ff78, "LPD"},
-{"LPR","",0x164b8c8, "LPR"},
-{"MobileNet V2","",0x806668, "IMAGENET"},
-{"Yolo V5 Nano","",0x1939b80, "YOLOV5"},
-{"Tiny Yolo V4 COCO","",0x1fce230, "YOLOV4"},
+{"MobileNet V2","",0x218a80, "CLASSIFY"},
+{"Yolo V8n_argmax","",0x8a15fc, "ULTRALYTICS"},
 };
 
 vbx_cnn_t* vbx_cnn;
@@ -66,20 +62,32 @@ uint32_t last_sw1_check;
 uint32_t last_sw2_check;
 uint16_t modelsIndex = 0;
 int update_Classifier = 1;
-
+#ifdef HLS_RESIZE
+    int set_screen_width = 1920;//1920;
+    int set_screen_height = 1080;//1080;
+    int set_screen_y_offset = 0;
+    int set_screen_x_offset = 0;
+    int set_screen_stride = 0x2000;
+#else
+    int set_screen_width = 1920;//1920;
+    int set_screen_height = 1080;//1080;
+    int set_screen_y_offset = 0;
+    int set_screen_x_offset = 0;
+    int set_screen_stride = 0x2000;
+#endif
 
 const char *errorMsgs[11] = {
-	"NO ERRORS",
-	"INVALID FIRMWARE ADDRESS",
-	"FIRMWARE ADDRESS NOT READY",
-	"START NOT CLEAR",
-	"OUTPUT VALID NOT SET",
-	"FIRMWARE BLOB VERSION MISMATCH",
-	"INVALID NETWORK ADDRESS",
-	"MODEL INVALID",
-	"MODEL VERSION MISMATCH",
-	"MODEL SIZE CONFIGURATION MISMATCH",
-	"FIRMWARE BLOB STALE"
+    "NO ERRORS",
+    "INVALID FIRMWARE ADDRESS",
+    "FIRMWARE ADDRESS NOT READY",
+    "START NOT CLEAR",
+    "OUTPUT VALID NOT SET",
+    "FIRMWARE BLOB VERSION MISMATCH",
+    "INVALID NETWORK ADDRESS",
+    "MODEL INVALID",
+    "MODEL VERSION MISMATCH",
+    "MODEL SIZE CONFIGURATION MISMATCH",
+    "FIRMWARE BLOB STALE"
 };
 uint32_t * volatile * const WARP_BASE_ADDRESS = (uint32_t* volatile * const)0x7F040000;
 uint32_t * volatile * const SCALER_BASE_ADDRESS = (uint32_t* volatile * const)0x7F030000;
@@ -90,7 +98,7 @@ uint32_t * volatile * const PROCESSING_NEXT2_FRAME_ADDRESS = (uint32_t * volatil
 volatile uint32_t * const SAVED_FRAME_SWAP = (volatile uint32_t * const )0x7F009110;
 volatile void *draw_assist_base_address =(volatile void*)0x7F020000;
 
-const int CHAR_SPI_OFFSET = 0x589a0;
+const int CHAR_SPI_OFFSET = 0x7d400;
 
 void camera_adjust();
 
@@ -119,7 +127,7 @@ volatile uint32_t rx_ms_count1;
 volatile uint32_t rx_ms_count;
 uint32_t t_ms_count = 0;
 
-uint32_t* loop_draw_frame;
+uint32_t* overlay_draw_frame;
 
 uint32_t* swap_draw_frame(){
 
@@ -165,7 +173,7 @@ void External_28_IRQHandler(void) {
 }
 
 void External_27_IRQHandler(void) {
-	vbx_cnn_model_isr(vbx_cnn);
+    vbx_cnn_model_isr(vbx_cnn);
 }
 
 void msdelay(uint32_t tms);
@@ -175,12 +183,14 @@ uint8_t* ddr_begin = (uint8_t*)0x60000000;
 uint8_t* ddr_ptr = (uint8_t*)0x60000000;
 uint8_t* ddr_end = (uint8_t*)0x76FFFFFF;
 
-
+//367 MB?
 void* ddr_uncached_allocate(size_t size){
     int boundary = 4096;
     size_t padded_request = (size+boundary-1)/boundary*boundary;
     if(ddr_ptr + padded_request > ddr_end){
         printf("ERROR:UNABLE TO ALLOCATE\n");
+        printf("pad requested %d\n",padded_request);
+        printf("size total %d\n",ddr_end-ddr_begin);
         while(1);
         return NULL;
     }
@@ -195,9 +205,10 @@ uint8_t* cached_ddr_ptr = (uint8_t*)0x88000000;
 uint8_t* cached_ddr_end = (uint8_t*)0x8FFFFFFF;
 void* ddr_cached_allocate(size_t size){
     int boundary = 4096;
+    printf("size %d\n ",size);
     size_t padded_request = (size+boundary-1)/boundary*boundary;
     if(cached_ddr_ptr + padded_request > cached_ddr_end){
-    	printf("ERROR:UNABLE TO ALLOCATE\n");
+        printf("ERROR:UNABLE TO ALLOCATE\n");
         while(1);
         return NULL;
     }
@@ -213,15 +224,17 @@ model_t *setup_model(uint32_t spi_offset,const char* name){
     //512 bytes is enough to query size of model
     copy_from_flash(name,model,spi_offset,sizeof(stack_space));
     if(model_check_sanity(model) != 0) {
-    	printf("ERROR: %s %s\n", name, errorMsgs[8]);
-    	uint32_t *draw=swap_draw_frame();
-    	char label[128];
-    	snprintf(label,sizeof(label),"Error: %s %s", name, errorMsgs[8]);
-    	draw_label(label,34,34,
-    	           draw,2048,1080,WHITE);
-    	draw=swap_draw_frame();
+        printf("ERROR: %s %s\n", name, errorMsgs[8]);
+        uint32_t *draw=swap_draw_frame();
+        char label[128];
+        snprintf(label,sizeof(label),"Error: %s %s", name, errorMsgs[8]);
+        draw_label(label,34,34,
+                   draw,2048,1080,WHITE);
+        draw=swap_draw_frame();
         return NULL;
     }
+    printf("alloc bytes %d\n",model_get_allocate_bytes(model));
+    printf("data bytes %d\n",model_get_data_bytes(model));
     size_t allocate_size = model_get_allocate_bytes(model);
     //pad to multiple of 512 bytes
     allocate_size = (allocate_size + 511) /512 * 512;
@@ -246,138 +259,124 @@ void tpf_putc(void* _ ,char c){
 }
 
 uint8_t switchModels() {
-	uint32_t *draw;
-	int32_t last_menu_draw = tick_counter-switch_debounce_time;
-	char label[128];
+    uint32_t *draw;
+    int32_t last_menu_draw = tick_counter-switch_debounce_time;
+    char label[128];
 
-	while(1) {
-		if (!(GPIO_get_inputs(&g_gpio_out) & SW1_MASK) &&
-	    	 (tick_counter - last_sw1_check > switch_debounce_time)) {
-			last_sw1_check = tick_counter;
-			break;
-		}
+    while(1) {
+        if (!(GPIO_get_inputs(&g_gpio_out) & SW1_MASK) &&
+             (tick_counter - last_sw1_check > switch_debounce_time)) {
+            last_sw1_check = tick_counter;
+            break;
+        }
 
-		snprintf(label, sizeof(label),"Menu:");
-		draw_label(label,500,100,draw,2048,1080,WHITE);
-		snprintf(label, sizeof(label),"Models List:");
-		draw_label(label,500,150,draw,2048,1080,WHITE);
-		uint8_t y = 0;
-		for(int i = 0; i < (sizeof(models)/sizeof(*models)); i++) {
-			if (!strcmp(models[i].post_process_type, "RETINAFACE")) {
-				snprintf(label, sizeof(label),"%d. Retinaface Face Demo", y+1);
-				if(modelsIndex == i) {
-					draw_label(label,500,200+(y*50),draw,2048,1080,RED);
-				}
-				else {
-					draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
-				}
+        snprintf(label, sizeof(label),"Menu:");
+        draw_label(label,500,100,draw,2048,1080,WHITE);
+        snprintf(label, sizeof(label),"Models List:");
+        draw_label(label,500,150,draw,2048,1080,WHITE);
+        uint8_t y = 0;
+        for(int i = 0; i < (sizeof(models)/sizeof(*models)); i++) {
+            if (!strcmp(models[i].post_process_type, "RETINAFACE")) {
+                snprintf(label, sizeof(label),"%d. Retinaface Face Demo", y+1);
+                if(modelsIndex == i) {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,RED);
+                }
+                else {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
+                }
                 i+=2;
-			}
+            }
 
-			else if (!strcmp(models[i].post_process_type, "SCRFD")) {
-				snprintf(label, sizeof(label),"%d. SCRFD Face Demo", y+1);
-				if (modelsIndex == i) {
-					draw_label(label,500,200+(y*50),draw,2048,1080,RED);
-				}
-				else {
-					draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
-				}
+            else if (!strcmp(models[i].post_process_type, "SCRFD")) {
+                snprintf(label, sizeof(label),"%d. SCRFD Face Demo", y+1);
+                if (modelsIndex == i) {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,RED);
+                }
+                else {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
+                }
                 i+=2;
-			}
+            }
 
-			//lpr demo
-			else if (!strcmp(models[i].post_process_type, "LPD")){
-				snprintf(label, sizeof(label),"%d. License Plate Demo", y+1);
-				if(modelsIndex == i) {
-					draw_label(label,500,200+(y*50),draw,2048,1080,RED);
-				}
-				else {
-					draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
-				}
-				i+=1;
-			}
-			else {
-				snprintf(label, sizeof(label),"%d. %s Model", y+1, models[i].name);
-				if (modelsIndex == i) {
-					draw_label(label,500,200+(y*50),draw,2048,1080,RED);
-				}
-				else {
-					draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
-				}
-			}
-			y++;
-		}
-		if (tick_counter-last_menu_draw > 1000/frame_rate) {
-			draw = swap_draw_frame();
-			last_menu_draw = tick_counter;
-		}
-		if (!(GPIO_get_inputs(&g_gpio_out) & SW2_MASK) &&
-	    	 (tick_counter - last_sw2_check > switch_debounce_time)) {
-			last_sw2_check = tick_counter;
-			if (modelsIndex >= (sizeof(models)/sizeof(*models))-1) {
-				modelsIndex = 0;
-			}
+            //lpr demo
+            else if (!strcmp(models[i].post_process_type, "LPD")){
+                snprintf(label, sizeof(label),"%d. License Plate Demo", y+1);
+                if(modelsIndex == i) {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,RED);
+                }
+                else {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
+                }
+                i+=1;
+            }
+            else {
+                snprintf(label, sizeof(label),"%d. %s Model", y+1, models[i].name);
+                if (modelsIndex == i) {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,RED);
+                }
+                else {
+                    draw_label(label,500,200+(y*50),draw,2048,1080,WHITE);
+                }
+            }
+            y++;
+        }
+        if (tick_counter-last_menu_draw > 1000/frame_rate) {
+            draw = swap_draw_frame();
+            last_menu_draw = tick_counter;
+        }
+        if (!(GPIO_get_inputs(&g_gpio_out) & SW2_MASK) &&
+             (tick_counter - last_sw2_check > switch_debounce_time)) {
+            last_sw2_check = tick_counter;
+            if (modelsIndex >= (sizeof(models)/sizeof(*models))-1) {
+                modelsIndex = 0;
+            }
 
-			//check for License Plate Detect/Recog
-			else if (!strcmp(models[modelsIndex].post_process_type, "LPD")){
-				trackClean(models,modelsIndex+1);
-				if(modelsIndex == (sizeof(models)/sizeof(*models))-2) modelsIndex = 0;
-				else modelsIndex +=2;
-			}
-			//end LP check
+            //check for License Plate Detect/Recog
+            else if (!strcmp(models[modelsIndex].post_process_type, "LPD")){
+                trackClean(models,modelsIndex+1);
+                if(modelsIndex == (sizeof(models)/sizeof(*models))-2) modelsIndex = 0;
+                else modelsIndex +=2;
+            }
+            //end LP check
 
 
-			else if (!strcmp(models[modelsIndex].post_process_type, "RETINAFACE") || !strcmp(models[modelsIndex].post_process_type, "SCRFD")) {
-				trackClean(models,modelsIndex+1);
-				if (modelsIndex == (sizeof(models)/sizeof(*models))-3) modelsIndex = 0;
-				// followed by invisible faceReg+gernderage,, so needs to be set to beginning if 2nd to last in models_struct
+            else if (!strcmp(models[modelsIndex].post_process_type, "RETINAFACE") || !strcmp(models[modelsIndex].post_process_type, "SCRFD")) {
+                trackClean(models,modelsIndex+1);
+                if (modelsIndex == (sizeof(models)/sizeof(*models))-3) modelsIndex = 0;
+                // followed by invisible faceReg+gernderage,, so needs to be set to beginning if 2nd to last in models_struct
                 else modelsIndex += 3;
 
-			}
-			else {
-				modelsIndex++;
-			}
-		}
- 	}
-	return modelsIndex;
+            }
+            else {
+                modelsIndex++;
+            }
+        }
+    }
+    return modelsIndex;
 }
 
 void vbx_setup() {
-    printf("\n\n\nStarting vbx setup\n");
-    uint32_t firmware_flash_offset = 0x1f4020;
-    size_t firmware_size = 2*1024*1024;
-    void* firmware_blob = ddr_uncached_allocate(firmware_size);
-    if((uintptr_t)firmware_blob & (firmware_size-1)) {
-        //not aligned, make it aligned
-        size_t move_forward = firmware_size - ((uintptr_t)firmware_blob&(firmware_size-1));
-        firmware_blob = (void*)((uintptr_t)firmware_blob+move_forward);
-        ddr_uncached_allocate(move_forward);
-    }
-    printf("firmware_blob = %p\n",firmware_blob);
-    orca_std_out = (char*)firmware_blob +firmware_size - 16*1024;
-    copy_from_flash("Firmware",firmware_blob,firmware_flash_offset,firmware_size);
-    vbx_cnn = vbx_cnn_init((void*)COREVBX_BASE_ADDR,(void*)firmware_blob);
+    vbx_cnn = vbx_cnn_init((void*)COREVBX_BASE_ADDR);
     if(!vbx_cnn) {
-        printf("Unable to initialize the vbx_cnn.\n",firmware_blob);
         printf("Perhaps the firmware did not load from spi flash correctly\n");
         abort();
     }
 }
 
 int isRecog(int index){
-	if(!strcmp(models[index].post_process_type, "RETINAFACE") || !strcmp(models[index].post_process_type, "SCRFD") || !strcmp(models[index].post_process_type, "LPD")){
-		return true;
-	}
-	else return false;
+    if(!strcmp(models[index].post_process_type, "RETINAFACE") || !strcmp(models[index].post_process_type, "SCRFD") || !strcmp(models[index].post_process_type, "LPD")){
+        return true;
+    }
+    else return false;
 
 }
 
 int main(int argc, char **argv) {
+    init_printf(NULL,tpf_putc);
     char label[256];
     uint8_t manufacturer_id1;
     uint8_t device_id1;
     uint32_t data_size= 0;
-
     // Initialize Flash
     FLASH_init();
     FLASH_set_clk_div(2);
@@ -399,7 +398,7 @@ int main(int argc, char **argv) {
     PLIC_EnableIRQ(HDMI_I2C_IRQn);
     PLIC_SetPriority(I2C_CAM2_IRQn, 1);
     PLIC_EnableIRQ(I2C_CAM2_IRQn);
-	HAL_enable_interrupts();
+    HAL_enable_interrupts();
 
     // Setup GPIOs
     GPIO_set_output(&g_gpio_out, MIPI_TRNG_RST, 0u);
@@ -420,9 +419,9 @@ int main(int argc, char **argv) {
     uint32_t camera_adjust_time=60*1000*5;//5 minutes
     uint32_t last_camera_check = tick_counter-camera_adjust_time;//5 minutes ago
     if((GPIO_get_inputs(&g_gpio_out)& USE_CAMERA_MASK)){
-    	frame_rate = CAMERA_FPS;
-    	camera_adjust();
-    	last_camera_check=tick_counter;
+        frame_rate = CAMERA_FPS;
+        camera_adjust();
+        last_camera_check=tick_counter;
     }
     else{
         frame_rate = HDMI_FPS;
@@ -433,80 +432,104 @@ int main(int argc, char **argv) {
 
     // Setup the firmware and Models needed for the Demos
     vbx_setup();
-    loop_draw_frame = swap_draw_frame();
+    //overlay_draw_frame = swap_draw_frame();
 
 
-    for(int i = 0; i < 8; i++) {
-    	if(models[i].modelSetup_done != 1) {
-    		printf("Setting up model '%s'\n",models[i].name);
-    		models[i].model = setup_model(models[i].spi_offset,models[i].name);
-    		model_t* model = models[i].model;
-    		if(model == NULL){
-    			printf("ERROR: %s does not appear as valid model\n",models[i].name);
-    			while(1);
-    		}
-    		if(model_check_sanity(model) != 0) {
-    			printf("Model %s is not sane\n", models[i].name);
-    		}
-    		models[i].modelSetup_done = 1;
-    	}
+    for(int i = 0; i < (sizeof(models)/sizeof(*models)); i++) {
+        if(models[i].modelSetup_done != 1) {
+            printf("Setting up model '%s'\n",models[i].name);
+            models[i].model = setup_model(models[i].spi_offset,models[i].name);
+            model_t* model = models[i].model;
+            if(model == NULL){
+                printf("ERROR: %s does not appear as valid model\n",models[i].name);
+                while(1);
+            }
+            if(model_check_sanity(model) != 0) {
+                printf("Model %s is not sane\n", models[i].name);
+            }
+            models[i].modelSetup_done = 1;
+        }
     }
-
     //Initialize all demos
 
-    demo_setup = recognitionDemoInit(vbx_cnn,models, 0,1, 1080, 1920,0,0);
-    if (demo_setup < 0) {
-    	printf("faceDemoSetup error: %d\n", demo_setup);
-    	while(1);
-    }
-    tracksInit(models+1);
-    demo_setup = recognitionDemoInit(vbx_cnn,models, 3, 0, 540, 1920, 540, 0);
-    if (demo_setup < 0) {
-    	printf("plateDemoSetup error: %d\n", demo_setup);
-    	while(1);
-    }
-    for (int i = 0; i < 3; i++) {
-    	demo_setup = detectionDemoInit(vbx_cnn, models, 5+i);
-    	if (demo_setup < 0) {
-    		printf("detectionDemoSetup error: %d\n", demo_setup);
-    		while(1);
-    	}
-    }
+    for(int i = 0; i < (sizeof(models)/sizeof(*models));i++){
+        if(!strcmp(models[i].post_process_type, "RETINAFACE") || !strcmp(models[i].post_process_type, "SCRFD")){
+            demo_setup = recognitionDemoInit(vbx_cnn,models, i,1, 1080, 1920,0,0);
+            i+=2;
+        }
+        else if(!strcmp(models[i].post_process_type, "LPD")){
+            demo_setup = recognitionDemoInit(vbx_cnn,models, i, 0, 540, 1920, 540, 0);
+            i+=1;
+        }
+        else{
+            demo_setup = detectionDemoInit(vbx_cnn, models,i);
+        }
+        if (demo_setup<0){
+            printf("Error setting up %s demo\n",models[i].name);
+        }
 
+    }
     //Main Loop
-    int mode = 0;
+    int mode = 0; //starting model
     if(!strcmp(models[mode].post_process_type, "RETINAFACE") || !strcmp(models[mode].post_process_type, "SCRFD") || !strcmp(models[mode].post_process_type, "LPD"))
-    	PLIC_DisableIRQ(External_27_IRQn);
+        PLIC_DisableIRQ(External_27_IRQn);
     else{
-    	PLIC_SetPriority(External_27_IRQn, 1);
-    	PLIC_EnableIRQ(External_27_IRQn);
+        PLIC_SetPriority(External_27_IRQn, 1);
+        PLIC_EnableIRQ(External_27_IRQn);
     }
     uint32_t tv1,tv2,prev_timestamp;
-	prev_timestamp = tick_counter;
+    prev_timestamp = tick_counter;
+#if RUNNER_MODE
+    int runner_mode = 0;
+    for (unsigned i = 0; i < model_get_num_inputs(models[runner_mode].model); ++i){
+        models[runner_mode].model_io_buffers[0] = (uintptr_t)model_get_test_input(models[runner_mode].model,0);
+    }
+    for (int i =0; i <4;i++){
+        tv1 = tick_counter;
+        vbx_cnn_model_start(vbx_cnn, models[runner_mode].model, models[runner_mode].model_io_buffers);
+        vbx_cnn_model_wfi(vbx_cnn);
+        tv2 = tick_counter;
+    }
+    int output_bytes = model_get_output_datatype(models[runner_mode].model,0) == VBX_CNN_CALC_TYPE_INT16 ? 2 : 1;
+    if (model_get_output_datatype(models[runner_mode].model,0) == VBX_CNN_CALC_TYPE_INT32) output_bytes = 4;
+    uint32_t checksum = fletcher32((uint16_t*)(models[runner_mode].model_io_buffers[model_get_num_inputs(models[runner_mode].model)]),model_get_output_length(models[runner_mode].model, 0)*output_bytes/sizeof(uint16_t));
+    for(unsigned o =1;o<model_get_num_outputs(models[runner_mode].model);++o){
+        output_bytes = model_get_output_datatype(models[runner_mode].model,o) == VBX_CNN_CALC_TYPE_INT16 ? 2 : 1;
+        if (model_get_output_datatype(models[runner_mode].model,0) == VBX_CNN_CALC_TYPE_INT32) output_bytes = 4;
+        checksum ^= fletcher32((uint16_t*)models[runner_mode].model_io_buffers[model_get_num_inputs(models[runner_mode].model)+o], model_get_output_length(models[runner_mode].model, o)*output_bytes/sizeof(uint16_t));
+    }
+    printf("CHECKSUM = %08x\n",checksum);
+    printf("Runtime = %d ms\n",tv2-tv1);
+    while(1);
+    return 0;
+
+
+#else
     while (1) {
-     	// Control for swapping to next model
-    	if (!(GPIO_get_inputs(&g_gpio_out) & SW1_MASK) &&
-    	     (tick_counter - last_sw1_check > switch_debounce_time)) {
-			PLIC_DisableIRQ(External_27_IRQn);
+        // Control for swapping to next model
+        if (!(GPIO_get_inputs(&g_gpio_out) & SW1_MASK) &&
+             (tick_counter - last_sw1_check > switch_debounce_time)) {
+            PLIC_DisableIRQ(External_27_IRQn);
 
-    		while (vbx_cnn_model_poll(vbx_cnn) > 0);
-    		
-    		
+            while (vbx_cnn_model_poll(vbx_cnn) > 0);
 
-    		//wait for scale of frame to complete before switch
-    		resize_image_hls_wait(HLS_SCALER_BASE_ADDRESS);
-    		last_sw1_check = tick_counter;
-			mode = switchModels();
 
-    		if(isRecog(mode)==0){  //Enable interrupts for detection based models
-    			PLIC_SetPriority(External_27_IRQn, 1);
-    			PLIC_EnableIRQ(External_27_IRQn);
-    		}
 
-    		models[mode].is_running = 0;
-    	}
+            //wait for scale of frame to complete before switch
 
-    	// Control for adjusting frame rate for MIPI camera device, and brightness of the camera
+            resize_image_hls_wait(HLS_SCALER_BASE_ADDRESS);
+            last_sw1_check = tick_counter;
+            mode = switchModels();
+
+            if(isRecog(mode)==0){  //Enable interrupts for detection based models
+                PLIC_SetPriority(External_27_IRQn, 1);
+                PLIC_EnableIRQ(External_27_IRQn);
+            }
+
+            models[mode].is_running = 0;
+        }
+
+        // Control for adjusting frame rate for MIPI camera device, and brightness of the camera
         if((GPIO_get_inputs(&g_gpio_out) & USE_CAMERA_MASK) ) {
             frame_rate = CAMERA_FPS;
             if( (tick_counter - last_camera_check) > camera_adjust_time){
@@ -521,51 +544,51 @@ int main(int argc, char **argv) {
         }
 
         // Controls whether to include genderage in faceDemo
-    	if (!(GPIO_get_inputs(&g_gpio_out) & SW2_MASK) &&
-    	     (tick_counter - last_sw2_check > switch_debounce_time) &&
+        if (!(GPIO_get_inputs(&g_gpio_out) & SW2_MASK) &&
+             (tick_counter - last_sw2_check > switch_debounce_time) &&
              (!strcmp(models[mode].post_process_type, "RETINAFACE") || !strcmp(models[mode].post_process_type, "SCRFD"))) {
-    		last_sw2_check = tick_counter;
-    		use_attribute_model = !use_attribute_model;
+            last_sw2_check = tick_counter;
+            //use_attribute_model = !use_attribute_model;
 
-    	}
-    	tv1 = tick_counter;
-       	short status = 1;
-    	while(status > 0){
-			if (!strcmp(models[mode].post_process_type, "RETINAFACE") || !strcmp(models[mode].post_process_type, "SCRFD")) {
-				// Run Face Demo
-				status = runRecognitionDemo(models, vbx_cnn, mode,use_attribute_model, 1080, 1920,0,0);
-			}
-			else if (!strcmp(models[mode].post_process_type, "LPD")) {
-				//Run Plate Demo
-				status = runRecognitionDemo(models, vbx_cnn, mode, 0, 540, 1920, 540, 0);
-			}
-			else {
-				// Run Object Demo
-				status = runDetectionDemo(models, vbx_cnn, mode);
-			}
-    	}
-    	if (status < 0){
-    		printf("Error running mode %s \n",models[mode].name);
-    		printf("control_reg = %x \n",vbx_cnn->ctrl_reg[0]);
-    		printf("status: %d",status);
-			printf("error code: %d",vbx_cnn_get_error_val(vbx_cnn));												  
-    		printf("state = %d\n",vbx_cnn_get_state(vbx_cnn));
-    	}
-    	if((tick_counter-prev_timestamp)>1500/CLASSIFIER_FPS){
-    		update_Classifier = 1;
-    		prev_timestamp = tick_counter;
-    	}
-    	else{
-    		update_Classifier = 0;
-		}
-        while((tick_counter - tv1) < (1000/frame_rate));
-    	tv2 = tick_counter;
-    	fps = 1000/(tv2 - tv1);
-    	loop_draw_frame = swap_draw_frame();
+        }
+        tv1 = tick_counter;
+        short status = 1;
+        while(status > 0){
+            if (!strcmp(models[mode].post_process_type, "RETINAFACE") || !strcmp(models[mode].post_process_type, "SCRFD")) {
+                // Run Face Demo
+                status = runRecognitionDemo(models, vbx_cnn, mode,use_attribute_model, 1080, 1920,0,0);
+            }
+            else if (!strcmp(models[mode].post_process_type, "LPD")) {
+                //Run Plate Demo
+                status = runRecognitionDemo(models, vbx_cnn, mode, 0, 540, 1920, 540, 0);
+            }
+            else {
+                // Run Object Demo
+                status = runDetectionDemo(models, vbx_cnn, mode);
+            }
+        }
+        if (status < 0){
+            printf("Error running mode %s \n",models[mode].name);
+            printf("control_reg = %x \n",vbx_cnn->ctrl_reg[0]);
+            printf("status: %d\n",status);
+            printf("error code: %d\n",vbx_cnn_get_error_val(vbx_cnn));
+            printf("state = %d\n",vbx_cnn_get_state(vbx_cnn));
+        }
+        if((tick_counter-prev_timestamp)>1500/CLASSIFIER_FPS){
+            update_Classifier = 1;
+            prev_timestamp = tick_counter;
+        }
+        else{
+            update_Classifier = 0;
+        }
+        tv2 = tick_counter;
+        fps = 1000/(tv2 - tv1);
+        overlay_draw_frame = swap_draw_frame();
 
     }
 
     return 0;
+#endif
 }
 
 
@@ -600,7 +623,7 @@ void copy_from_flash(const char* name, void* target,uint32_t flash_offset,size_t
         printf("%dKB/%dKB\n",i>>10,len>>10);
         snprintf(label,sizeof(label),"Copying %s from flash %dKB/%dKB",name,i>>10,len>>10);
         draw_label(label,34,34,
-        		   draw,2048,1080,WHITE);
+                   draw,2048,1080,WHITE);
         draw=swap_draw_frame();
     }
 }

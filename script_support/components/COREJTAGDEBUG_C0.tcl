@@ -2,7 +2,7 @@
 # Family: PolarFire
 # Part Number: MPF300T-1FCG1152E
 # Create and Configure the core component COREJTAGDEBUG_C0
-create_and_configure_core -core_vlnv {Actel:DirectCore:COREJTAGDEBUG:3.1.100} -component_name {COREJTAGDEBUG_C0} -params {\
+create_and_configure_core -core_vlnv {Actel:DirectCore:COREJTAGDEBUG:4.0.100} -component_name {COREJTAGDEBUG_C0} -params {\
 "IR_CODE_TGT_0:0x55"  \
 "IR_CODE_TGT_1:0x56"  \
 "IR_CODE_TGT_2:0x57"  \
@@ -36,5 +36,6 @@ create_and_configure_core -core_vlnv {Actel:DirectCore:COREJTAGDEBUG:3.1.100} -c
 "TGT_ACTIVE_HIGH_RESET_13:true"  \
 "TGT_ACTIVE_HIGH_RESET_14:true"  \
 "TGT_ACTIVE_HIGH_RESET_15:true"  \
-"UJTAG_BYPASS:false"   }
+"UJTAG_BYPASS:false"  \
+"UJTAG_SEC_EN:false"   }
 # Exporting Component Description of COREJTAGDEBUG_C0 to TCL done
