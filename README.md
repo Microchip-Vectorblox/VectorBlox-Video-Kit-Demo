@@ -27,7 +27,7 @@ This repository supports Libero SoC v2024.2, which is available for download [he
 
 Prior to running the design script:
   - Libero and SoftConsole installed on native OS
-  - firmware and neural networks generated via the [VectorBlox SDK](https://github.com/Microchip-Vectorblox/VectorBlox-SDK) are downloaded
+  - firmware and neural networks generated via the [VectorBlox SDK](https://github.com/Microchip-Vectorblox/VectorBlox-SDK/tree/release-v2.0.3) are downloaded
   - the SPI flash configuration is generated
   - the MiV bare-metal demo application is built
   
