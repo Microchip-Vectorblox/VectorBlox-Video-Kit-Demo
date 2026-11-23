@@ -4,7 +4,7 @@
 # // Check Libero version and path lenth to verify project can be created
 #
 
-set libero_version 2024.2
+set libero_version 2026.1
 
 if {[string compare [string range [get_libero_version] 0 5] "$libero_version"]==0} {
     puts "Libero $libero_version detected."
@@ -49,7 +49,7 @@ set install_loc [defvar_get -name ACTEL_SW_DIR]
 set local_dir [pwd]
 set src_path ./script_support
 set constraint_path ./script_support/constraint
-set release_tag "2024.2"
+set release_tag "2026.1"
 
 set project_name "VKPF_VECTORBLOX"
 set project_dir "$local_dir/$project_name"
@@ -98,7 +98,7 @@ if { [file exists $project_dir/$project_name.prjx] } {
     #
 
     download_core -vlnv {Actel:DirectCore:CoreAHBLite:6.1.101} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Actel:DirectCore:COREAHBTOAPB3:3.2.101} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Actel:DirectCore:COREAHBTOAPB3:4.0.106} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CoreAPB3:4.2.100} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.9.100} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:COREAXITOAHBL:3.6.101} -location {www.microchip-ip.com/repositories/DirectCore}
@@ -106,23 +106,27 @@ if { [file exists $project_dir/$project_name.prjx] } {
     download_core -vlnv {Actel:DirectCore:COREI2C:7.2.101} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:COREJTAGDEBUG:4.0.100} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CORERESET_PF:2.3.100} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Actel:DirectCore:CORERXIODBITALIGN:2.3.103} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CORESPI:5.2.104} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Actel:DirectCore:CoreUARTapb:5.7.100} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Actel:SgCore:PF_CCC:2.2.220} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SgCore:PF_INIT_MONITOR:2.0.307} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SgCore:PF_CCC:2.2.222} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SgCore:PF_IO:2.0.106} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SgCore:PF_INIT_MONITOR:2.0.308} -location {www.microchip-ip.com/repositories/SgCore}
     download_core -vlnv {Actel:SgCore:PF_XCVR_REF_CLK:1.0.103} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_DDR4:2.5.113} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_IOD_GENERIC_RX:2.1.113} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_SRAM_AHBL_AXI:1.2.111} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Actel:SystemBuilder:PF_XCVR_ERM:3.1.205} -location {www.microchip-ip.com/repositories/SgCore}
-    download_core -vlnv {Microchip:SolutionCore:core_vectorblox:2.0.1} -location {www.microchip-ip.com/repositories/DirectCore} 
+    download_core -vlnv {Actel:SystemBuilder:PF_DDR4:2.5.120} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SystemBuilder:PF_IOD_GENERIC_RX:2.1.117} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SystemBuilder:PF_SRAM_AHBL_AXI:1.2.116} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Actel:SystemBuilder:PF_XCVR_ERM:3.1.206} -location {www.microchip-ip.com/repositories/SgCore}
+    download_core -vlnv {Microchip:SolutionCore:core_vectorblox:3.2.002} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microchip:SolutionCore:DDR_AXI4_ARBITER_PF:2.2.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microchip:SolutionCore:DDR_Read:1.2.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microchip:SolutionCore:MIPI_TRAINING_LITE:1.0.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microchip:SolutionCore:mipicsi2rxdecoderPF:5.1.0} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Microsemi:MiV:MIV_RV32IMA_L1_AXI:2.1.100}
-    download_core -vlnv {Microsemi:SolutionCore:Bayer_Interpolation:3.0.2} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microsemi:SolutionCore:Bayer_Interpolation:4.7.0} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Microsemi:SolutionCore:Display_Controller:4.5.0} -location {www.microchip-ip.com/repositories/DirectCore}
+    download_core -vlnv {Microsemi:SolutionCore:Gamma_Correction:4.3.0} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Microsemi:SolutionCore:HDMI_RX:4.2.0} -location {www.microchip-ip.com/repositories/DirectCore}
     download_core -vlnv {Microsemi:SolutionCore:Image_Enhancement:4.4.0} -location {www.microchip-ip.com/repositories/DirectCore}
-    download_core -vlnv {Microsemi:SolutionCore:mipicsi2rxdecoderPF:4.4.0} -location {www.microchip-ip.com/repositories/DirectCore}
 
 
     #This Tcl file sources other Tcl files to build the design(on which recursive export is run) in a bottom-up fashion
@@ -132,61 +136,57 @@ if { [file exists $project_dir/$project_name.prjx] } {
     build_design_hierarchy
 
     #Sourcing the Tcl files in which HDL+ core definitions are created for HDL modules
-    source ${src_path}/components/video_fifo.tcl 
-    source ${src_path}/components/data_packer.tcl 
-    source ${src_path}/components/draw_assist.tcl 
-    source ${src_path}/components/axi_passthru.tcl 
-    source ${src_path}/components/axi_master_scale_updown_bilinear_top.tcl 
-    source ${src_path}/components/axi_master_warpPerspective_top.tcl 
-    source ${src_path}/components/ddr_rw_arbiter.tcl 
-    source ${src_path}/components/apb3_if.tcl 
-    source ${src_path}/components/axi_arbiter.tcl 
-    source ${src_path}/components/ff_bus.tcl 
-    source ${src_path}/components/vector_mux.tcl 
+    source ${src_path}/components/axi_master_scale_updown_bilinear_top.tcl
+    source ${src_path}/components/axi_master_warpPerspective_top.tcl
+    source ${src_path}/components/draw_assist.tcl
+    source ${src_path}/components/axi_passthru.tcl
+    source ${src_path}/components/apb3_if.tcl
+    source ${src_path}/components/axi_arbiter.tcl
+    source ${src_path}/components/ddr_dma_write_bif.tcl
+    source ${src_path}/components/ff_bus.tcl
+    source ${src_path}/components/vector_mux.tcl
     build_design_hierarchy
 
-    #Sourcing the Tcl files for creating individual ${src_path}/components under the top level
-    source ${src_path}/components/Bayer_Interpolation_C0.tcl 
-    source ${src_path}/components/CORERESET_PF_C1.tcl 
-    source ${src_path}/components/DDR_Read.tcl 
-    source ${src_path}/components/DDR_Write.tcl 
-    source ${src_path}/components/Display_Controller_C0.tcl 
-    source ${src_path}/components/CORERXIODBITALIGN_C0.tcl 
-    source ${src_path}/components/CORERXIODBITALIGN_C1.tcl 
-    source ${src_path}/components/CORERXIODBITALIGN_C2.tcl 
-    source ${src_path}/components/CORERXIODBITALIGN_C3.tcl 
-    source ${src_path}/components/PF_IOD_GENERIC_RX_C1.tcl 
-    source ${src_path}/components/CAM_IOD_TIP_TOP.tcl 
-    source ${src_path}/components/PF_CCC_C2.tcl 
-    source ${src_path}/components/mipicsi2rxdecoderPF_C0.tcl 
-    source ${src_path}/components/IMX334_IF_TOP.tcl 
-    source ${src_path}/components/PF_CCC_C0.tcl 
-    source ${src_path}/components/PF_CCC_C1.tcl 
-    source ${src_path}/components/PF_DDR4_C0.tcl 
-    source ${src_path}/components/PF_INIT_MONITOR_C0.tcl 
-    source ${src_path}/components/COREAXITOAHBL_C0.tcl 
-    source ${src_path}/components/COREI2C_C0.tcl 
-    source ${src_path}/components/COREJTAGDEBUG_C0.tcl 
-    source ${src_path}/components/CORESPI_C0.tcl 
-    source ${src_path}/components/CoreUARTapb_MiV.tcl 
-    source ${src_path}/components/DDR_Interconnect.tcl 
-    source ${src_path}/components/MIV_RV32IMA_L1_AXI_C0.tcl 
-    source ${src_path}/components/MiV_Interconnect.tcl 
-    source ${src_path}/components/PF_SRAM_AHBL_AXI_C1.tcl 
-    source ${src_path}/components/core_vectorblox_C1.tcl 
-    source ${src_path}/components/PROC_SUBSYSTEM.tcl 
-    source ${src_path}/components/read_top.tcl 
-    source ${src_path}/components/write_top.tcl 
-    source ${src_path}/components/Video_arbiter_top.tcl 
-    source ${src_path}/components/CCC_EDID.tcl 
-    source ${src_path}/components/DDR_Write_HDMI_RX.tcl 
-    source ${src_path}/components/HDMI_RX_C1.tcl 
-    source ${src_path}/components/PF_XCVR_ERM_C0.tcl 
-    source ${src_path}/components/PF_XCVR_REF_CLK_C0.tcl 
-    source ${src_path}/components/hdmi_rx_ss.tcl 
-    source ${src_path}/components/Image_Enhancement_C0.tcl 
-    source ${src_path}/components/image_enhance.tcl 
-    source ${src_path}/components/VIDEO_KIT_TOP.tcl 
+    #Sourcing the Tcl files for creating individual components under the top level
+    source ${src_path}/components/Bayer_Interpolation_C0.tcl
+    source ${src_path}/components/CORERESET_PF_C1.tcl
+    source ${src_path}/components/DDR_AXI4_ARBITER_PF_C0.tcl
+    source ${src_path}/components/DDR_Read_C0.tcl
+    source ${src_path}/components/Display_Controller_C0.tcl
+    source ${src_path}/components/Gamma_Correction_C0.tcl
+    source ${src_path}/components/MIPI_TRAINING_LITE_C0.tcl
+    source ${src_path}/components/MIPI_TRAINING_LITE_C1.tcl
+    source ${src_path}/components/MIPI_TRAINING_LITE_C2.tcl
+    source ${src_path}/components/MIPI_TRAINING_LITE_C3.tcl
+    source ${src_path}/components/PF_IOD_GENERIC_RX_C1.tcl
+    source ${src_path}/components/CAM_IOD_TIP_TOP.tcl
+    source ${src_path}/components/PF_CCC_C2.tcl
+    source ${src_path}/components/mipicsi2rxdecoderPF_C0.tcl
+    source ${src_path}/components/IMX334_IF_TOP.tcl
+    source ${src_path}/components/PF_CCC_C0.tcl
+    source ${src_path}/components/PF_CCC_C1.tcl
+    source ${src_path}/components/PF_DDR4_C0.tcl
+    source ${src_path}/components/PF_INIT_MONITOR_C0.tcl
+    source ${src_path}/components/PF_IO_C0.tcl
+    source ${src_path}/components/COREAXITOAHBL_C0.tcl
+    source ${src_path}/components/COREI2C_C0.tcl
+    source ${src_path}/components/COREJTAGDEBUG_C0.tcl
+    source ${src_path}/components/CORESPI_C0.tcl
+    source ${src_path}/components/CoreUARTapb_MiV.tcl
+    source ${src_path}/components/DDR_Interconnect.tcl
+    source ${src_path}/components/MIV_RV32IMA_L1_AXI_C0.tcl
+    source ${src_path}/components/MiV_Interconnect.tcl
+    source ${src_path}/components/PF_SRAM_AHBL_AXI_C1.tcl
+    source ${src_path}/components/core_vectorblox_C1.tcl
+    source ${src_path}/components/PROC_SUBSYSTEM.tcl
+    source ${src_path}/components/CCC_EDID.tcl
+    source ${src_path}/components/HDMI_RX_C1.tcl
+    source ${src_path}/components/PF_XCVR_ERM_C0.tcl
+    source ${src_path}/components/PF_XCVR_REF_CLK_C0.tcl
+    source ${src_path}/components/hdmi_rx_ss.tcl
+    source ${src_path}/components/Image_Enhancement_C0.tcl
+    source ${src_path}/components/image_enhance.tcl
+    source ${src_path}/components/VIDEO_KIT_TOP.tcl
     build_design_hierarchy
     set_root -module {VIDEO_KIT_TOP::work}
     #
@@ -244,19 +244,7 @@ if { [file exists $project_dir/$project_name.prjx] } {
 	-module {VIDEO_KIT_TOP::work} \
 	-input_type {constraint}
 
-    save_project 
-}; # Create project
-
-#
-# // Run the design flow and add eNVM clients 
-#
-
-if {[info exists SYNTHESIZE]} {
-    run_tool -name {SYNTHESIZE}
-} 
-
-
-configure_tool -name {PLACEROUTE} \
+    configure_tool -name {PLACEROUTE} \
     -params {DELAY_ANALYSIS:MAX} \
     -params {EFFORT_LEVEL:true} \
     -params {GB_DEMOTION:true} \
@@ -264,7 +252,7 @@ configure_tool -name {PLACEROUTE} \
     -params {IOREG_COMBINING:true} \
     -params {MULTI_PASS_CRITERIA:VIOLATIONS} \
     -params {MULTI_PASS_LAYOUT:true} \
-    -params {NUM_MULTI_PASSES:8} \
+    -params {NUM_MULTI_PASSES:3} \
     -params {PDPR:false} \
     -params {RANDOM_SEED:3} \
     -params {REPAIR_MIN_DELAY:true} \
@@ -275,7 +263,7 @@ configure_tool -name {PLACEROUTE} \
     -params {STOP_ON_FIRST_PASS:true} \
     -params {TDPR:true}
 
-configure_tool -name {VERIFYTIMING} \
+    configure_tool -name {VERIFYTIMING} \
     -params {CONSTRAINTS_COVERAGE:1} \
     -params {FORMAT:XML} \
     -params {MAX_EXPANDED_PATHS_TIMING:1} \
@@ -303,6 +291,19 @@ configure_tool -name {VERIFYTIMING} \
     -params {MIN_TIMING_VIOLATIONS_SLOW_LV_LT:1} \
     -params {SLACK_THRESHOLD_VIOLATION:0.0} \
     -params {SMART_INTERACTIVE:1} 
+
+    save_project 
+}; # Create project
+
+#
+# // Run the design flow and add eNVM clients 
+#
+
+set_root -module {VIDEO_KIT_TOP::work}
+
+if {[info exists SYNTHESIZE]} {
+    run_tool -name {SYNTHESIZE}
+} 
 
 if {[info exists PLACEROUTE]} {
     run_tool -name {PLACEROUTE}
@@ -339,7 +340,7 @@ run_tool -name {GENERATEPROGRAMMINGFILE}
 
 
 if {[info exists EXPORT_FPE]} {   
-export_prog_job \
+    export_prog_job \
          -export_dir $local_dir \
          -bitstream_file_type {TRUSTED_FACILITY} \
          -bitstream_file_components {FABRIC SNVM} \

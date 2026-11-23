@@ -2065,14 +2065,12 @@ int ultralytics_process_box_int8(fix16_t *xywh, int8_t* arr, fix16_t angle, cons
 }
 
 
-int post_process_ultra_int8(int8_t **outputs, int* outputs_shape[], fix16_t *post, fix16_t thresh, int zero_points[], fix16_t scale_outs[], const int max_boxes, const int is_obb, const int is_pose,int num_outputs)
+int post_process_ultra_int8(int8_t **outputs, int* outputs_shape[], fix16_t *post, fix16_t thresh, int zero_points[], fix16_t scale_outs[], const int max_boxes, const int is_obb, const int is_pose,int num_outputs, int has_argmax)
 {
 	int total_count = 0;
 	int C = outputs_shape[0][1];	// number of classes (80 for COCO)
 	fix16_t fix16_log_odds = fix16_log(fix16_div(thresh, fix16_sub(fix16_one, thresh)));
-	bool has_argmax = false;
-	if (num_outputs ==9)
-		has_argmax = true;
+
 	int outputs_per_stride = 2; //increment should be done by stride sets, (usually 3 sets)
 	for(int o=0; o < 6; o+=outputs_per_stride){
 		int H = outputs_shape[o][2];
@@ -2549,7 +2547,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 	int num_outputs = (int)model_get_num_outputs(model);
 	int input_h = in_dims[total_dims-2];
 	int input_w = in_dims[total_dims-1];
-	
+	int has_argmax = strstr(name, "argmax")? 1 : 0;
 #ifdef HARDWARE_DRAW
 	fix16_t hratio = fix16_div(fix16_from_int(1080),fix16_from_int(input_h));
 	fix16_t wratio = fix16_div(fix16_from_int(1920),fix16_from_int(input_w));
@@ -2760,7 +2758,84 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 						fix16_to_float(face->points[l][0]),
 						fix16_to_float(face->points[l][1]));
 				fflush(stdout);
-			}printf("\n");	
+			}printf("\n");
+#endif
+
+		}
+	} else if (!strcmp(pptype,"YUNET")) {
+		// Note: this is copied in recognitionDemo.c
+		int facesLength = 0;
+		const int MAX_FACES=24;
+		object_t faces[MAX_FACES];
+		fix16_t confidence_threshold=F16(0.72);
+		fix16_t nms_threshold=F16(0.45);
+
+		fix16_t* fix16_buffers[12];
+		int8_t* output_buffer_int8[12];
+		int zero_points[12];
+		fix16_t scale_outs[12];
+
+		int clsSeen[3] = {0,0,0};
+		for(int o = 0; o < num_outputs; o++) {
+
+			int *output_shape = model_get_output_shape(model,o);
+			int channels = output_shape[1];
+			int height = output_shape[2];
+
+			int mapNum = 0; 								// stride=8
+			if(height == input_h/16) mapNum = 1; 			// stride=16
+			else if(height == input_h/32) mapNum = 2;	 	// stride=32
+
+			// Find index to arrange outputs into output_buffer_int8 before passing to post_process_yunet_int8
+			int ind = 6 + mapNum; 							// objectness score
+			if(channels == 4){ 
+				ind = 3 + mapNum;							// box location
+			}else if(channels == 10){
+				ind = 9 + mapNum;							// landmarks
+			}else if(!clsSeen[mapNum]) { 
+				ind = mapNum; 								// class score
+				clsSeen[mapNum] = 1; 
+			} 
+
+			//fix16_buffers[ind]=(fix16_t*)(uintptr_t)o_buffers[o];
+			output_buffer_int8[ind]= (int8_t*)(uintptr_t)o_buffers[o];
+			zero_points[ind] = model_get_output_zeropoint(model,o);
+			scale_outs[ind] = model_get_output_scale_fix16_value(model,o);
+		}
+
+		facesLength = post_process_yunet_int8(faces, MAX_FACES, output_buffer_int8, zero_points, scale_outs, input_w, input_h, confidence_threshold, nms_threshold);
+	
+		for (int f = 0; f < facesLength; f++) {
+			object_t* face = faces+f;
+			fix16_t x = face->box[0];
+			fix16_t y = face->box[1];
+			fix16_t w = face->box[2] - face->box[0];
+			fix16_t h = face->box[3] - face->box[1];
+#ifdef HARDWARE_DRAW
+			if( x > 0 &&  y > 0 && w > 0 && h > 0) {
+				x = fix16_mul(x, wratio);
+				y = fix16_mul(y, hratio);
+				w = fix16_mul(w, wratio);
+				h = fix16_mul(h, hratio);
+				draw_box(fix16_to_int(x),
+						fix16_to_int(y),
+						fix16_to_int(w),
+						fix16_to_int(h),
+						5,
+						get_colour_modulo(0),
+						overlay_draw_frame,2048,1080);
+			}
+#else
+			printf("face %d found at (x,y,w,h) %3.1f %3.1f %3.1f %3.1f w/ conf: %3.4f\n",f,
+					fix16_to_float(x), fix16_to_float(y),
+					fix16_to_float(w), fix16_to_float(h),fix16_to_float(face->detect_score));
+			printf("landmarks: ");
+			for(int l =0;l<5;++l){
+				printf("%3.1f,%3.1f ",
+						fix16_to_float(face->points[l][0]),
+						fix16_to_float(face->points[l][1]));
+				fflush(stdout);
+			}printf("\n");
 #endif
 
 		}
@@ -2829,7 +2904,105 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 		printf("\n");
 
 
-	} else if (!strcmp(pptype, "YOLOV2") || !strcmp(pptype, "YOLOV3") || !strcmp(pptype, "YOLOV4") || !strcmp(pptype, "YOLOV5") || !strcmp(pptype, "SSDV2") || !strcmp(pptype, "SSDTORCH") || !strcmp(pptype, "ULTRALYTICS_FULL") || !strcmp(pptype, "ULTRALYTICS")) {
+	} else if (!strcmp(pptype, "SPACE") || !strcmp(pptype, "SPACE_T")){
+
+		int transpose_first = !strcmp(pptype, "SPACE_T");
+		fix16_t points2D[24];
+		int8_t* output_buffers_int8[25];
+		for(int o=0; o< (int)model_get_num_outputs(model); o++){
+			output_buffers_int8[o] = (int8_t*)(uintptr_t)o_buffers[o];
+		}
+		fix16_t max_val = post_process_space_int8(points2D, output_buffers_int8, model, transpose_first);
+#ifdef HARDWARE_DRAW
+		if (max_val > F16(0)) {
+			int color, x0, y0, x1, y1;
+			
+			color = GET_COLOUR(0, 255, 0, 255); // front face - green (1,2),(2,3),(3,4),(4,1)
+			x0 = fix16_to_int(points2D[1]); y0 = fix16_to_int(points2D[12+1]);
+			x1 = fix16_to_int(points2D[2]); y1 = fix16_to_int(points2D[12+2]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[2]); y0 = fix16_to_int(points2D[12+2]);
+			x1 = fix16_to_int(points2D[3]); y1 = fix16_to_int(points2D[12+3]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[3]); y0 = fix16_to_int(points2D[12+3]);
+			x1 = fix16_to_int(points2D[4]); y1 = fix16_to_int(points2D[12+4]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[4]); y0 = fix16_to_int(points2D[12+4]);
+			x1 = fix16_to_int(points2D[1]); y1 = fix16_to_int(points2D[12+1]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+
+			color = GET_COLOUR(255, 0, 0, 255); // body ring - blue (5,6),(6,7),(7,8),(8,5)
+			x0 = fix16_to_int(points2D[5]); y0 = fix16_to_int(points2D[12+5]);
+			x1 = fix16_to_int(points2D[6]); y1 = fix16_to_int(points2D[12+6]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[6]); y0 = fix16_to_int(points2D[12+6]);
+			x1 = fix16_to_int(points2D[7]); y1 = fix16_to_int(points2D[12+7]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[7]); y0 = fix16_to_int(points2D[12+7]);
+			x1 = fix16_to_int(points2D[8]); y1 = fix16_to_int(points2D[12+8]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[8]); y0 = fix16_to_int(points2D[12+8]);
+			x1 = fix16_to_int(points2D[5]); y1 = fix16_to_int(points2D[12+5]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+
+			color = GET_COLOUR(0, 255, 255, 255); // sides - yellow (1,5),(2,6),(3,7),(4,8)
+			x0 = fix16_to_int(points2D[1]); y0 = fix16_to_int(points2D[12+1]);
+			x1 = fix16_to_int(points2D[5]); y1 = fix16_to_int(points2D[12+5]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[2]); y0 = fix16_to_int(points2D[12+2]);
+			x1 = fix16_to_int(points2D[6]); y1 = fix16_to_int(points2D[12+6]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[3]); y0 = fix16_to_int(points2D[12+3]);
+			x1 = fix16_to_int(points2D[7]); y1 = fix16_to_int(points2D[12+7]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[4]); y0 = fix16_to_int(points2D[12+4]);
+			x1 = fix16_to_int(points2D[8]); y1 = fix16_to_int(points2D[12+8]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+
+			color = GET_COLOUR(0, 165, 255, 255); // solar panels - orange (2,9),(3,10),(4,11)
+			x0 = fix16_to_int(points2D[2]); y0 = fix16_to_int(points2D[12+2]);
+			x1 = fix16_to_int(points2D[9]); y1 = fix16_to_int(points2D[12+9]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[3]); y0 = fix16_to_int(points2D[12+3]);
+			x1 = fix16_to_int(points2D[10]); y1 = fix16_to_int(points2D[12+10]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+			x0 = fix16_to_int(points2D[4]); y0 = fix16_to_int(points2D[12+4]);
+			x1 = fix16_to_int(points2D[11]); y1 = fix16_to_int(points2D[12+11]);
+			draw_line(x0, y0, x1, y1, color, overlay_draw_frame, 2048,1080, 2,0);
+		}
+#else
+		if (max_val > F16(0)) {
+			printf("keypoints x\t%3.3f,%3.3f,%3.3f,%3.3f,%3.3f,%3.3f\n\t\t%3.3f,%3.3f,%3.3f,%3.3f,%3.3f,%3.3f\n",
+				fix16_to_float(points2D[0]),
+				fix16_to_float(points2D[1]),
+				fix16_to_float(points2D[2]),
+				fix16_to_float(points2D[3]),
+				fix16_to_float(points2D[4]),
+				fix16_to_float(points2D[5]),
+				fix16_to_float(points2D[6]),
+				fix16_to_float(points2D[7]),
+				fix16_to_float(points2D[8]),
+				fix16_to_float(points2D[9]),
+				fix16_to_float(points2D[10]),
+				fix16_to_float(points2D[11]));
+			printf("keypoints y\t%3.3f,%3.3f,%3.3f,%3.3f,%3.3f,%3.3f\n\t\t%3.3f,%3.3f,%3.3f,%3.3f,%3.3f,%3.3f\n",
+				fix16_to_float(points2D[12+0]),
+				fix16_to_float(points2D[12+1]),
+				fix16_to_float(points2D[12+2]),
+				fix16_to_float(points2D[12+3]),
+				fix16_to_float(points2D[12+4]),
+				fix16_to_float(points2D[12+5]),
+				fix16_to_float(points2D[12+6]),
+				fix16_to_float(points2D[12+7]),
+				fix16_to_float(points2D[12+8]),
+				fix16_to_float(points2D[12+9]),
+				fix16_to_float(points2D[12+10]),
+				fix16_to_float(points2D[12+11]));
+		}
+#endif
+
+
+	} else if (!strcmp(pptype, "YOLOV2") || !strcmp(pptype, "YOLOV3") || !strcmp(pptype, "YOLOV4") || !strcmp(pptype, "YOLOV5") || !strcmp(pptype, "SSDV2") || !strcmp(pptype, "SSDTORCH") || !strcmp(pptype, "OBJECT_DETECT_FULL") || !strcmp(pptype, "OBJECT_DETECT")) {
 		char **class_names = NULL;
 		int valid_boxes = 0;
 		int max_boxes = 100;
@@ -2880,7 +3053,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 				valid_boxes = post_process_yolo(outputs, num_outputs, cfg, thresh, iou, boxes, max_boxes);
 			}
 
-		} else if (!strcmp(pptype, "ULTRALYTICS_FULL")){
+		} else if (!strcmp(pptype, "OBJECT_DETECT_FULL")){
 			class_names = coco_classes;
 			fix16_t* output=(fix16_t*)(uintptr_t)o_buffers[0];
 			int8_t* output_int8 =(int8_t*)(uintptr_t)o_buffers[0];
@@ -2892,7 +3065,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 				valid_boxes = post_process_ultra_nms(output, 8400, input_h, input_w, thresh, iou, boxes, NULL, max_boxes, 80, 0, 0);
 			}
 
-		} else if (!strcmp(pptype, "ULTRALYTICS")){
+		} else if (!strcmp(pptype, "OBJECT_DETECT")){
 			class_names = coco_classes;
 			int* outputs_shape[9];
 			int8_t *outputs_int8[9];
@@ -2928,7 +3101,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 			const int max_detections = 200;
 			fix16_t post_buffer[max_detections*(4+80)];
 			int post_len;
-			post_len = post_process_ultra_int8(outputs_int8, outputs_shape, post_buffer, thresh, zero_points, scale_outs, max_detections, 0, 0,num_outputs);
+			post_len = post_process_ultra_int8(outputs_int8, outputs_shape, post_buffer, thresh, zero_points, scale_outs, max_detections, 0, 0, num_outputs, has_argmax);
 			valid_boxes = post_process_ultra_nms(post_buffer, post_len, input_h, input_w, thresh, iou, boxes, NULL, boxes_len, 80, 0, 0);
 
 		} else if (!strcmp(pptype, "YOLOV3") || !strcmp(pptype, "YOLOV4")){ //tiny yolo v3/v4 COCO
@@ -3232,7 +3405,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 				printf("[%d , %d] %d \n",y,x, fix16_to_int(fix16_mul(score,F16(100))));	
 			}
 		}
-	} else if (!strcmp(pptype, "ULTRALYTICS_POSE")){
+	} else if (!strcmp(pptype, "POSE_DETECT")){
 		char **class_names = NULL;
 		int valid_boxes = 0;
 		int max_boxes = 100;
@@ -3279,7 +3452,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 		}	
 		const int max_detections = 200;
 		fix16_t post_buffer[max_detections*(4+1+17*3)];
-		post_len = post_process_ultra_int8(outputs_int8, outputs_shape, post_buffer, thresh, zero_points, scale_outs, max_detections, 0, split,num_outputs);
+		post_len = post_process_ultra_int8(outputs_int8, outputs_shape, post_buffer, thresh, zero_points, scale_outs, max_detections, 0, split, num_outputs, has_argmax);
 
 		valid_boxes = post_process_ultra_nms(post_buffer, post_len, input_h, input_w, thresh, iou, boxes, poses, boxes_len, 1, 0, 1);
 
@@ -3382,7 +3555,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 		}
 #endif		
 
-	} else if (!strcmp(pptype, "ULTRALYTICS_OBB")){
+	} else if (!strcmp(pptype, "OBB_DETECT")){
 		char **class_names = NULL;
 		int valid_boxes = 0;
 		int max_boxes = 2000;
@@ -3423,7 +3596,7 @@ int pprint_post_process(const char *name, const char *pptype, model_t *model, fi
 		const int max_detections = 4000;
 		fix16_t post_buffer[max_detections*4+15+1];
 		int post_len;
-		post_len = post_process_ultra_int8(outputs_int8, outputs_shape, post_buffer, thresh, zero_points, scale_outs, max_detections, 1, 0, num_outputs);
+		post_len = post_process_ultra_int8(outputs_int8, outputs_shape, post_buffer, thresh, zero_points, scale_outs, max_detections, 1, 0, num_outputs, has_argmax);
 		valid_boxes = post_process_ultra_nms(post_buffer, post_len, input_h, input_w, thresh, iou, boxes, NULL, boxes_len, 15, 1, 0);
 		char class_str[50];
 		for(int i=0;i<valid_boxes;++i){

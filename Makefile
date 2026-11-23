@@ -10,18 +10,21 @@ HEX_FILES:=ascii_characters.hex \
 	   yolov8n_512x288_argmax.hex
 HEX_FILES:=$(addprefix hex/,$(HEX_FILES))
 
+# Prebuilt hex files for this release; includes a preconfigured hex/spiflash.cfg
+HEX_ZIP=hex_V1000_3.2.zip
+HEX_ZIP_URL=https://github.com/Microchip-Vectorblox/assets/releases/download/assets/$(HEX_ZIP)
+
 
 $(SPI_FILE):
+	set -e
 	if [ ! -d hex ]; then
-	mkdir -p hex
-	wget https://github.com/Microchip-Vectorblox/VectorBlox-SDK/raw/release-v1.4.4/example/soc-video-c/frameDrawing/ascii_characters.hex
-	mv ascii_characters.hex hex
-	wget https://vector-blox-model-zoo.s3.us-west-2.amazonaws.com/Releases/ModelZoo/hex_V1000_2.0.3.zip
-	unzip hex_V1000_2.0.3.zip
-	mv hex/yolov8n_512x288_argmax.hex
-	mv hex/mobilenet-v2.hex hex
+	wget $(HEX_ZIP_URL)
+	unzip -o $(HEX_ZIP)
+	rm -f $(HEX_ZIP)
 	fi
-	bash -c "python3 script_support/gen_spi_cfg.py -o $@ -d ../hex $(HEX_FILES)"
+	if [ ! -f $@ ]; then
+	python3 script_support/gen_spi_cfg.py -o $@ -d ../hex $(HEX_FILES)
+	fi
 spi: $(SPI_FILE)
 	bash -c "python3 script_support/set_model_size.py hex/spiflash.cfg softconsole/Videokit/main.c"
 	

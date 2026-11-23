@@ -1137,7 +1137,7 @@ create_and_configure_core -core_vlnv {Actel:DirectCore:COREAXI4INTERCONNECT:2.9.
 "RD_ARB_EN:false"  \
 "SLAVE0_CHAN_RS:true"  \
 "SLAVE0_CLOCK_DOMAIN_CROSSING:false"  \
-"SLAVE0_DATA_WIDTH:256"  \
+"SLAVE0_DATA_WIDTH:512"  \
 "SLAVE0_DWC_DATA_FIFO_DEPTH:16"  \
 "SLAVE0_END_ADDR:0xffffffff"  \
 "SLAVE0_END_ADDR_UPPER:0x0"  \
