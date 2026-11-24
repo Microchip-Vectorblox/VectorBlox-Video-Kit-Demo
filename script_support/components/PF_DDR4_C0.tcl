@@ -2,12 +2,12 @@
 # Family: PolarFire
 # Part Number: MPF300T-1FCG1152E
 # Create and Configure the core component PF_DDR4_C0
-create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.113} -component_name {PF_DDR4_C0} -params {\
+create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.120} -component_name {PF_DDR4_C0} -params {\
 "ADDRESS_MIRROR:false" \
 "ADDRESS_ORDERING:CHIP_ROW_BG_BANK_COL" \
 "AUTO_SELF_REFRESH:3" \
 "AXI_ID_WIDTH:7" \
-"AXI_WIDTH:256" \
+"AXI_WIDTH:512" \
 "BANKSTATMODULES:4" \
 "BANK_ADDR_WIDTH:2" \
 "BANK_GROUP_ADDR_WIDTH:1" \
@@ -41,10 +41,6 @@ create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.113} -comp
 "MEMCTRLR_INST_NO:0" \
 "MEMORY_FORMAT:COMPONENT" \
 "MINIMUM_READ_IDLE:1" \
-"ODT_ENABLE_RD_RNK0_ODT0:false" \
-"ODT_ENABLE_RD_RNK0_ODT1:false" \
-"ODT_ENABLE_RD_RNK1_ODT0:false" \
-"ODT_ENABLE_RD_RNK1_ODT1:false" \
 "ODT_ENABLE_WR_RNK0_ODT0:true" \
 "ODT_ENABLE_WR_RNK0_ODT1:false" \
 "ODT_ENABLE_WR_RNK1_ODT0:false" \
@@ -75,7 +71,7 @@ create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.113} -comp
 "SIMULATION_MODE:FAST" \
 "TEMPERATURE_REFRESH_MODE:0" \
 "TEMPERATURE_REFRESH_RANGE:NORMAL" \
-"TIMING_CCD_L:4" \
+"TIMING_CCD_L:5" \
 "TIMING_CCD_S:4" \
 "TIMING_DH:150" \
 "TIMING_DQSCK:400" \
@@ -112,12 +108,12 @@ create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_DDR4:2.5.113} -comp
 "VREF_CALIB_ENABLE:0" \
 "VREF_CALIB_RANGE:0" \
 "VREF_CALIB_VALUE:70.40" \
-"WIDTH:32" \
+"WIDTH:64" \
 "WRITE_LEVELING:ENABLE" \
 "WRITE_PREAMBLE:0" \
 "ZQ_CALIB_PERIOD:200" \
 "ZQ_CALIB_TYPE:0" \
-"ZQ_CALIB_TYPE_TEMP:0" \
+"ZQ_CALIB_TYPE_TEMP:false" \
 "ZQ_CAL_INIT_TIME:1024" \
 "ZQ_CAL_L_TIME:512" \
 "ZQ_CAL_S_TIME:128" }

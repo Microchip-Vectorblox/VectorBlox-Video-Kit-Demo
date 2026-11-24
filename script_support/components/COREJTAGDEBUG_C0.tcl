@@ -36,6 +36,5 @@ create_and_configure_core -core_vlnv {Actel:DirectCore:COREJTAGDEBUG:4.0.100} -c
 "TGT_ACTIVE_HIGH_RESET_13:true"  \
 "TGT_ACTIVE_HIGH_RESET_14:true"  \
 "TGT_ACTIVE_HIGH_RESET_15:true"  \
-"UJTAG_BYPASS:false"  \
-"UJTAG_SEC_EN:false"   }
+"UJTAG_BYPASS:false"   }
 # Exporting Component Description of COREJTAGDEBUG_C0 to TCL done

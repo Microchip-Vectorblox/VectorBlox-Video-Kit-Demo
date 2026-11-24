@@ -37,7 +37,10 @@ typedef enum{
 	PREFETCH=302,
 	LUT=303,
 	PIXEL_SHUFFLE=304,
-	UNKNOWN_SUBGRAPH=305
+	OUTPUT_SHAPER=305,
+	NORM=306,
+	WPACK=307,
+	UNKNOWN_SUBGRAPH=308
 } VNNXOperator;
 
 typedef enum{
@@ -369,9 +372,20 @@ typedef STRUCT_PACKED vnnx_layer{
 			int32_t split_weight_shaper_buffers;
 			int32_t direct_dma;
 			int32_t mxp_double_buffer;
+			int32_t repeat;
+			int32_t in_used;
+			int32_t w_used;
+			int32_t qt_used;
+			int32_t out_used;
+			int32_t sp_used;
+			int32_t fia_preloaded;
+			int32_t next_fia_node_id;
+			int32_t preload_next_fia;
 			obj_off_t filter_data;
 			obj_off_t bias_data;
 			obj_off_t quantization_records;
+			obj_off_t nlf_data;
+			uint32_t tile_count;
 		} Conv2DOptions;
 		STRUCT_PACKED {
 			int32_t axis;
@@ -387,6 +401,11 @@ typedef STRUCT_PACKED vnnx_layer{
 			int32_t left_shift;
 			int32_t type;
 		} eltwise8;
+		STRUCT_PACKED {
+			int32_t channels;
+			int32_t rows;
+			int32_t columns;
+		} reduce8;
 		STRUCT_PACKED {
 			int32_t filter_shape_dims[4];
 			obj_off_t filter_multiplier;
@@ -404,11 +423,6 @@ typedef STRUCT_PACKED vnnx_layer{
 			int32_t sub;
 			int32_t swap_inputs;
 		} broadcast8;
-		STRUCT_PACKED {
-			int32_t axis;
-			int32_t arg_max;
-			obj_off_t axis_list;
-		} reduce8;
 		STRUCT_PACKED{ 
 			int32_t value;
 			int32_t transpose_dilate_w;
@@ -507,10 +521,21 @@ typedef STRUCT_PACKED vnnx_layer{
 			int32_t dims;
 		}PackOptions;
 		STRUCT_PACKED{
+			int32_t k;
+			int32_t n;
+		}WeightPackOptions;
+		STRUCT_PACKED{
 			float scale[2];
             int32_t mode;
             int32_t num_c_inc;
             obj_off_t c_inc;
+			int32_t min_rows;
+			int32_t min_cols;
+			int32_t min_maps;
+			int32_t rows_trips;
+			int32_t cols_trips;
+			int32_t maps_trips;
+            int32_t in_scratchpad;
 		}ResizeOptions;
 		STRUCT_PACKED{
 			int32_t permutation[3];
@@ -519,6 +544,7 @@ typedef STRUCT_PACKED vnnx_layer{
 		}TransposeOptions;
 		STRUCT_PACKED{
 			int32_t axis;
+			int32_t max_split;
 			obj_off_t splits;
 		}SplitOptions;
 		STRUCT_PACKED{
@@ -533,13 +559,25 @@ typedef STRUCT_PACKED vnnx_layer{
             int32_t filter_offset;
             obj_off_t filter_data;
 		}MinMaxOptions;
+		STRUCT_PACKED{
+			int32_t height;
+			int32_t height_final;
+			int32_t width;
+			int32_t width_final;
+			int32_t shaper_height;
+			int32_t shaper_height_final;
+			int32_t shaper_width;
+			int32_t shaper_width_final;
+			int32_t stride_height;
+			int32_t use_strided;
+		}ShaperOptions;
 		
 	};
 } vnnx_layer_t;
 
 struct vnnx_subgraph_node;
 struct vnnx_graph;
-typedef int (*subgraph_run_func)(const struct vnnx_graph* g,struct vnnx_subgraph_node*, const int n, const int cores, const int core_start, const int core_stop);
+typedef int (*subgraph_run_func)(struct vnnx_graph* g,struct vnnx_subgraph_node*, const int n, const int cores, const int core_start, const int core_stop);
 
 /**
  * @brief Describes major node in graph
@@ -566,12 +604,14 @@ typedef STRUCT_PACKED vnnx_subgraph_node {
 	int32_t num_sublayers;
 	int32_t row_start;
 	int32_t row_last;
+	int32_t orow_last;
 	int32_t row_inc;
 	int32_t row_inc0;
 	int32_t rows_0;
 	int32_t rows_final;
 	int32_t col_start;
 	int32_t col_last;
+	int32_t ocol_last;
 	int32_t col_inc;
 	int32_t col_inc0;
 	int32_t cols_0;
@@ -617,9 +657,20 @@ typedef STRUCT_PACKED vnnx_subgraph_node {
 			int32_t first_fia;
 			int32_t last_fia;
 			int32_t fia_collision;
+			int32_t repeat;
+			int32_t in_used;
+			int32_t w_used;
+			int32_t qt_used;
+			int32_t out_used;
+			int32_t sp_used;
+			int32_t fia_preloaded;
+			int32_t next_fia_node_id;
+			int32_t preload_next_fia;
 			obj_off_t filter_data;
 			obj_off_t bias_data;
 			obj_off_t quantization_records;
+			obj_off_t nlf_data;
+			uint32_t tile_count;
 		} Conv2DOptions;
 		STRUCT_PACKED {
 			obj_off_t input2_multiplier;
@@ -633,17 +684,49 @@ typedef STRUCT_PACKED vnnx_subgraph_node {
 			int32_t type;
 		} eltwise8;
 		STRUCT_PACKED {
+			int32_t channels;
+			int32_t rows;
+			int32_t columns;
+		} reduce8;
+		STRUCT_PACKED {
 			int32_t filter_shape_dims[2];
 			int32_t input_stride;
 			int32_t use_fia;
+			int32_t is_ucomp;
 			int32_t first_fia;
 			int32_t last_fia;
 			int32_t fia_collision;
 			int32_t mxp_double_buffer;
+			int32_t adj_x;
+			int32_t adj_y;
+			int32_t adj_c;
+			int32_t live_weights;
 			obj_off_t filter_data;
 			obj_off_t bias_data;
 			obj_off_t quantization_records;
+			obj_off_t nlf_data;
 		} FullyConnectedOptions;
+		STRUCT_PACKED {
+			int32_t filter;
+			int32_t use_fia;
+			int32_t first_fia;
+			int32_t last_fia;
+			int32_t fia_collision;
+			int32_t optimized;
+			int32_t size_x;
+			int32_t adj_c;
+			int32_t adj_x;
+			int32_t adj_y;
+			int32_t asym;
+		} BatchMatMulOptions;
+		STRUCT_PACKED {
+			float bias;
+			int32_t scale;
+			obj_off_t W32;
+			obj_off_t B32;
+			obj_off_t W;
+			obj_off_t B;
+		} NormOptions;
 		STRUCT_PACKED {
 			int32_t axis;
 		} ConcatOptions;
@@ -666,16 +749,20 @@ typedef STRUCT_PACKED vnnx_subgraph_node {
 			int32_t tile[4];
 		}TileOptions;
 		STRUCT_PACKED{
-			int32_t m0;
-		}reduce;
-		STRUCT_PACKED{
 			int32_t stride;
 		}reorg;
 		STRUCT_PACKED{
 			float scale[2];
-            int32_t mode;
-            int32_t num_c_inc;
-            obj_off_t c_inc;
+			int32_t mode;
+			int32_t num_c_inc;
+			obj_off_t c_inc;
+			int32_t min_rows;
+			int32_t min_cols;
+			int32_t min_maps;
+			int32_t rows_trips;
+			int32_t cols_trips;
+			int32_t maps_trips;
+            int32_t in_scratchpad;
 		}ResizeOptions;
 		STRUCT_PACKED{
 			int32_t permutation[3];
@@ -684,6 +771,7 @@ typedef STRUCT_PACKED vnnx_subgraph_node {
 		}TransposeOptions;
 		STRUCT_PACKED{
 			int32_t axis;
+			int32_t max_split;
 			obj_off_t splits;
 		}SplitOptions;
 	};
@@ -760,6 +848,7 @@ typedef STRUCT_PACKED vnnx_graph{
 	obj_off_t replay_buffer;
 	int32_t replay_buffer_size;
 	uint32_t magic;
+	int32_t sparsity;
 	vnnx_subgraph_node_t subgraphs[0];
 }vnnx_graph_t;
 

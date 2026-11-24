@@ -415,6 +415,26 @@ set_io -port_name {DM_N[3]}  \
     -pin_name AK13           \
     -fixed true              \
     -DIRECTION OUTPUT
+    
+set_io -port_name {DM_N[4]}  \
+    -pin_name AF17           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+set_io -port_name {DM_N[5]}  \
+    -pin_name AP10           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+set_io -port_name {DM_N[6]}  \
+    -pin_name AD21           \
+    -fixed true              \
+    -DIRECTION OUTPUT
+
+set_io -port_name {DM_N[7]}  \
+    -pin_name AN14           \
+    -fixed true              \
+    -DIRECTION OUTPUT
 
 
 set_io -port_name {DQS[0]}  \
@@ -439,8 +459,29 @@ set_io -port_name {DQS[3]}  \
     -pin_name AH14          \
     -fixed true             \
     -DIRECTION INOUT
+    
+set_io -port_name {DQS[4]}  \
+    -pin_name AE16          \
+    -fixed true             \
+    -DIRECTION INOUT
 
 
+set_io -port_name {DQS[5]}  \
+    -pin_name AM11          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+set_io -port_name {DQS[6]}  \
+    -pin_name AD18          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+set_io -port_name {DQS[7]}  \
+    -pin_name AN12          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+    
 set_io -port_name {DQS_N[0]}  \
     -pin_name AF13            \
     -fixed true               \
@@ -461,6 +502,26 @@ set_io -port_name {DQS_N[2]}  \
 
 set_io -port_name {DQS_N[3]}  \
     -pin_name AH13            \
+    -fixed true               \
+    -DIRECTION INOUT
+    
+set_io -port_name {DQS_N[4]}  \
+    -pin_name AD16            \
+    -fixed true               \
+    -DIRECTION INOUT
+
+set_io -port_name {DQS_N[5]}  \
+    -pin_name AN11            \
+    -fixed true               \
+    -DIRECTION INOUT
+
+set_io -port_name {DQS_N[6]}  \
+    -pin_name AE18            \
+    -fixed true               \
+    -DIRECTION INOUT
+
+set_io -port_name {DQS_N[7]}  \
+    -pin_name AN13            \
     -fixed true               \
     -DIRECTION INOUT
 
@@ -655,79 +716,257 @@ set_io -port_name {DQ[31]}  \
     -pin_name AJ13          \
     -fixed true             \
     -DIRECTION INOUT
+    
+set_io -port_name {DQ[32]}  \
+    -pin_name AD15          \
+    -fixed true             \
+    -DIRECTION INOUT
 
 
+set_io -port_name {DQ[33]}  \
+    -pin_name AE15          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[34]}  \
+    -pin_name AF14          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[35]}  \
+    -pin_name AG14          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[36]}  \
+    -pin_name AF15          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[37]}  \
+    -pin_name AG15          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[38]}  \
+    -pin_name AD17          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[39]}  \
+    -pin_name AE17          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[40]}  \
+    -pin_name AK10          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[41]}  \
+    -pin_name AL10          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[42]}  \
+    -pin_name AM9           \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[43]}  \
+    -pin_name AM10          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[44]}  \
+    -pin_name AK11          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[45]}  \
+    -pin_name AL12          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[46]}  \
+    -pin_name AN9           \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[47]}  \
+    -pin_name AP9           \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[48]}  \
+    -pin_name AC18          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[49]}  \
+    -pin_name AD19          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[50]}  \
+    -pin_name AF20          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[51]}  \
+    -pin_name AG20          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[52]}  \
+    -pin_name AE20          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[53]}  \
+    -pin_name AD20          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[54]}  \
+    -pin_name AF19          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[55]}  \
+    -pin_name AF18          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[56]}  \
+    -pin_name AL15          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[57]}  \
+    -pin_name AL14          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[58]}  \
+    -pin_name AL13          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[59]}  \
+    -pin_name AM12          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+
+set_io -port_name {DQ[60]}  \
+    -pin_name AM14          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+set_io -port_name {DQ[61]}  \
+    -pin_name AM15          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+set_io -port_name {DQ[62]}  \
+    -pin_name AP13          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+set_io -port_name {DQ[63]}  \
+    -pin_name AP14          \
+    -fixed true             \
+    -DIRECTION INOUT
+
+    
 set_io -port_name {GPIO_OUT_0[0]}  \
     -pin_name G17                  \
     -fixed true                    \
     -DIRECTION OUTPUT
-
 
 set_io -port_name {GPIO_OUT_0[1]}  \
     -pin_name K23                  \
     -fixed true                    \
     -DIRECTION OUTPUT
 
-
 set_io -port_name {GPIO_OUT_0[2]}  \
     -pin_name L23                  \
     -fixed true                    \
     -DIRECTION OUTPUT
-
 
 set_io -port_name {GPIO_OUT_0[3]}  \
     -pin_name B25                  \
     -fixed true                    \
     -DIRECTION OUTPUT
 
-
+    
 set_io -port_name {G_out_o[0]}  \
     -pin_name A17               \
     -fixed true                 \
     -DIRECTION OUTPUT
-
 
 set_io -port_name {G_out_o[1]}  \
     -pin_name C21               \
     -fixed true                 \
     -DIRECTION OUTPUT
 
-
 set_io -port_name {G_out_o[2]}  \
     -pin_name D19               \
     -fixed true                 \
     -DIRECTION OUTPUT
-
 
 set_io -port_name {G_out_o[3]}  \
     -pin_name D25               \
     -fixed true                 \
     -DIRECTION OUTPUT
 
-
 set_io -port_name {G_out_o[4]}  \
     -pin_name D20               \
     -fixed true                 \
     -DIRECTION OUTPUT
-
 
 set_io -port_name {G_out_o[5]}  \
     -pin_name C26               \
     -fixed true                 \
     -DIRECTION OUTPUT
 
-
 set_io -port_name {G_out_o[6]}  \
     -pin_name F23               \
     -fixed true                 \
     -DIRECTION OUTPUT
 
-
 set_io -port_name {G_out_o[7]}  \
     -pin_name E25               \
     -fixed true                 \
     -DIRECTION OUTPUT
-
+    
 
 set_io -port_name HDMIO_PD  \
     -pin_name H18           \
@@ -841,6 +1080,26 @@ set_io -port_name SHIELD3  \
     -pin_name AK12         \
     -fixed true            \
     -DIRECTION OUTPUT
+    
+set_io -port_name SHIELD4  \
+    -pin_name AG16         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+set_io -port_name SHIELD5  \
+    -pin_name AP11         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+set_io -port_name SHIELD6  \
+    -pin_name AE21         \
+    -fixed true            \
+    -DIRECTION OUTPUT
+
+set_io -port_name SHIELD7  \
+    -pin_name AP15         \
+    -fixed true            \
+    -DIRECTION OUTPUT
 
 
 set_io -port_name TX   \
@@ -935,28 +1194,28 @@ set_io -port_name SS  \
     -DIRECTION INOUT
 
 
-set_io -port_name TCK  \
-    -pin_name J10      \
-    -DIRECTION INPUT
+#set_io -port_name TCK  \
+#    -pin_name J10      \
+#    -DIRECTION INPUT
 
 
-set_io -port_name TDI  \
-    -pin_name K11      \
-    -DIRECTION INPUT
+#set_io -port_name TDI  \
+#    -pin_name K11      \
+#    -DIRECTION INPUT
 
 
-set_io -port_name TDO  \
-    -pin_name K9       \
-    -DIRECTION OUTPUT
+#set_io -port_name TDO  \
+#    -pin_name K9       \
+#    -DIRECTION OUTPUT
 
 
-set_io -port_name TMS  \
-    -pin_name J9       \
-    -DIRECTION INPUT
+#set_io -port_name TMS  \
+#    -pin_name J9       \
+#    -DIRECTION INPUT
 
 
-set_io -port_name TRSTB  \
-    -pin_name N14        \
-    -DIRECTION INPUT
+#set_io -port_name TRSTB  \
+#    -pin_name N14        \
+#    -DIRECTION INPUT
 
 

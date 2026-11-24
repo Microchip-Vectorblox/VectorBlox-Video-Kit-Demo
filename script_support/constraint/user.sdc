@@ -1,7 +1,7 @@
 #Constrain TCK
 create_clock -name {TCK} -period 33.33 [ get_ports { TCK } ]
-create_generated_clock -name {HDMI_CLK_clk} -divide_by 1 -source [ get_pins { PF_CCC_C1_0/PF_CCC_C1_0/pll_inst_0/OUT1 } ] -phase 0 [ get_ports { hdmi_clk } ]
 
+    
 ## SET ASYNCHRONOUS CLOCK GROUPS
 #27MHZ On-board CLK_IN is an independent clock domain 
 set_clock_groups -name {clk_grp_clk_in} -asynchronous -group [ get_clocks { CLK_IN } ]
@@ -27,10 +27,4 @@ set_clock_groups -name {clk_grp_cam_ddr_o1} -asynchronous -group [ get_clocks { 
 set_clock_groups -name {clk_grp_cam_ddr_o2} -asynchronous -group [ get_clocks { PF_DDR4_C0_0/CCC_0/pll_inst_0/OUT2 } ]
 set_clock_groups -name {clk_grp_cam_ddr_o0} -asynchronous -group [ get_clocks { PF_DDR4_C0_0/CCC_0/pll_inst_0/OUT0 } ]
 set_clock_groups -name {clk_grp_cam_ddr_o3} -asynchronous -group [ get_clocks { PF_DDR4_C0_0/CCC_0/pll_inst_0/OUT3 } ]
-
-
-#Setup time of 1ns and hold time of 0.7ns for HDMI signals to ADV7511 with respect to HDMI_CLK
-#-3.2 ns
-set_output_delay -max 1 -clock {HDMI_CLK_clk} [ get_ports {B_out_o[*] G_out_o[*] R_out_o[*] data_enable_o horz_sync_o vert_sync_o} ]
-set_output_delay -min 0.7 -clock {HDMI_CLK_clk} [ get_ports {B_out_o[*] G_out_o[*] R_out_o[*] data_enable_o horz_sync_o vert_sync_o} ]
 

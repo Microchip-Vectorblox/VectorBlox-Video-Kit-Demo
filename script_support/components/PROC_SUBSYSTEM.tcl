@@ -70,7 +70,7 @@ sd_create_bus_port -sd_name ${sd_name} -port_name {PRDATAS9} -port_direction {IN
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_BID_0} -port_direction {IN} -port_range {[5:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_BRESP_0} -port_direction {IN} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_BUSER_0} -port_direction {IN} -port_range {[0:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RDATA_0} -port_direction {IN} -port_range {[255:0]}
+sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RDATA_0} -port_direction {IN} -port_range {[511:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RID_0} -port_direction {IN} -port_range {[5:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RRESP_0} -port_direction {IN} -port_range {[1:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_RUSER_0} -port_direction {IN} -port_range {[0:0]}
@@ -100,8 +100,8 @@ sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWQOS_0} -port_directi
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWREGION_0} -port_direction {OUT} -port_range {[3:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWSIZE_0} -port_direction {OUT} -port_range {[2:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_AWUSER_0} -port_direction {OUT} -port_range {[0:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_WDATA_0} -port_direction {OUT} -port_range {[255:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_WSTRB_0} -port_direction {OUT} -port_range {[31:0]}
+sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_WDATA_0} -port_direction {OUT} -port_range {[511:0]}
+sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_WSTRB_0} -port_direction {OUT} -port_range {[63:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {SLAVE2_WUSER_0} -port_direction {OUT} -port_range {[0:0]}
 
 
@@ -237,6 +237,7 @@ sd_invert_pins -sd_name ${sd_name} -pin_names {BIBUF_5:E}
 
 # Add core_vectorblox_C1_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {core_vectorblox_C1} -instance_name {core_vectorblox_C1_0}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {core_vectorblox_C1_0:clk_cnn} -value {GND}
 
 
 
@@ -765,7 +766,7 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"COREI2C_C0_2:APBslave" "CoreAPB
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CORESPI_C0_0:APB_bif" "CoreAPB3_0:APBmslave6" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAPB3_0:APBmslave3" "CoreUARTapb_MiV_0:APB_bif" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CoreAPB3_0:APBmslave5" "CoreGPIO_OUT:APB_bif" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Interconnect_0:AXI4mmaster0" "core_vectorblox_C1_0:M_AXI" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Interconnect_0:AXI4mmaster0" "core_vectorblox_C1_0:M0_AXI" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Interconnect_0:AXI4mmaster1" "axi_passthru_0:m_axi" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Interconnect_0:AXI4mmaster2" "draw_assist_0:m_axi" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"MIV_RV32IMA_L1_AXI_C0_0:MEM_MST_AXI4" "MiV_Interconnect_0:AXI4mmaster0" }

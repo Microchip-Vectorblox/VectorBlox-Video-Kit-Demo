@@ -49,7 +49,7 @@ int frame_rate;
 // Specify the Models in the SPI Flash and their Start Addresses
 struct model_descr_t models[] = {
 {"MobileNet V2","",0x218a80, "CLASSIFY"},
-{"Yolo V8n_argmax","",0x8a15fc, "ULTRALYTICS"},
+{"Yolo V8n_argmax","",0xe6439c, "OBJECT_DETECT"},
 };
 
 vbx_cnn_t* vbx_cnn;

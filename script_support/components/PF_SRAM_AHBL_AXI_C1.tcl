@@ -2,24 +2,29 @@
 # Family: PolarFire
 # Part Number: MPF300T-1FCG1152E
 # Create and Configure the core component PF_SRAM_AHBL_AXI_C1
-create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_SRAM_AHBL_AXI:1.2.111} -component_name {PF_SRAM_AHBL_AXI_C1} -params {\
+create_and_configure_core -core_vlnv {Actel:SystemBuilder:PF_SRAM_AHBL_AXI:1.2.116} -component_name {PF_SRAM_AHBL_AXI_C1} -params {\
+"AHBL_TIMEOUT_COUNT:80" \
 "AXI4_AWIDTH:32" \
 "AXI4_DWIDTH:64" \
 "AXI4_IDWIDTH:8" \
 "AXI4_IFTYPE_RD:T" \
 "AXI4_IFTYPE_WR:T" \
 "AXI4_WRAP_SUPPORT:T" \
+"AXI_READ_TIMEOUT_COUNT:80" \
+"AXI_WRITE_TIMEOUT_COUNT:80" \
 "BYTEENABLES:1" \
 "BYTE_ENABLE_WIDTH:8" \
 "B_REN_POLARITY:2" \
 "CASCADE:1" \
 "ECC_OPTIONS:0" \
 "FABRIC_INTERFACE_TYPE:1" \
+"HI_REL:F" \
 "IMPORT_FILE:" \
 "INIT_RAM:F" \
 "LPM_HINT:0" \
 "PIPELINE_OPTIONS:1" \
 "RDEPTH:65536" \
+"RESET_TYPE:ASYNCHRONOUS" \
 "RWIDTH:80" \
 "USE_NATIVE_INTERFACE:F" \
 "WDEPTH:65536" \

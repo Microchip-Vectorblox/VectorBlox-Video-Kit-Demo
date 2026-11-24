@@ -57,11 +57,15 @@ sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD0} -port_direction {
 sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD1} -port_direction {OUT} -port_is_pad {1}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD2} -port_direction {OUT} -port_is_pad {1}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD3} -port_direction {OUT} -port_is_pad {1}
+sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD4} -port_direction {OUT} -port_is_pad {1}
+sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD5} -port_direction {OUT} -port_is_pad {1}
+sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD6} -port_direction {OUT} -port_is_pad {1}
+sd_create_scalar_port -sd_name ${sd_name} -port_name {SHIELD7} -port_direction {OUT} -port_is_pad {1}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {TDO} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {TX} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {WE_N} -port_direction {OUT} -port_is_pad {1}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {data_enable_o} -port_direction {OUT}
-sd_create_scalar_port -sd_name ${sd_name} -port_name {hdmi_clk} -port_direction {OUT}
+sd_create_scalar_port -sd_name ${sd_name} -port_name {hdmi_clk} -port_direction {OUT} -port_is_pad {1}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {horz_sync_o} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {line_valid_o} -port_direction {OUT}
 sd_create_scalar_port -sd_name ${sd_name} -port_name {vert_sync_o} -port_direction {OUT}
@@ -83,14 +87,14 @@ sd_create_bus_port -sd_name ${sd_name} -port_name {CAM1_RXD} -port_direction {IN
 sd_create_bus_port -sd_name ${sd_name} -port_name {A} -port_direction {OUT} -port_range {[13:0]} -port_is_pad {1}
 sd_create_bus_port -sd_name ${sd_name} -port_name {BA} -port_direction {OUT} -port_range {[1:0]} -port_is_pad {1}
 sd_create_bus_port -sd_name ${sd_name} -port_name {B_out_o} -port_direction {OUT} -port_range {[7:0]}
-sd_create_bus_port -sd_name ${sd_name} -port_name {DM_N} -port_direction {OUT} -port_range {[3:0]} -port_is_pad {1}
+sd_create_bus_port -sd_name ${sd_name} -port_name {DM_N} -port_direction {OUT} -port_range {[7:0]} -port_is_pad {1}
 sd_create_bus_port -sd_name ${sd_name} -port_name {GPIO_OUT_0} -port_direction {OUT} -port_range {[3:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {G_out_o} -port_direction {OUT} -port_range {[7:0]}
 sd_create_bus_port -sd_name ${sd_name} -port_name {R_out_o} -port_direction {OUT} -port_range {[7:0]}
 
-sd_create_bus_port -sd_name ${sd_name} -port_name {DQS_N} -port_direction {INOUT} -port_range {[3:0]} -port_is_pad {1}
-sd_create_bus_port -sd_name ${sd_name} -port_name {DQS} -port_direction {INOUT} -port_range {[3:0]} -port_is_pad {1}
-sd_create_bus_port -sd_name ${sd_name} -port_name {DQ} -port_direction {INOUT} -port_range {[31:0]} -port_is_pad {1}
+sd_create_bus_port -sd_name ${sd_name} -port_name {DQS_N} -port_direction {INOUT} -port_range {[7:0]} -port_is_pad {1}
+sd_create_bus_port -sd_name ${sd_name} -port_name {DQS} -port_direction {INOUT} -port_range {[7:0]} -port_is_pad {1}
+sd_create_bus_port -sd_name ${sd_name} -port_name {DQ} -port_direction {INOUT} -port_range {[63:0]} -port_is_pad {1}
 
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CAM1_XMASTER} -value {GND}
 sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {CAM2_XMASTER} -value {GND}
@@ -139,7 +143,7 @@ sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {axi_arbiter} -instan
 # Exporting Parameters of instance axi_arbiter_0
 sd_configure_core_instance -sd_name ${sd_name} -instance_name {axi_arbiter_0} -params {\
 "ADDR_WIDTH:32" \
-"DATA_WIDTH:256" \
+"DATA_WIDTH:512" \
 "S_ID_WIDTH:6" }\
 -validate_rules 0
 sd_save_core_instance_config -sd_name ${sd_name} -instance_name {axi_arbiter_0}
@@ -161,7 +165,7 @@ sd_create_pin_slices -sd_name ${sd_name} -pin_name {Bayer_Interpolation_C0_0:B_O
 sd_create_pin_slices -sd_name ${sd_name} -pin_name {Bayer_Interpolation_C0_0:B_O} -pin_slices {[23:16]}
 sd_create_pin_slices -sd_name ${sd_name} -pin_name {Bayer_Interpolation_C0_0:B_O} -pin_slices {[31:24]}
 sd_create_pin_slices -sd_name ${sd_name} -pin_name {Bayer_Interpolation_C0_0:B_O} -pin_slices {[7:0]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Bayer_Interpolation_C0_0:BAYER_FORMAT} -value {10}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Bayer_Interpolation_C0_0:BAYER_FORMAT} -value {00}
 
 
 
@@ -230,43 +234,63 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {CORERESET_PF_C1_4:PLL_POWERD
 
 
 
-# Add DDR_Read_Camera instance
-sd_instantiate_component -sd_name ${sd_name} -component_name {DDR_Read} -instance_name {DDR_Read_Camera}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_Camera:frame_start_addr_i} -pin_slices {[23:0]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Read_Camera:frame_start_addr_i[23:0]} -value {GND}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_Camera:frame_start_addr_i} -pin_slices {[31:24]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_Camera:data_o} -pin_slices {[15:8]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_Camera:data_o} -pin_slices {[23:16]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_Camera:data_o} -pin_slices {[31:24]}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {DDR_Read_Camera:data_o[31:24]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_Camera:data_o} -pin_slices {[7:0]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Read_Camera:line_gap_i} -value {0010000000000000}
+# Add DDR_AXI4_ARBITER_PF_C0_0 instance
+sd_instantiate_component -sd_name ${sd_name} -component_name {DDR_AXI4_ARBITER_PF_C0} -instance_name {DDR_AXI4_ARBITER_PF_C0_0}
 
 
 
-# Add DDR_Write_Camera instance
-sd_instantiate_component -sd_name ${sd_name} -component_name {DDR_Write} -instance_name {DDR_Write_Camera}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[103:96]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[111:104]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[119:112]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[127:120]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_Camera:data_i[127:120]} -value {GND}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[15:8]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[23:16]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[31:24]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_Camera:data_i[31:24]} -value {GND}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[39:32]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[47:40]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[55:48]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[63:56]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_Camera:data_i[63:56]} -value {GND}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[71:64]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[79:72]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[7:0]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[87:80]}
-sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Write_Camera:data_i} -pin_slices {[95:88]}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_Camera:data_i[95:88]} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Write_Camera:frame_ddr_addr_i} -value {01110000}
+# Add ddr_dma_write_bif_0 instance
+sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {ddr_dma_write_bif} -instance_name {ddr_dma_write_bif_0}
+# Exporting Parameters of instance ddr_dma_write_bif_0
+sd_configure_core_instance -sd_name ${sd_name} -instance_name {ddr_dma_write_bif_0} -params {\
+"ADDRESS_WIDTH:32" \
+"AXI_ADDRESS_WIDTH:32" \
+"AXI_DATA_WIDTH:512" \
+"AXI_ID_WIDTH:7" \
+"DATA_WIDTH:128" \
+"MAX_BURST_LENGTH:256" \
+"MAX_LINE_SIZE:480" \
+"STRIDE_ISBYTES:1" }\
+-validate_rules 0
+sd_save_core_instance_config -sd_name ${sd_name} -instance_name {ddr_dma_write_bif_0}
+sd_update_instance -sd_name ${sd_name} -instance_name {ddr_dma_write_bif_0}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:config_frame_address_i} -pin_slices {[23:0]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {ddr_dma_write_bif_0:config_frame_address_i[23:0]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:config_frame_address_i} -pin_slices {[31:24]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[103:96]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[111:104]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[119:112]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[127:120]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {ddr_dma_write_bif_0:target_data_i[127:120]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[15:8]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[23:16]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[31:24]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {ddr_dma_write_bif_0:target_data_i[31:24]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[39:32]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[47:40]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[55:48]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[63:56]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {ddr_dma_write_bif_0:target_data_i[63:56]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[71:64]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[79:72]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[7:0]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[87:80]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {ddr_dma_write_bif_0:target_data_i} -pin_slices {[95:88]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {ddr_dma_write_bif_0:target_data_i[95:88]} -value {GND}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {ddr_dma_write_bif_0:config_line_stride_i} -value {00000000000000000010000000000000}
+
+
+
+# Add DDR_Read_C0_0 instance
+sd_instantiate_component -sd_name ${sd_name} -component_name {DDR_Read_C0} -instance_name {DDR_Read_C0_0}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_C0_0:data_o} -pin_slices {[15:8]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_C0_0:data_o} -pin_slices {[23:16]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_C0_0:data_o} -pin_slices {[31:24]}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {DDR_Read_C0_0:data_o[31:24]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {DDR_Read_C0_0:data_o} -pin_slices {[7:0]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Read_C0_0:line_gap_i} -value {0010000000000000}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Read_C0_0:h_offset_i} -value {000000000000}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {DDR_Read_C0_0:v_offset_i} -value {000000000000}
 
 
 
@@ -301,8 +325,26 @@ sd_create_pin_slices -sd_name ${sd_name} -pin_name {ff_bus_0:bus_out} -pin_slice
 
 
 
+# Add frame_buffer_mgr_0 instance
+sd_instantiate_hdl_module -sd_name ${sd_name} -hdl_module_name {frame_buffer_mgr} -hdl_file {hdl\frame_buffer_mgr.vhd} -instance_name {frame_buffer_mgr_0}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {frame_buffer_mgr_0:swap_new_frame_o}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {frame_buffer_mgr_0:frame_base_addr_i} -value {0111}
+
+
+
+# Add frame_buffer_mgr_1 instance
+sd_instantiate_hdl_module -sd_name ${sd_name} -hdl_module_name {frame_buffer_mgr} -hdl_file {hdl\frame_buffer_mgr.vhd} -instance_name {frame_buffer_mgr_1}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {frame_buffer_mgr_1:swap_new_frame_o}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {frame_buffer_mgr_1:frame_base_addr_i} -value {0111}
+
+
+
 # Add hdmi_rx_ss_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {hdmi_rx_ss} -instance_name {hdmi_rx_ss_0}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {hdmi_rx_ss_0:display_frame_addr_o}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {hdmi_rx_ss_0:processing_frame_addr_o}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {hdmi_rx_ss_0:processing_next_frame_addr_o}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {hdmi_rx_ss_0:processing_next_next_frame_addr_o}
 
 
 
@@ -314,7 +356,7 @@ sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {image_enhance_0:ENAB
 
 # Add IMX334_IF_TOP_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {IMX334_IF_TOP} -instance_name {IMX334_IF_TOP_0}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {IMX334_IF_TOP_0:c1_frame_start_o}
+sd_mark_pins_unused -sd_name ${sd_name} -pin_names {IMX334_IF_TOP_0:c1_frame_valid_o}
 
 
 
@@ -349,9 +391,21 @@ sd_mark_pins_unused -sd_name ${sd_name} -pin_names {PF_INIT_MONITOR_C0_0:SRAM_IN
 
 
 
+# Add PF_IO_C0_0 instance
+sd_instantiate_component -sd_name ${sd_name} -component_name {PF_IO_C0} -instance_name {PF_IO_C0_0}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {PF_IO_C0_0:DF} -value {GND}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {PF_IO_C0_0:DR} -value {VCC}
+
+
+
 # Add PROC_SUBSYSTEM_0 instance
 sd_instantiate_component -sd_name ${sd_name} -component_name {PROC_SUBSYSTEM} -instance_name {PROC_SUBSYSTEM_0}
 sd_mark_pins_unused -sd_name ${sd_name} -pin_names {PROC_SUBSYSTEM_0:HDMI_RST}
+
+
+
+# Add pulse_extend_0 instance
+sd_instantiate_hdl_module -sd_name ${sd_name} -hdl_module_name {pulse_extend} -hdl_file {hdl\pulse_extend.sv} -instance_name {pulse_extend_0}
 
 
 
@@ -374,6 +428,12 @@ sd_configure_core_instance -sd_name ${sd_name} -instance_name {vector_mux_1} -pa
 -validate_rules 0
 sd_save_core_instance_config -sd_name ${sd_name} -instance_name {vector_mux_1}
 sd_update_instance -sd_name ${sd_name} -instance_name {vector_mux_1}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_1:in_vec0} -pin_slices {[23:0]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {vector_mux_1:in_vec0[23:0]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_1:in_vec0} -pin_slices {[31:24]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_1:in_vec1} -pin_slices {[23:0]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {vector_mux_1:in_vec1[23:0]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_1:in_vec1} -pin_slices {[31:24]}
 
 
 
@@ -385,54 +445,12 @@ sd_configure_core_instance -sd_name ${sd_name} -instance_name {vector_mux_2} -pa
 -validate_rules 0
 sd_save_core_instance_config -sd_name ${sd_name} -instance_name {vector_mux_2}
 sd_update_instance -sd_name ${sd_name} -instance_name {vector_mux_2}
-
-
-
-# Add vector_mux_3 instance
-sd_instantiate_hdl_core -sd_name ${sd_name} -hdl_core_name {vector_mux} -instance_name {vector_mux_3}
-# Exporting Parameters of instance vector_mux_3
-sd_configure_core_instance -sd_name ${sd_name} -instance_name {vector_mux_3} -params {\
-"VEC_LENGTH:32" }\
--validate_rules 0
-sd_save_core_instance_config -sd_name ${sd_name} -instance_name {vector_mux_3}
-sd_update_instance -sd_name ${sd_name} -instance_name {vector_mux_3}
-
-
-
-# Add Video_arbiter_top_0 instance
-sd_instantiate_component -sd_name ${sd_name} -component_name {Video_arbiter_top} -instance_name {Video_arbiter_top_0}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r1_req_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r2_req_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r3_req_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w2_data_valid_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w2_req_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w3_data_valid_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w3_req_i} -value {GND}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r1_ack_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r1_data_valid_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r1_done_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r2_ack_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r2_data_valid_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r2_done_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r3_ack_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r3_data_valid_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r3_done_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w2_ack_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w2_done_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w3_ack_o}
-sd_mark_pins_unused -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w3_done_o}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r1_burst_size_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r1_rstart_addr_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r2_burst_size_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r2_rstart_addr_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r3_burst_size_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:r3_rstart_addr_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w2_burst_size_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w2_data_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w2_wstart_addr_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w3_burst_size_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w3_data_i} -value {GND}
-sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {Video_arbiter_top_0:w3_wstart_addr_i} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_2:in_vec0} -pin_slices {[23:0]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {vector_mux_2:in_vec0[23:0]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_2:in_vec0} -pin_slices {[31:24]}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_2:in_vec1} -pin_slices {[23:0]}
+sd_connect_pins_to_constant -sd_name ${sd_name} -pin_names {vector_mux_2:in_vec1[23:0]} -value {GND}
+sd_create_pin_slices -sd_name ${sd_name} -pin_name {vector_mux_2:in_vec1} -pin_slices {[31:24]}
 
 
 
@@ -441,24 +459,25 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"ACT_N" "PF_DDR4_C0_0:ACT_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_0:A" "AND4_1:Y" "CORERESET_PF_C1_2:PLL_LOCK" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_0:B" "AND4_0:Y" "CORERESET_PF_C1_0:PLL_LOCK" "CORERESET_PF_C1_1:PLL_LOCK" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_0:Y" "CORERESET_PF_C1_3:PLL_LOCK" "CORERESET_PF_C1_4:PLL_LOCK" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2:A" "IMX334_IF_TOP_0:c1_frame_valid_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2:B" "AND2_2_0:B" "HPD_I" "PROC_SUBSYSTEM_0:CAM_SEL" "hdmi_rx_ss_0:HPD_I" "vector_mux_0:sel" "vector_mux_1:sel" "vector_mux_2:sel" "vector_mux_3:sel" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2:Y" "DDR_Write_Camera:frame_valid_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2:A" "pulse_extend_0:sync_out" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2:B" "AND2_2_0:B" "HPD_I" "PROC_SUBSYSTEM_0:CAM_SEL" "hdmi_rx_ss_0:HPD_I" "vector_mux_0:sel" "vector_mux_1:sel" "vector_mux_2:sel" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2:Y" "ddr_dma_write_bif_0:target_frame_sync_i" "frame_buffer_mgr_0:vid_frame_sync_i" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2_0:A" "image_enhance_0:DATA_VALID_O" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2_0:Y" "DDR_Write_Camera:data_valid_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"AND2_2_0:Y" "ddr_dma_write_bif_0:target_data_valid_i" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_0:A" "AND4_1:B" "PF_CCC_C0_0:PLL_LOCK_0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_0:B" "PF_DDR4_C0_0:PLL_LOCK" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_0:C" "PF_DDR4_C0_0:CTRLR_READY" "Video_arbiter_top_0:ddr_ctrl_ready" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_0:C" "DDR_AXI4_ARBITER_PF_C0_0:ddr_ctrl_ready_i" "PF_DDR4_C0_0:CTRLR_READY" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_0:D" "PF_CCC_C1_0:PLL_LOCK_0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_1:A" "PF_INIT_MONITOR_C0_0:DEVICE_INIT_DONE" "hdmi_rx_ss_0:RESET_N_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_1:C" "PF_INIT_MONITOR_C0_0:BANK_0_CALIB_STATUS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"AND4_1:D" "PF_INIT_MONITOR_C0_0:BANK_7_CALIB_STATUS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"BG" "PF_DDR4_C0_0:BG" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:DATA_VALID_I" "IMX334_IF_TOP_0:c1_line_valid_o" "line_valid_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:EOF_I" "IMX334_IF_TOP_0:frame_end_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:RESETN_I" "DDR_Write_Camera:reset_i" "IMX334_IF_TOP_0:CAMCLK_RESET_N" "image_enhance_0:RESETN_I" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:EOF_I" "IMX334_IF_TOP_0:c1_frame_start_o" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:EOF_O" "pulse_extend_0:sync_in" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:RESETN_I" "IMX334_IF_TOP_0:CAMCLK_RESET_N" "ddr_dma_write_bif_0:resetn" "frame_buffer_mgr_0:vid_resetn_i" "image_enhance_0:RESETN_I" "pulse_extend_0:resetn" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:RGB_VALID_O" "image_enhance_0:DATA_VALID_I" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:SYS_CLK_I" "DDR_Write_Camera:parallel_clk_i" "IMX334_IF_TOP_0:PARALLEL_CLOCK" "image_enhance_0:SYS_CLK_I" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:SYS_CLK_I" "IMX334_IF_TOP_0:PARALLEL_CLOCK" "ddr_dma_write_bif_0:clk" "frame_buffer_mgr_0:vid_clk_i" "image_enhance_0:SYS_CLK_I" "pulse_extend_0:clk" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RST" "PROC_SUBSYSTEM_0:CAM1_RST" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RX_CLK_N" "IMX334_IF_TOP_0:CAM1_RX_CLK_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RX_CLK_P" "IMX334_IF_TOP_0:CAM1_RX_CLK_P" }
@@ -475,9 +494,9 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"CK0_N" "PF_DDR4_C0_0:CK0_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CKE" "PF_DDR4_C0_0:CKE" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CLK" "PROC_SUBSYSTEM_0:CLK" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CLK_IN" "PF_CCC_C0_0:REF_CLK_0" "hdmi_rx_ss_0:REF_CLK_0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_0:CLK" "DDR_Read_Camera:sys_clk_i" "DDR_Write_Camera:ddr_clock_i" "PF_CCC_C1_0:REF_CLK_0" "PF_DDR4_C0_0:SYS_CLK" "PROC_SUBSYSTEM_0:ACLK" "Video_arbiter_top_0:sys_clk_i" "axi_arbiter_0:clk" "hdmi_rx_ss_0:ddr_clk_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_0:FABRIC_RESET_N" "DDR_Read_Camera:reset_i" "PROC_SUBSYSTEM_0:ARESETN" "Video_arbiter_top_0:reset_i" "axi_arbiter_0:resetn" "hdmi_rx_ss_0:reset_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_1:CLK" "DDR_Read_Camera:disp_clk_i" "Display_Controller_C0_0:SYS_CLK_I" "PF_CCC_C1_0:OUT1_FABCLK_0" "ff_bus_0:clk" "hdmi_clk" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_0:CLK" "DDR_AXI4_ARBITER_PF_C0_0:sys_clk_i" "DDR_Read_C0_0:ddr_clk_i" "PF_CCC_C1_0:REF_CLK_0" "PF_DDR4_C0_0:SYS_CLK" "PROC_SUBSYSTEM_0:ACLK" "axi_arbiter_0:clk" "ddr_dma_write_bif_0:aclk" "frame_buffer_mgr_0:ddr_clk_i" "frame_buffer_mgr_1:ddr_clk_i" "hdmi_rx_ss_0:ddr_clk_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_0:FABRIC_RESET_N" "DDR_AXI4_ARBITER_PF_C0_0:reset_i" "DDR_Read_C0_0:reset_i" "PROC_SUBSYSTEM_0:ARESETN" "axi_arbiter_0:resetn" "ddr_dma_write_bif_0:aresetn" "frame_buffer_mgr_0:ddr_resetn_i" "frame_buffer_mgr_1:ddr_resetn_i" "hdmi_rx_ss_0:reset_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_1:CLK" "DDR_Read_C0_0:pixel_clk_i" "Display_Controller_C0_0:SYS_CLK_I" "PF_CCC_C1_0:OUT1_FABCLK_0" "PF_IO_C0_0:TX_CLK" "ff_bus_0:clk" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_1:FABRIC_RESET_N" "Display_Controller_C0_0:RESETN_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_2:CLK" "CORERESET_PF_C1_3:CLK" "PF_CCC_C0_0:OUT2_FABCLK_0" "PF_DDR4_C0_0:PLL_REF_CLK" "PROC_SUBSYSTEM_0:PCLK" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_2:FABRIC_RESET_N" "PF_DDR4_C0_0:SYS_RESET_N" }
@@ -485,18 +504,9 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_3:FABRIC_RESET_
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_4:CLK" "PF_CCC_C0_0:OUT1_FABCLK_0" "PROC_SUBSYSTEM_0:vbx_clk" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CORERESET_PF_C1_4:FABRIC_RESET_N" "PROC_SUBSYSTEM_0:vbx_resetn" "hdmi_rx_ss_0:RESET_N_I_0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CS_N" "PF_DDR4_C0_0:CS_N" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:data_valid_o" "Display_Controller_C0_0:EXT_SYNC_SIGNAL_I" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:ddr_data_valid_i" "Video_arbiter_top_0:r0_data_valid_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:frame_end_i" "Display_Controller_C0_0:FRAME_END_O" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:read_ackn_i" "Video_arbiter_top_0:r0_ack_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:read_done_i" "Video_arbiter_top_0:r0_done_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:read_en_i" "Display_Controller_C0_0:DATA_TRIGGER_O" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:read_req_o" "Video_arbiter_top_0:r0_req_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:rdata_rdy_o" "Video_arbiter_top_0:w0_data_valid_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:save_frame_i" "apb3_if_0:SWAP_SAVED_FB_O" "hdmi_rx_ss_0:save_frame_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:write_ackn_i" "Video_arbiter_top_0:w0_ack_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:write_done_i" "Video_arbiter_top_0:w0_done_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:write_req_o" "Video_arbiter_top_0:w0_req_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:data_valid_o" "Display_Controller_C0_0:EXT_SYNC_SIGNAL_I" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:frame_start_i" "Display_Controller_C0_0:FRAME_END_O" "frame_buffer_mgr_0:disp_frame_end_i" "frame_buffer_mgr_1:disp_frame_end_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:read_en_i" "Display_Controller_C0_0:DATA_TRIGGER_O" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DI" "PROC_SUBSYSTEM_0:DI" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DO" "PROC_SUBSYSTEM_0:DO" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"Display_Controller_C0_0:DATA_ENABLE_O" "ff_bus_0:bus_in[26:26]" }
@@ -523,9 +533,14 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD0" "SHIELD0"
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD1" "SHIELD1" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD2" "SHIELD2" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD3" "SHIELD3" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD4" "SHIELD4" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD5" "SHIELD5" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD6" "SHIELD6" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:SHIELD7" "SHIELD7" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:WE_N" "WE_N" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:APB_CLK" "apb3_if_0:pclk_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:APB_Reset" "apb3_if_0:preset_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_IO_C0_0:PADO" "hdmi_clk" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:APB_CLK" "apb3_if_0:pclk_i" "frame_buffer_mgr_0:mgt_clk_i" "frame_buffer_mgr_1:mgt_clk_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:APB_Reset" "apb3_if_0:preset_i" "frame_buffer_mgr_0:mgt_resetn_i" "frame_buffer_mgr_1:mgt_resetn_i" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:SS" "SS" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:SW1" "SW1" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:SW2" "SW2" }
@@ -543,13 +558,13 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"REF_CLK_PAD_N" "hdmi_rx_ss_0:RE
 sd_connect_pins -sd_name ${sd_name} -pin_names {"REF_CLK_PAD_P" "hdmi_rx_ss_0:REF_CLK_PAD_P" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"SCL_hdmi_rx" "hdmi_rx_ss_0:SCL_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"SDA_hdmi_rx" "hdmi_rx_ss_0:SDA_hdmi_rx" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:w1_ack_o" "hdmi_rx_ss_0:write_ackn_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:w1_data_valid_i" "hdmi_rx_ss_0:rdata_rdy_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:w1_done_o" "hdmi_rx_ss_0:write_done_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:w1_req_i" "hdmi_rx_ss_0:write_req_o" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:SWAP_SAVED_FB_O" "frame_buffer_mgr_0:swap_toggle_i" "frame_buffer_mgr_1:swap_toggle_i" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"data_enable_o" "ff_bus_0:bus_out[26:26]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"ff_bus_0:bus_out[24:24]" "horz_sync_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"ff_bus_0:bus_out[25:25]" "vert_sync_o" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_1:vid_clk_i" "hdmi_rx_ss_0:vid_clk" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_1:vid_frame_sync_i" "hdmi_rx_ss_0:vid_frame_sync" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_1:vid_resetn_i" "hdmi_rx_ss_0:vid_resetn" }
 
 # Add bus net connections
 sd_connect_pins -sd_name ${sd_name} -pin_names {"A" "PF_DDR4_C0_0:A" }
@@ -570,33 +585,11 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:R_O[31
 sd_connect_pins -sd_name ${sd_name} -pin_names {"Bayer_Interpolation_C0_0:R_O[7:0]" "image_enhance_0:R_I_0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RXD" "IMX334_IF_TOP_0:CAM1_RXD" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"CAM1_RXD_N" "IMX334_IF_TOP_0:CAM1_RXD_N" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:beats_to_read_o" "Video_arbiter_top_0:r0_burst_size_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:data_o[15:8]" "ff_bus_0:bus_in[15:8]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:data_o[23:16]" "ff_bus_0:bus_in[23:16]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:data_o[7:0]" "ff_bus_0:bus_in[7:0]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:frame_start_addr_i[31:24]" "vector_mux_0:out_vec" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:horz_resl_i" "Display_Controller_C0_0:H_RES_O" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:read_start_addr_o" "Video_arbiter_top_0:r0_rstart_addr_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_Camera:wdata_i" "Video_arbiter_top_0:rdata_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:beats_to_write_o" "Video_arbiter_top_0:w0_burst_size_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[103:96]" "image_enhance_0:B_O_3" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[111:104]" "image_enhance_0:G_O_3" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[119:112]" "image_enhance_0:R_O_3" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[15:8]" "image_enhance_0:G_O_0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[23:16]" "image_enhance_0:R_O_0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[39:32]" "image_enhance_0:B_O_1" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[47:40]" "image_enhance_0:G_O_1" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[55:48]" "image_enhance_0:R_O_1" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[71:64]" "image_enhance_0:B_O_2" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[79:72]" "image_enhance_0:G_O_2" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[7:0]" "image_enhance_0:B_O_0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:data_i[87:80]" "image_enhance_0:R_O_2" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:display_frame_addr_o" "vector_mux_0:in_vec1" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:process_frame_addr_o" "vector_mux_2:in_vec1" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:process_next_frame_addr_o" "vector_mux_1:in_vec1" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:process_next_next_frame_addr_o" "vector_mux_3:in_vec1" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:rdata_o" "Video_arbiter_top_0:w0_data_i" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Write_Camera:write_start_addr_o" "Video_arbiter_top_0:w0_wstart_addr_i" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:data_o[15:8]" "ff_bus_0:bus_in[15:8]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:data_o[23:16]" "ff_bus_0:bus_in[23:16]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:data_o[7:0]" "ff_bus_0:bus_in[7:0]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:frame_start_addr_i" "vector_mux_0:out_vec" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_Read_C0_0:horz_resl_i" "Display_Controller_C0_0:H_RES_O" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DM_N" "PF_DDR4_C0_0:DM_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DQ" "PF_DDR4_C0_0:DQ" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"DQS" "PF_DDR4_C0_0:DQS" }
@@ -604,32 +597,47 @@ sd_connect_pins -sd_name ${sd_name} -pin_names {"DQS_N" "PF_DDR4_C0_0:DQS_N" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"GPIO_OUT_0" "PROC_SUBSYSTEM_0:GPIO_OUT_0" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"G_out_o" "ff_bus_0:bus_out[15:8]" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"R_out_o" "ff_bus_0:bus_out[23:16]" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:w1_burst_size_i" "hdmi_rx_ss_0:beats_to_write_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:w1_data_i" "hdmi_rx_ss_0:rdata_o" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:w1_wstart_addr_i" "hdmi_rx_ss_0:write_start_addr_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:BLU_MEAN_I" "image_enhance_0:blue_mean_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:BLU_VAR_I" "image_enhance_0:blue_var_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:GRN_MEAN_I" "image_enhance_0:green_mean_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:GRN_VAR_I" "image_enhance_0:green_var_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:PROCESSING_FB_ADDR_I" "vector_mux_2:out_vec" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:PROCESSING_NEXT_FB_ADDR_I" "vector_mux_1:out_vec" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:PROCESSING_NEXT_NEXT_FB_ADDR_I" "vector_mux_3:out_vec" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:PROCESSING_NEXT_FB_ADDR_I" "apb3_if_0:PROCESSING_NEXT_NEXT_FB_ADDR_I" "vector_mux_1:out_vec" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:RED_MEAN_I" "image_enhance_0:red_mean_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:RED_VAR_I" "image_enhance_0:red_var_o" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:bconst_o" "image_enhance_0:B_CONST_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:gconst_o" "image_enhance_0:G_CONST_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:rconst_o" "image_enhance_0:R_CONST_I" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"apb3_if_0:second_const_o" "image_enhance_0:COMMON_CONST_I" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"hdmi_rx_ss_0:display_frame_addr_o" "vector_mux_0:in_vec0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"hdmi_rx_ss_0:processing_frame_addr_o" "vector_mux_2:in_vec0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"hdmi_rx_ss_0:processing_next_frame_addr_o" "vector_mux_1:in_vec0" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"hdmi_rx_ss_0:processing_next_next_frame_addr_o" "vector_mux_3:in_vec0" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:config_frame_address_i[31:24]" "frame_buffer_mgr_0:vid_write_addr_o" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[103:96]" "image_enhance_0:B_O_3" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[111:104]" "image_enhance_0:G_O_3" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[119:112]" "image_enhance_0:R_O_3" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[15:8]" "image_enhance_0:G_O_0" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[23:16]" "image_enhance_0:R_O_0" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[39:32]" "image_enhance_0:B_O_1" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[47:40]" "image_enhance_0:G_O_1" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[55:48]" "image_enhance_0:R_O_1" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[71:64]" "image_enhance_0:B_O_2" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[79:72]" "image_enhance_0:G_O_2" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[7:0]" "image_enhance_0:B_O_0" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"ddr_dma_write_bif_0:target_data_i[87:80]" "image_enhance_0:R_O_2" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_0:disp_read_addr_o" "vector_mux_0:in_vec1" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_0:process_frame_addr_o" "vector_mux_2:in_vec1[31:24]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_0:process_next_addr_o" "vector_mux_1:in_vec1[31:24]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_1:disp_read_addr_o" "vector_mux_0:in_vec0" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_1:process_frame_addr_o" "vector_mux_2:in_vec0[31:24]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_1:process_next_addr_o" "vector_mux_1:in_vec0[31:24]" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"frame_buffer_mgr_1:vid_write_addr_o" "hdmi_rx_ss_0:config_frame_address_i" }
 
 # Add bus interface net connections
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_AXI4_ARBITER_PF_C0_0:MASTER_AXI4" "axi_arbiter_0:rt" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_AXI4_ARBITER_PF_C0_0:Read_channel_0" "DDR_Read_C0_0:Read_channel" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_AXI4_ARBITER_PF_C0_0:Write_channel_0" "ddr_dma_write_bif_0:Write_Channel" }
+sd_connect_pins -sd_name ${sd_name} -pin_names {"DDR_AXI4_ARBITER_PF_C0_0:Write_channel_1" "hdmi_rx_ss_0:Write_Channel" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PF_DDR4_C0_0:AXI4slave0" "axi_arbiter_0:BIF_3" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:APBmslave9" "apb3_if_0:APB_IF" }
 sd_connect_pins -sd_name ${sd_name} -pin_names {"PROC_SUBSYSTEM_0:AXI4mslave2_0" "axi_arbiter_0:be" }
-sd_connect_pins -sd_name ${sd_name} -pin_names {"Video_arbiter_top_0:BIF_1" "axi_arbiter_0:rt" }
 
 # Re-enable auto promotion of pins of type 'pad'
 auto_promote_pad_pins -promote_all 1
