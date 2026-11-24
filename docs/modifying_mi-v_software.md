@@ -34,7 +34,7 @@ A SoftConsole workspace is a folder where SoftConsole stores its settings and th
 
 Alternatively, select **File > Open Projects from File System...**, click **Directory...**, and select the `softconsole` directory. SoftConsole finds the Videokit project inside it. Ensure `softconsole\Videokit` is checked, then click **Finish**.
 
-<img src="./images/softconsole_import_projects.png" style="width:25%; height:auto;">
+<img src="./images/softconsole_import_projects.png" style="width:65%; height:auto;">
 
 > **Reference Image:** Importing the Videokit project with **Open Projects from File System**. Click **Directory...** to select the `softconsole` directory, then click **Finish**.
 
@@ -45,7 +45,7 @@ Alternatively, select **File > Open Projects from File System...**, click **Dire
 1. Make the code changes (for example, in `main.c`) and save them.
 2. Set the build configuration to `Release`: right-click the **Videokit** project and select **Build Configurations > Set Active > Release**.
 
-   <img src="./images/softconsole_set_release_build.png" alt="Build Configurations, Set Active, Release menu in SoftConsole" style="width:20%; height:auto;">
+   <img src="./images/softconsole_set_release_build.png" alt="Build Configurations, Set Active, Release menu in SoftConsole" style="width:55%; height:auto;">
 
    > **Reference Image:** Right-click the **Videokit** project, then select **Build Configurations > Set Active > Release**. A check mark appears next to **Release** when it is the active configuration.
 
